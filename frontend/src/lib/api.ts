@@ -1,7 +1,16 @@
 import { FareSector, Booking } from "./types";
 import { mockSectors, mockBookings } from "./mock";
 
-export const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const getApiBase = () => {
+    const rawUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+    // If it's a hostname from Render (no http/https), add https://
+    if (rawUrl && !rawUrl.startsWith('http')) {
+        return `https://${rawUrl}`;
+    }
+    return rawUrl;
+};
+
+export const API_BASE = getApiBase();
 
 const fetchWithCreds = async (url: string, options: RequestInit = {}) => {
     const res = await fetch(`${API_BASE}${url}`, {
