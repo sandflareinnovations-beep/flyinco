@@ -12,6 +12,7 @@ import {
     Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import { flyApi } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 
 const B = { primary: "#2E0A57", accent: "#6C2BD9" };
