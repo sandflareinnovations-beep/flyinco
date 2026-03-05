@@ -30,4 +30,4 @@ services:
         fromService:
           name: flyinco-backend
           type: web
-          property: host
+          property: url
