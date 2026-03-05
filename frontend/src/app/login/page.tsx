@@ -49,6 +49,7 @@ export default function LoginPage() {
             if (!response.ok) throw new Error(data.message || "Failed to log in");
 
             localStorage.setItem("user", JSON.stringify(data.user));
+            localStorage.setItem("token", data.token);
             // Set token cookie for middleware to see
             document.cookie = `token=${data.token}; path=/; max-age=86400; SameSite=Lax`;
 

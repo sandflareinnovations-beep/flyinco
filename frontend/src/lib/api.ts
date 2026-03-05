@@ -13,11 +13,14 @@ const getApiBase = () => {
 export const API_BASE = getApiBase();
 
 const fetchWithCreds = async (url: string, options: RequestInit = {}) => {
-    // Try to get token from cookie or localStorage
+    // Try to get token from localStorage or cookie
     let token = '';
-    if (typeof document !== 'undefined') {
-        const match = document.cookie.match(/(^| )token=([^;]+)/);
-        if (match) token = match[2];
+    if (typeof window !== 'undefined') {
+        token = localStorage.getItem('token') || '';
+        if (!token) {
+            const match = document.cookie.match(/(^| )token=([^;]+)/);
+            if (match) token = match[2];
+        }
     }
 
     const headers: Record<string, string> = {
@@ -53,9 +56,12 @@ const fetchWithCreds = async (url: string, options: RequestInit = {}) => {
 const isBackendUp = async (): Promise<boolean> => {
     try {
         let token = '';
-        if (typeof document !== 'undefined') {
-            const match = document.cookie.match(/(^| )token=([^;]+)/);
-            if (match) token = match[2];
+        if (typeof window !== 'undefined') {
+            token = localStorage.getItem('token') || '';
+            if (!token) {
+                const match = document.cookie.match(/(^| )token=([^;]+)/);
+                if (match) token = match[2];
+            }
         }
 
         const headers: Record<string, string> = {};
