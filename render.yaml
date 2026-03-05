@@ -27,7 +27,4 @@ services:
       - key: NODE_VERSION
         value: 18.x
       - key: NEXT_PUBLIC_API_URL
-        fromService:
-          name: flyinco-backend
-          type: web
-          property: host
+        sync: false # User will provide this manually after backend is live
