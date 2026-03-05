@@ -41,7 +41,7 @@ const isBackendUp = async (): Promise<boolean> => {
     try {
         const res = await fetch(`${API_BASE}/routes`, {
             credentials: "include",
-            signal: AbortSignal.timeout(2000), // 2 second timeout
+            signal: AbortSignal.timeout(30000), // 30 second timeout for Render cold start
         });
         return res.ok || res.status === 401;
     } catch {

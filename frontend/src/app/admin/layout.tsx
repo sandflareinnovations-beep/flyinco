@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -20,6 +21,14 @@ const links = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
+    const [user, setUser] = React.useState<any>(null);
+
+    React.useEffect(() => {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
+    }, []);
 
     const handleLogout = () => {
         localStorage.removeItem("user");
@@ -75,8 +84,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             <ShieldCheck className="h-4 w-4" style={{ color: "#2E0A57" }} />
                         </div>
                         <div>
-                            <p className="text-xs font-bold text-gray-800">Admin</p>
-                            <p className="text-[10px] text-gray-400">sabith@flyinco.com</p>
+                            <p className="text-xs font-bold text-gray-800">{user?.name || "Admin"}</p>
+                            <p className="text-[10px] text-gray-400">{user?.email || "sabith@flyinco.com"}</p>
                         </div>
                     </div>
                     <Button

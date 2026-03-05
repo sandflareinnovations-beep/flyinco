@@ -78,7 +78,8 @@ export default function RegisterPage() {
                 description: "You have successfully registered and logged in.",
             });
 
-            router.replace("/dashboard");
+            const target = data.user.role === "ADMIN" ? "/admin" : "/dashboard";
+            router.replace(target);
         } catch (error: any) {
             toast({
                 title: "Registration Error",
