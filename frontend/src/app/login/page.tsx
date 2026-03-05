@@ -29,6 +29,22 @@ export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [redirecting, setRedirecting] = useState(false);
     const [redirectTarget, setRedirectTarget] = useState<"admin" | "dashboard">("dashboard");
+    const [initializing, setInitializing] = useState(true);
+
+    useEffect(() => {
+        const storedUser = localStorage.getItem("user");
+        const token = localStorage.getItem("token");
+        if (storedUser && token) {
+            try {
+                const user = JSON.parse(storedUser);
+                router.replace(user.role === "ADMIN" ? "/admin" : "/dashboard");
+            } catch {
+                setInitializing(false);
+            }
+        } else {
+            setInitializing(false);
+        }
+    }, [router]);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -64,6 +80,12 @@ export default function LoginPage() {
             setIsLoading(false);
             toast({ title: "Login Failed", description: error.message, variant: "destructive" });
         }
+    }
+
+    if (initializing) {
+        return <div style={{ minHeight: "100vh", background: "#F7F7FB", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Loader2 className="animate-spin text-primary" stroke={B.primary} />
+        </div>;
     }
 
     return (
