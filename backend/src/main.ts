@@ -15,9 +15,14 @@ async function bootstrap() {
   app.use(cookieParser());
 
   // Enable CORS with support for environment variables in production
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+  ].filter(Boolean) as string[];
+
   app.enableCors({
-    origin: [frontendUrl, 'http://localhost:3000'],
+    origin: allowedOrigins.length > 0 ? allowedOrigins : true, // 'true' reflects the request origin (use carefully in prod)
     credentials: true,
   });
 
