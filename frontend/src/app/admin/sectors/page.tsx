@@ -113,15 +113,16 @@ export default function SectorManagement() {
         updateMutation.mutate({ id: selected.id, data: { totalSeats: total, remainingSeats: rem } });
     };
 
-    const handleBookingStatus = () => {
+    const handleBookingStatus = async () => {
         if (!selected) return;
-        // Use backend patch endpoint
-        fetch(`${API_BASE}/routes/${selected.id}/booking-status`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ bookingStatus: targetStatus }),
-        }).then(() => { qc.invalidateQueries({ queryKey: ["sectors"] }); toast({ title: `Booking ${targetStatus}` }); closeModal(); });
+        try {
+            await flyApi.sectors.updateBookingStatus(selected.id, targetStatus);
+            qc.invalidateQueries({ queryKey: ["sectors"] });
+            toast({ title: `Booking ${targetStatus}` });
+            closeModal();
+        } catch (error: any) {
+            toast({ title: "Error", description: error.message, variant: "destructive" });
+        }
     };
 
     if (isLoading) return (

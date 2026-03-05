@@ -18,7 +18,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 
-import { API_BASE } from "@/lib/api";
+import { API_BASE, fetchWithCreds } from "@/lib/api";
 
 const STATUS_STYLES: Record<string, string> = {
     CONFIRMED: "bg-emerald-50 text-emerald-700 border-emerald-200",
@@ -28,20 +28,14 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 async function fetchBookings() {
-    const res = await fetch(`${API_BASE}/bookings`, { credentials: "include" });
-    if (!res.ok) throw new Error("Failed to fetch bookings");
-    return res.json();
+    return await fetchWithCreds('/bookings');
 }
 
 async function updateBookingStatus(id: string, status: string) {
-    const res = await fetch(`${API_BASE}/bookings/${id}`, {
+    return await fetchWithCreds(`/bookings/${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ status }),
     });
-    if (!res.ok) throw new Error("Failed to update booking");
-    return res.json();
 }
 
 export default function AdminBookings() {
@@ -129,8 +123,11 @@ export default function AdminBookings() {
 
             {/* Error state */}
             {isError && (
-                <div className="bg-red-50 border border-red-100 rounded-xl p-4 text-sm text-red-700">
-                    Could not connect to backend. Make sure the server is running on port 3001.
+                <div className="bg-red-50 border border-red-100 rounded-xl p-4 text-sm text-red-700 space-y-1">
+                    <p className="font-bold">Backend Connection Error</p>
+                    <p>{(isError as any)?.message || "Could not connect to backend."}</p>
+                    <p className="text-[10px] opacity-70 font-mono">Attempting to reach: {API_BASE}</p>
+                    <p className="text-[10px] opacity-70">If the error is "Unauthorized", please Log Out and Log In again.</p>
                 </div>
             )}
 

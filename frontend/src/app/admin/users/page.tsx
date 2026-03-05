@@ -12,8 +12,6 @@ import {
     Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import { flyApi } from "@/lib/api";
-import { useToast } from "@/hooks/use-toast";
-import { API_BASE } from "@/lib/api";
 import { motion } from "framer-motion";
 
 const B = { primary: "#2E0A57", accent: "#6C2BD9" };
@@ -54,16 +52,7 @@ export default function UsersAdminPage() {
         e.preventDefault();
         setSaving(true);
         try {
-            await fetch(`${API_BASE}/users`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify(form),
-            }).then(async r => {
-                const d = await r.json();
-                if (!r.ok) throw new Error(d.message || "Failed to add user");
-                return d;
-            });
+            await flyApi.users.create(form);
             toast({ title: "User Added", description: `${form.name} has been created.` });
             fetchUsers();
             closeModal();
@@ -81,15 +70,7 @@ export default function UsersAdminPage() {
         }
         setSaving(true);
         try {
-            await fetch(`${API_BASE}/users/change-password`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({ userId: selected.id, newPassword: form.newPassword }),
-            }).then(async r => {
-                const d = await r.json();
-                if (!r.ok) throw new Error(d.message || "Failed to change password");
-            });
+            await flyApi.users.changePassword(selected.id, form.newPassword);
             toast({ title: "Password Changed", description: `Password updated for ${selected.name}.` });
             closeModal();
         } catch (err: any) {
@@ -101,12 +82,7 @@ export default function UsersAdminPage() {
         if (!selected) return;
         setSaving(true);
         try {
-            await fetch(`${API_BASE}/users/${selected.id}`, {
-                method: "DELETE",
-                credentials: "include",
-            }).then(async r => {
-                if (!r.ok) { const d = await r.json(); throw new Error(d.message || "Failed to delete user"); }
-            });
+            await flyApi.users.delete(selected.id);
             toast({ title: "User Deleted", description: `${selected.name} has been removed.` });
             fetchUsers();
             closeModal();

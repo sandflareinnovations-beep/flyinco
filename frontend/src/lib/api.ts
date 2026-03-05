@@ -12,7 +12,7 @@ const getApiBase = () => {
 
 export const API_BASE = getApiBase();
 
-const fetchWithCreds = async (url: string, options: RequestInit = {}) => {
+export const fetchWithCreds = async (url: string, options: RequestInit = {}) => {
     // Try to get token from localStorage or cookie
     let token = '';
     if (typeof window !== 'undefined') {
@@ -83,7 +83,6 @@ export const flyApi = {
         list: async (): Promise<FareSector[]> => {
             const backendUp = await isBackendUp();
             if (!backendUp) {
-                // Fallback to mock while backend/DB isn't running
                 return [...mockSectors];
             }
             const data = await fetchWithCreds('/routes');
@@ -159,6 +158,12 @@ export const flyApi = {
             return await fetchWithCreds(`/routes/${id}`, {
                 method: 'DELETE',
             });
+        },
+        updateBookingStatus: async (id: string, bookingStatus: string) => {
+            return await fetchWithCreds(`/routes/${id}/booking-status`, {
+                method: 'PATCH',
+                body: JSON.stringify({ bookingStatus }),
+            });
         }
     },
     bookings: {
@@ -188,7 +193,7 @@ export const flyApi = {
                 body: JSON.stringify({
                     routeId: data.sectorId,
                     passengerName: data.passengerName,
-                    passportNumber: data.passportNumber,
+                    passportNumber: data.passengerNumber,
                     phone: data.phone,
                     email: data.email,
                 }),
@@ -198,6 +203,23 @@ export const flyApi = {
     users: {
         list: async () => {
             return await fetchWithCreds('/users');
+        },
+        create: async (data: any) => {
+            return await fetchWithCreds('/users', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+        },
+        changePassword: async (userId: string, newPassword: string) => {
+            return await fetchWithCreds('/users/change-password', {
+                method: 'PATCH',
+                body: JSON.stringify({ userId, newPassword }),
+            });
+        },
+        delete: async (id: string) => {
+            return await fetchWithCreds(`/users/${id}`, {
+                method: 'DELETE',
+            });
         }
     }
 };

@@ -49,9 +49,9 @@ export default function LoginPage() {
             if (!response.ok) throw new Error(data.message || "Failed to log in");
 
             localStorage.setItem("user", JSON.stringify(data.user));
-            localStorage.setItem("token", data.token);
+            localStorage.setItem("token", data.access_token);
             // Set token cookie for middleware to see
-            document.cookie = `token=${data.token}; path=/; max-age=86400; SameSite=Lax`;
+            document.cookie = `token=${data.access_token}; path=/; max-age=86400; SameSite=Lax`;
 
             const target: "admin" | "dashboard" = data.user.role === "ADMIN" ? "admin" : "dashboard";
             setRedirectTarget(target);

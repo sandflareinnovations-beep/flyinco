@@ -72,9 +72,9 @@ export default function RegisterPage() {
             }
 
             localStorage.setItem("user", JSON.stringify(data.user));
-            localStorage.setItem("token", data.token);
+            localStorage.setItem("token", data.access_token);
             // Set token cookie for middleware to see
-            document.cookie = `token=${data.token}; path=/; max-age=86400; SameSite=Lax`;
+            document.cookie = `token=${data.access_token}; path=/; max-age=86400; SameSite=Lax`;
 
             toast({
                 title: "Account created!",
