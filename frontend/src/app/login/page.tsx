@@ -34,14 +34,24 @@ export default function LoginPage() {
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
         const token = localStorage.getItem("token");
-        if (storedUser && token) {
+
+        if (storedUser && token && token !== "undefined") {
             try {
                 const user = JSON.parse(storedUser);
                 router.replace(user.role === "ADMIN" ? "/admin" : "/dashboard");
+                // Fallback: If we're still here after 1.5s, something is wrong
+                const timer = setTimeout(() => setInitializing(false), 1500);
+                return () => clearTimeout(timer);
             } catch {
+                localStorage.removeItem("user");
+                localStorage.removeItem("token");
                 setInitializing(false);
             }
         } else {
+            // Clear bad token if it exists
+            if (token === "undefined") {
+                localStorage.removeItem("token");
+            }
             setInitializing(false);
         }
     }, [router]);
