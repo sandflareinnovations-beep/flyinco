@@ -15,9 +15,11 @@ export function middleware(request: NextRequest) {
 
     try {
         // Decode base64 payload to get role
-        const payloadBase64 = token.split('.')[1];
-        // Edge runtime compatible base64 decode
-        const payload = JSON.parse(atob(payloadBase64));
+        // Edge runtime compatible base64 decode with base64url support
+        const base64 = payloadBase64.replace(/-/g, '+').replace(/_/g, '/');
+        const pad = base64.length % 4;
+        const padded = pad ? base64 + '='.repeat(4 - pad) : base64;
+        const payload = JSON.parse(atob(padded));
 
         if (url.pathname.startsWith('/admin') && payload.role !== 'ADMIN') {
             return NextResponse.redirect(new URL('/dashboard', request.url));
