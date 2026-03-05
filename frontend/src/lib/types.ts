@@ -18,6 +18,11 @@ export type FareSector = {
     duration: string;
     departureDate?: string;
     baggage?: string;
+    airlineLogo?: string;
+    layover?: string;
+    flightRules?: string;
+    flightDetails?: string;
+    bookingStatus?: string;
 };
 
 export type Booking = {

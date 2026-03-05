@@ -67,6 +67,11 @@ export const flyApi = {
                 duration: d.duration || "7h 15m",
                 departureDate: d.departureDate ? new Date(d.departureDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : "09 MARCH",
                 baggage: d.baggage || "2PC BAGGAGE",
+                airlineLogo: d.airlineLogo || "",
+                layover: d.layover || "",
+                flightRules: d.flightRules || "",
+                flightDetails: d.flightDetails || "",
+                bookingStatus: d.bookingStatus || "OPEN",
             }));
         },
         get: async (id: string): Promise<FareSector | undefined> => {
@@ -93,6 +98,11 @@ export const flyApi = {
                 duration: d.duration || "7h 15m",
                 departureDate: d.departureDate ? new Date(d.departureDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : "09 MARCH",
                 baggage: d.baggage || "2PC BAGGAGE",
+                airlineLogo: d.airlineLogo || "",
+                layover: d.layover || "",
+                flightRules: d.flightRules || "",
+                flightDetails: d.flightDetails || "",
+                bookingStatus: d.bookingStatus || "OPEN",
             };
         },
         create: async (data: any) => {

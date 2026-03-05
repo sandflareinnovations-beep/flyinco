@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { LogOut, Map, Calendar, Settings, Plane, FileText, CheckCircle, Clock } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { flyApi } from "@/lib/api";
+import { flyApi, API_BASE } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
@@ -47,7 +47,7 @@ export default function UserDashboard() {
             });
             localStorage.removeItem("user");
             router.push("/login");
-        } catch (e) {
+        } catch {
             router.push("/login");
         }
     };
@@ -93,7 +93,7 @@ export default function UserDashboard() {
                             <div className="p-12 text-center flex flex-col items-center">
                                 <Map className="h-16 w-16 text-muted mb-4" />
                                 <h3 className="text-xl font-bold tracking-tight mb-2">No flights booked yet</h3>
-                                <p className="text-muted-foreground mb-6">You haven't made any reservations on Flyinco yet.</p>
+                                <p className="text-muted-foreground mb-6">You haven&apos;t made any reservations on Flyinco yet.</p>
                                 <Button onClick={() => router.push('/')} size="lg">Explore Special Fares</Button>
                             </div>
                         ) : (

@@ -91,13 +91,17 @@ export default function SectorManagement() {
             departureTime: form.departureTime,
             arrivalTime: form.arrivalTime,
             baggage: form.baggage,
+            airlineLogo: form.airlineLogo,
+            layover: form.layover,
+            flightRules: form.flightRules,
+            flightDetails: form.flightDetails,
         });
     };
 
     const handleEditFare = (e: React.FormEvent) => {
         e.preventDefault();
         if (!selected) return;
-        updateMutation.mutate({ id: selected.id, data: { price: parseFloat(form.price), departureDate: form.departureDate, baggage: form.baggage, flightNumber: form.flightNumber } });
+        updateMutation.mutate({ id: selected.id, data: { price: parseFloat(form.price), departureDate: form.departureDate, baggage: form.baggage, flightNumber: form.flightNumber, layover: form.layover, flightRules: form.flightRules, flightDetails: form.flightDetails, airlineLogo: form.airlineLogo } });
     };
 
     const handleAdjustSeats = (e: React.FormEvent) => {
@@ -172,8 +176,23 @@ export default function SectorManagement() {
                                     <p className="text-xs text-gray-400 font-normal mt-0.5">{sector.departureDate}</p>
                                 </TableCell>
                                 <TableCell>
-                                    <p className="font-semibold text-sm text-gray-800">{sector.airline}</p>
-                                    <p className="text-xs text-gray-400 font-mono">{sector.flightNumber}</p>
+                                    <div className="flex items-center gap-2">
+                                        <div style={{
+                                            width: 32, height: 32, borderRadius: 8,
+                                            background: "#F3F0FF", display: "flex",
+                                            alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden"
+                                        }}>
+                                            {sector.airlineLogo ? (
+                                                <img src={sector.airlineLogo} alt={sector.airline} width={28} height={28} style={{ objectFit: "contain" }} />
+                                            ) : (
+                                                <span style={{ fontSize: 14 }}>✈️</span>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-sm text-gray-800">{sector.airline}</p>
+                                            <p className="text-xs text-gray-400 font-mono">{sector.flightNumber}</p>
+                                        </div>
+                                    </div>
                                 </TableCell>
                                 <TableCell>
                                     <span className="font-black text-violet-600 text-base">SAR {sector.price.toLocaleString()}</span>
@@ -186,10 +205,10 @@ export default function SectorManagement() {
                                     </div>
                                 </TableCell>
                                 <TableCell>
-                                    {sector.remainingSeats > 0 ? (
+                                    {sector.bookingStatus === "OPEN" && sector.remainingSeats > 0 ? (
                                         <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold" variant="outline">Active</Badge>
                                     ) : (
-                                        <Badge variant="destructive" className="font-semibold">Closed</Badge>
+                                        <Badge variant="destructive" className="font-semibold">{sector.bookingStatus === "CLOSED" ? "Closed" : "Sold Out"}</Badge>
                                     )}
                                 </TableCell>
                                 <TableCell className="text-right">
@@ -254,6 +273,16 @@ export default function SectorManagement() {
                             <InputField label="Remaining Seats" name="remainingSeats" type="number" placeholder="e.g. 45" value={form.remainingSeats || ""} onChange={e => setForm({ ...form, remainingSeats: e.target.value })} />
                             <InputField label="Baggage Allowance" name="baggage" placeholder="e.g. 2PC / 30kg" value={form.baggage || ""} onChange={e => setForm({ ...form, baggage: e.target.value })} />
                             <InputField label="Stop Details" name="stops" placeholder="e.g. 1 stop via MCT" value={form.stops || ""} onChange={e => setForm({ ...form, stops: e.target.value })} />
+                            <InputField label="Airline Logo URL" name="airlineLogo" placeholder="e.g. /saudia-logo.png" value={form.airlineLogo || ""} onChange={e => setForm({ ...form, airlineLogo: e.target.value })} />
+                            <InputField label="Layover" name="layover" placeholder="e.g. 2h in Dubai" value={form.layover || ""} onChange={e => setForm({ ...form, layover: e.target.value })} />
+                            <div className="col-span-2 space-y-1.5">
+                                <Label className="text-xs font-semibold text-gray-600">Flight Rules</Label>
+                                <Input name="flightRules" placeholder="e.g. Non-refundable, Change fee applies" className="rounded-xl border-gray-200 focus-visible:ring-violet-400 text-sm" value={form.flightRules || ""} onChange={e => setForm({ ...form, flightRules: e.target.value })} />
+                            </div>
+                            <div className="col-span-2 space-y-1.5">
+                                <Label className="text-xs font-semibold text-gray-600">Flight Details</Label>
+                                <Input name="flightDetails" placeholder="e.g. Boeing 777, Meals included" className="rounded-xl border-gray-200 focus-visible:ring-violet-400 text-sm" value={form.flightDetails || ""} onChange={e => setForm({ ...form, flightDetails: e.target.value })} />
+                            </div>
                         </div>
                         <DialogFooter className="gap-2 pt-2">
                             <Button type="button" variant="outline" className="rounded-xl" onClick={closeModal}>Cancel</Button>
@@ -278,6 +307,16 @@ export default function SectorManagement() {
                             <InputField label="Travel Date" name="departureDate" type="date" value={form.departureDate || ""} onChange={e => setForm({ ...form, departureDate: e.target.value })} />
                             <InputField label="Baggage" name="baggage" placeholder="e.g. 2PC" value={form.baggage || ""} onChange={e => setForm({ ...form, baggage: e.target.value })} />
                             <InputField label="Flight Number" name="flightNumber" placeholder="e.g. SV891" value={form.flightNumber || ""} onChange={e => setForm({ ...form, flightNumber: e.target.value })} />
+                            <InputField label="Airline Logo URL" name="airlineLogo" placeholder="e.g. /saudia-logo.png" value={form.airlineLogo || ""} onChange={e => setForm({ ...form, airlineLogo: e.target.value })} />
+                            <InputField label="Layover" name="layover" placeholder="e.g. 2h layover in Doha" value={form.layover || ""} onChange={e => setForm({ ...form, layover: e.target.value })} />
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold text-gray-600">Flight Rules</Label>
+                                <Input name="flightRules" placeholder="e.g. Non-refundable" className="rounded-xl border-gray-200 focus-visible:ring-violet-400 text-sm" value={form.flightRules || ""} onChange={e => setForm({ ...form, flightRules: e.target.value })} />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold text-gray-600">Flight Details</Label>
+                                <Input name="flightDetails" placeholder="e.g. Economy Class, Boeing 777" className="rounded-xl border-gray-200 focus-visible:ring-violet-400 text-sm" value={form.flightDetails || ""} onChange={e => setForm({ ...form, flightDetails: e.target.value })} />
+                            </div>
                         </div>
                         <DialogFooter className="gap-2">
                             <Button type="button" variant="outline" className="rounded-xl" onClick={closeModal}>Cancel</Button>

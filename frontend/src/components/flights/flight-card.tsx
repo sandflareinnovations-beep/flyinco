@@ -41,10 +41,14 @@ export function FlightCard({ flight, routeId, index = 0 }: FlightCardProps) {
                             <div style={{
                                 width: 48, height: 48, borderRadius: 12,
                                 background: "#F3F0FF", display: "flex",
-                                alignItems: "center", justifyContent: "center"
+                                alignItems: "center", justifyContent: "center",
+                                overflow: "hidden",
                             }}>
-                                {/* Usually we'd use <Image> but since we don't have SV logo asset, we use an icon + brand format */}
-                                <Plane size={24} style={{ color: BRAND_ACCENT }} />
+                                {flight.airlineLogo ? (
+                                    <img src={flight.airlineLogo} alt={firstSeg.airline} width={40} height={40} style={{ objectFit: 'contain' }} />
+                                ) : (
+                                    <Plane size={24} style={{ color: BRAND_ACCENT }} />
+                                )}
                             </div>
                             <div>
                                 <p style={{ fontWeight: 800, fontSize: 15, color: "#111827", letterSpacing: "-0.01em" }}>
@@ -91,14 +95,29 @@ export function FlightCard({ flight, routeId, index = 0 }: FlightCardProps) {
                         </div>
                     </div>
 
-                    {/* ── Baggage ── */}
+                    {/* ── Baggage & Flight Details ── */}
                     <div className="hidden md:flex flex-col items-center gap-1.5 w-24 flex-shrink-0">
-                        <div style={{ background: "#F9FAFB", padding: "6px 12px", borderRadius: 8, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                        <div style={{ background: "#F9FAFB", padding: "6px 12px", borderRadius: 8, display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
                             <Luggage size={16} color="#6B7280" />
                             <span style={{ fontSize: 10, color: "#4B5563", fontWeight: 700, marginTop: 4, textAlign: "center", whiteSpace: "nowrap" }}>
                                 {flight.baggage}
                             </span>
                         </div>
+                        {flight.layover && (
+                            <div style={{ fontSize: 10, color: BRAND_ACCENT, fontWeight: 700, background: "#F3F0FF", padding: "4px 8px", borderRadius: 6, width: "100%", textAlign: "center", whiteSpace: "nowrap" }}>
+                                {flight.layover}
+                            </div>
+                        )}
+                        {flight.flightRules && (
+                            <div style={{ fontSize: 9, color: "#6B7280", fontWeight: 500, border: "1px dashed #E5E7EB", padding: "4px 8px", borderRadius: 6, width: "100%", textAlign: "center" }}>
+                                {flight.flightRules}
+                            </div>
+                        )}
+                        {flight.flightDetails && (
+                            <div style={{ fontSize: 9, color: "#9CA3AF", textAlign: "center" }}>
+                                {flight.flightDetails}
+                            </div>
+                        )}
                     </div>
 
                     {/* ── Pricing & CTA ── */}

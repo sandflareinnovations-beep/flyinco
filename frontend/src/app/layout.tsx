@@ -16,9 +16,11 @@ export const metadata: Metadata = {
   description: "Flyinco Travel & Tourism — Best agency fares from Riyadh to Kochi.",
   keywords: ["Flyinco", "flights", "best fares", "RUH COK", "Riyadh Kochi"],
   icons: {
-    icon: "/favicon.png",
-    shortcut: "/favicon.png",
-    apple: "/favicon.png",
+    icon: [
+      { url: "/icon.png", type: "image/png" },
+    ],
+    shortcut: "/icon.png",
+    apple: "/apple-touch-icon.png",
   },
 };
 

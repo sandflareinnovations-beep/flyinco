@@ -23,6 +23,10 @@ model Route {
   arrivalTime    String    @default("18:50 PM")
   baggage        String    @default("2PC BAGGAGE")
   duration       String    @default("7h 15m")
+  airlineLogo    String?
+  layover        String?
+  flightRules    String?
+  flightDetails  String?
   bookingStatus  String    @default("OPEN")
   createdAt      DateTime  @default(now())
   bookings       Booking[]
