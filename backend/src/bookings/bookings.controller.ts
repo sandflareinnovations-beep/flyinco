@@ -24,7 +24,7 @@ import { Roles } from '../auth/roles.decorator';
 
 @Controller('bookings')
 export class BookingsController {
-  constructor(private readonly bookingsService: BookingsService) {}
+  constructor(private readonly bookingsService: BookingsService) { }
 
   // ── Public endpoint: anyone can create a booking (guest or logged-in) ──
   @Post()
@@ -47,12 +47,14 @@ export class BookingsController {
       }),
     }),
   )
-  uploadReceipt(@UploadedFile() file: Express.Multer.File) {
+  uploadReceipt(@UploadedFile() file: Express.Multer.File, @Req() req: any) {
     if (!file) {
       return { error: 'No file uploaded' };
     }
+    const host = req.get('host');
+    const proto = req.protocol;
     return {
-      url: `http://localhost:3001/uploads/${file.filename}`,
+      url: `${proto}://${host}/uploads/${file.filename}`,
     };
   }
 

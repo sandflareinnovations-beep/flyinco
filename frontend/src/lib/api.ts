@@ -2,12 +2,25 @@ import { FareSector, Booking } from "./types";
 import { mockSectors, mockBookings } from "./mock";
 
 const getApiBase = () => {
+    // Priority 1: Environment variable
     const rawUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-    // If it's a hostname from Render (no http/https), add https://
-    if (rawUrl && !rawUrl.startsWith('http')) {
-        return `https://${rawUrl}`;
+
+    let finalUrl = rawUrl.trim();
+
+    // Priority 2: If we are on Render, try to detect if we should be using HTTPS
+    if (typeof window !== 'undefined' && window.location.host.includes('onrender.com')) {
+        if (!finalUrl.startsWith('http')) {
+            finalUrl = `https://${finalUrl}`;
+        }
     }
-    return rawUrl;
+
+    // Always remove trailing slashes to avoid double slashes in paths like //bookings
+    if (finalUrl.endsWith('/')) {
+        finalUrl = finalUrl.slice(0, -1);
+    }
+
+    console.log("[Flyinco API] Using Base URL:", finalUrl);
+    return finalUrl;
 };
 
 export const API_BASE = getApiBase();
@@ -70,7 +83,7 @@ const isBackendUp = async (): Promise<boolean> => {
         const res = await fetch(`${API_BASE}/routes`, {
             headers,
             credentials: "include",
-            signal: AbortSignal.timeout(30000), // 30 second timeout for Render cold start
+            signal: AbortSignal.timeout(60000), // 60 second timeout for Render cold start
         });
         return res.ok || res.status === 401;
     } catch {

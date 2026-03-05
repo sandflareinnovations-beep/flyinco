@@ -12,7 +12,7 @@ services:
       - key: DATABASE_URL
         sync: false # User will provide this in Render dashboard
       - key: JWT_SECRET
-        generateValue: true
+        value: flyinco_production_stable_secret_2024
       - key: PORT
         value: 10000
 

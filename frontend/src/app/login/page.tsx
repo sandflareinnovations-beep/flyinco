@@ -77,11 +77,16 @@ export default function LoginPage() {
 
             localStorage.setItem("user", JSON.stringify(data.user));
             localStorage.setItem("token", data.access_token);
-            // Set token cookie for middleware to see
-            document.cookie = `token=${data.access_token}; path=/; max-age=86400; SameSite=Lax`;
+
+            // Set token cookie with Secure on HTTPS (crucial for Render)
+            const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
+            const cookieStr = `token=${data.access_token}; path=/; max-age=86400; SameSite=Lax${isSecure ? "; Secure" : ""}`;
+            document.cookie = cookieStr;
 
             const target: "admin" | "dashboard" = data.user.role === "ADMIN" ? "admin" : "dashboard";
-            router.replace(`/${target}`);
+
+            // Use window.location.href for absolute certainty on cookie propagation
+            window.location.href = `/${target}`;
         } catch (error: any) {
             setIsLoading(false);
             toast({ title: "Login Failed", description: error.message, variant: "destructive" });

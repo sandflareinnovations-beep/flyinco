@@ -81,8 +81,10 @@ export default function RegisterPage() {
 
             localStorage.setItem("user", JSON.stringify(data.user));
             localStorage.setItem("token", data.access_token);
-            // Set token cookie for middleware to see
-            document.cookie = `token=${data.access_token}; path=/; max-age=86400; SameSite=Lax`;
+
+            // Secure cookie for Render
+            const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
+            document.cookie = `token=${data.access_token}; path=/; max-age=86400; SameSite=Lax${isSecure ? "; Secure" : ""}`;
 
             toast({
                 title: "Account created!",
@@ -90,7 +92,7 @@ export default function RegisterPage() {
             });
 
             const target = data.user.role === "ADMIN" ? "/admin" : "/dashboard";
-            router.replace(target);
+            window.location.href = target;
         } catch (error: any) {
             toast({
                 title: "Registration Error",
