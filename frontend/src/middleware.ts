@@ -15,7 +15,10 @@ export function middleware(request: NextRequest) {
 
     try {
         // Decode base64 payload to get role
-        const payloadBase64 = token.split('.')[1];
+        const parts = token.split('.');
+        if (parts.length < 2) throw new Error('Invalid JWT');
+
+        const payloadBase64 = parts[1];
         // Edge runtime compatible base64 decode with base64url support
         const base64 = payloadBase64.replace(/-/g, '+').replace(/_/g, '/');
         const pad = base64.length % 4;
