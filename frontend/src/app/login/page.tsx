@@ -75,12 +75,15 @@ export default function LoginPage() {
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || "Failed to log in");
 
+            const tokenKey = data.access_token || data.token;
+            if (!tokenKey) throw new Error("No token received from server");
+
             localStorage.setItem("user", JSON.stringify(data.user));
-            localStorage.setItem("token", data.access_token);
+            localStorage.setItem("token", tokenKey);
 
             // Set token cookie with Secure on HTTPS (crucial for Render)
             const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
-            const cookieStr = `token=${data.access_token}; path=/; max-age=86400; SameSite=Lax${isSecure ? "; Secure" : ""}`;
+            const cookieStr = `token=${tokenKey}; path=/; max-age=86400; SameSite=Lax${isSecure ? "; Secure" : ""}`;
             document.cookie = cookieStr;
 
             const target: "admin" | "dashboard" = data.user.role === "ADMIN" ? "admin" : "dashboard";

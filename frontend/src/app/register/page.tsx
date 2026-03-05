@@ -79,12 +79,15 @@ export default function RegisterPage() {
                 throw new Error(data.message || "Failed to register");
             }
 
+            const tokenKey = data.access_token || data.token;
+            if (!tokenKey) throw new Error("No token received after registration");
+
             localStorage.setItem("user", JSON.stringify(data.user));
-            localStorage.setItem("token", data.access_token);
+            localStorage.setItem("token", tokenKey);
 
             // Secure cookie for Render
             const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
-            document.cookie = `token=${data.access_token}; path=/; max-age=86400; SameSite=Lax${isSecure ? "; Secure" : ""}`;
+            document.cookie = `token=${tokenKey}; path=/; max-age=86400; SameSite=Lax${isSecure ? "; Secure" : ""}`;
 
             toast({
                 title: "Account created!",
