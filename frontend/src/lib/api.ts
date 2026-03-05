@@ -81,10 +81,6 @@ const isBackendUp = async (): Promise<boolean> => {
 export const flyApi = {
     sectors: {
         list: async (): Promise<FareSector[]> => {
-            const backendUp = await isBackendUp();
-            if (!backendUp) {
-                return [...mockSectors];
-            }
             const data = await fetchWithCreds('/routes');
             return data.map((d: any) => ({
                 id: d.id,
@@ -112,10 +108,6 @@ export const flyApi = {
             }));
         },
         get: async (id: string): Promise<FareSector | undefined> => {
-            const backendUp = await isBackendUp();
-            if (!backendUp) {
-                return mockSectors.find(s => s.id === id);
-            }
             const d = await fetchWithCreds(`/routes/${id}`);
             return {
                 id: d.id,
@@ -168,10 +160,6 @@ export const flyApi = {
     },
     bookings: {
         list: async (): Promise<Booking[]> => {
-            const backendUp = await isBackendUp();
-            if (!backendUp) {
-                return [...mockBookings];
-            }
             const data = await fetchWithCreds('/bookings');
             return data.map((d: any) => ({
                 id: d.id,
@@ -193,7 +181,7 @@ export const flyApi = {
                 body: JSON.stringify({
                     routeId: data.sectorId,
                     passengerName: data.passengerName,
-                    passportNumber: data.passengerNumber,
+                    passportNumber: data.passportNumber,
                     phone: data.phone,
                     email: data.email,
                 }),

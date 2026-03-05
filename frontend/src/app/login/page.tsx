@@ -80,12 +80,7 @@ export default function LoginPage() {
             document.cookie = `token=${data.access_token}; path=/; max-age=86400; SameSite=Lax`;
 
             const target: "admin" | "dashboard" = data.user.role === "ADMIN" ? "admin" : "dashboard";
-            setRedirectTarget(target);
-            setRedirecting(true);
-
-            setTimeout(() => {
-                router.replace(`/${target}`);
-            }, 1200);
+            router.replace(`/${target}`);
         } catch (error: any) {
             setIsLoading(false);
             toast({ title: "Login Failed", description: error.message, variant: "destructive" });
