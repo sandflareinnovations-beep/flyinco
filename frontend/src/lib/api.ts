@@ -13,12 +13,25 @@ const getApiBase = () => {
 export const API_BASE = getApiBase();
 
 const fetchWithCreds = async (url: string, options: RequestInit = {}) => {
+    // Try to get token from cookie or localStorage
+    let token = '';
+    if (typeof document !== 'undefined') {
+        const match = document.cookie.match(/(^| )token=([^;]+)/);
+        if (match) token = match[2];
+    }
+
+    const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        ...(options.headers as any),
+    };
+
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+    }
+
     const res = await fetch(`${API_BASE}${url}`, {
         ...options,
-        headers: {
-            "Content-Type": "application/json",
-            ...options.headers,
-        },
+        headers,
         credentials: "include",
     });
 
@@ -39,7 +52,17 @@ const fetchWithCreds = async (url: string, options: RequestInit = {}) => {
 // Helper to check if backend is reachable
 const isBackendUp = async (): Promise<boolean> => {
     try {
+        let token = '';
+        if (typeof document !== 'undefined') {
+            const match = document.cookie.match(/(^| )token=([^;]+)/);
+            if (match) token = match[2];
+        }
+
+        const headers: Record<string, string> = {};
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+
         const res = await fetch(`${API_BASE}/routes`, {
+            headers,
             credentials: "include",
             signal: AbortSignal.timeout(30000), // 30 second timeout for Render cold start
         });
