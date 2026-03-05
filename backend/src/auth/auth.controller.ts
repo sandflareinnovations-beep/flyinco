@@ -15,7 +15,7 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('register')
   async register(
@@ -24,7 +24,7 @@ export class AuthController {
   ) {
     const data = await this.authService.register(registerDto);
     this.setCookie(res, data.access_token);
-    return { user: data.user };
+    return { user: data.user, token: data.access_token };
   }
 
   @Post('login')
@@ -34,7 +34,7 @@ export class AuthController {
   ) {
     const data = await this.authService.login(loginDto);
     this.setCookie(res, data.access_token);
-    return { user: data.user };
+    return { user: data.user, token: data.access_token };
   }
 
   @Post('logout')
