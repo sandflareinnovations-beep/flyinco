@@ -101,7 +101,25 @@ export default function SectorManagement() {
     const handleEditFare = (e: React.FormEvent) => {
         e.preventDefault();
         if (!selected) return;
-        updateMutation.mutate({ id: selected.id, data: { price: parseFloat(form.price), departureDate: form.departureDate, baggage: form.baggage, flightNumber: form.flightNumber, layover: form.layover, flightRules: form.flightRules, flightDetails: form.flightDetails, airlineLogo: form.airlineLogo } });
+        updateMutation.mutate({
+            id: selected.id,
+            data: {
+                price: parseFloat(form.price),
+                departureDate: form.departureDate,
+                baggage: form.baggage,
+                flightNumber: form.flightNumber,
+                airline: form.airline,
+                departureTime: form.departureTime,
+                arrivalTime: form.arrivalTime,
+                originCity: form.originCity,
+                destinationCity: form.destinationCity,
+                duration: form.duration,
+                layover: form.layover,
+                flightRules: form.flightRules,
+                flightDetails: form.flightDetails,
+                airlineLogo: form.airlineLogo
+            }
+        });
     };
 
     const handleAdjustSeats = (e: React.FormEvent) => {
@@ -306,8 +324,20 @@ export default function SectorManagement() {
                         <div className="space-y-3 py-4">
                             <InputField label="Price (SAR)" name="price" type="number" required value={form.price || ""} onChange={e => setForm({ ...form, price: e.target.value })} />
                             <InputField label="Travel Date" name="departureDate" type="date" value={form.departureDate || ""} onChange={e => setForm({ ...form, departureDate: e.target.value })} />
+                            <div className="grid grid-cols-2 gap-3">
+                                <InputField label="Airline" name="airline" placeholder="e.g. Saudia" value={form.airline || ""} onChange={e => setForm({ ...form, airline: e.target.value })} />
+                                <InputField label="Flight Number" name="flightNumber" placeholder="e.g. SV891" value={form.flightNumber || ""} onChange={e => setForm({ ...form, flightNumber: e.target.value })} />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <InputField label="Departure Time" name="departureTime" placeholder="e.g. 11:35" value={form.departureTime || ""} onChange={e => setForm({ ...form, departureTime: e.target.value })} />
+                                <InputField label="Arrival Time" name="arrivalTime" placeholder="e.g. 18:50" value={form.arrivalTime || ""} onChange={e => setForm({ ...form, arrivalTime: e.target.value })} />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <InputField label="Origin City" name="originCity" value={form.originCity || ""} onChange={e => setForm({ ...form, originCity: e.target.value })} />
+                                <InputField label="Dest City" name="destinationCity" value={form.destinationCity || ""} onChange={e => setForm({ ...form, destinationCity: e.target.value })} />
+                            </div>
+                            <InputField label="Duration" name="duration" placeholder="e.g. 7h 15m" value={form.duration || ""} onChange={e => setForm({ ...form, duration: e.target.value })} />
                             <InputField label="Baggage" name="baggage" placeholder="e.g. 2PC" value={form.baggage || ""} onChange={e => setForm({ ...form, baggage: e.target.value })} />
-                            <InputField label="Flight Number" name="flightNumber" placeholder="e.g. SV891" value={form.flightNumber || ""} onChange={e => setForm({ ...form, flightNumber: e.target.value })} />
                             <InputField label="Airline Logo URL" name="airlineLogo" placeholder="e.g. /saudia-logo.png" value={form.airlineLogo || ""} onChange={e => setForm({ ...form, airlineLogo: e.target.value })} />
                             <InputField label="Layover" name="layover" placeholder="e.g. 2h layover in Doha" value={form.layover || ""} onChange={e => setForm({ ...form, layover: e.target.value })} />
                             <div className="space-y-1.5">
