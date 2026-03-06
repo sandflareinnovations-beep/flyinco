@@ -16,17 +16,51 @@ export class CreateRouteDto {
   @IsDateString()
   departureDate: string;
 
-  // Optional detailed fields
+  @IsOptional()
+  @IsString()
   airline?: string;
+
+  @IsOptional()
+  @IsString()
   flightNumber?: string;
+
+  @IsOptional()
+  @IsString()
   departureTime?: string;
+
+  @IsOptional()
+  @IsString()
   arrivalTime?: string;
+
+  @IsOptional()
+  @IsString()
   baggage?: string;
+
+  @IsOptional()
+  @IsString()
   duration?: string;
+
+  @IsOptional()
+  @IsString()
   originCity?: string;
+
+  @IsOptional()
+  @IsString()
   destinationCity?: string;
+
+  @IsOptional()
+  @IsString()
   airlineLogo?: string;
+
+  @IsOptional()
+  @IsString()
   layover?: string;
+
+  @IsOptional()
+  @IsString()
   flightRules?: string;
+
+  @IsOptional()
+  @IsString()
   flightDetails?: string;
 }
