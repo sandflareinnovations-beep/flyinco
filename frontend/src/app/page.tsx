@@ -19,7 +19,7 @@ const ROUTE = {
   price: 2000,
   airline: "Saudia Airlines",
   airlineLogo: "",
-  flight: "SV 890",
+  flight: "",
   duration: "7h 15m",
   baggage: "2 PC / 30 kg",
   layover: "",
@@ -52,6 +52,13 @@ export default function Home() {
     staleTime: 0,
     refetchOnMount: true,
   });
+
+  // Debug: Log fetched sectors to console
+  useEffect(() => {
+    if (sectors) {
+      console.log("[Home] Fetched Sectors:", sectors);
+    }
+  }, [sectors]);
 
   // Show all open sectors on the home page
   const openSectors = (sectors || []).filter(s => s.bookingStatus !== "CLOSED" && s.remainingSeats > 0);
@@ -323,7 +330,7 @@ export default function Home() {
                                     <div style={{ fontSize: 11, color: "#6B7280", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                                       <span>{s.originCity} → {s.destinationCity}</span>
                                       {s.departureDate && <span>📅 {new Date(s.departureDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>}
-                                      <span>✈ {s.airline}</span>
+                                      <span>✈ {s.airline} ({s.flightNumber})</span>
                                       {s.layover && <span>⏱ {s.layover}</span>}
                                     </div>
                                   </div>
@@ -626,7 +633,7 @@ export default function Home() {
                       </div>
                     </div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                      <Pill>📅 {new Date(dynamicRoute.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</Pill>
+                      <Pill>📅 {dynamicRoute.date}</Pill>
                       <Pill bg="#F0FDF4" color="#15803D">🧳 {dynamicRoute.baggage}</Pill>
                       <Pill bg="#FEF2F2" color="#DC2626">⚠️ Limited Seats</Pill>
                     </div>

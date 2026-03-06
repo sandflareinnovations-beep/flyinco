@@ -94,7 +94,7 @@ const isBackendUp = async (): Promise<boolean> => {
 export const flyApi = {
     sectors: {
         list: async (): Promise<FareSector[]> => {
-            const data = await fetchWithCreds('/routes');
+            const data = await fetchWithCreds(`/routes?t=${Date.now()}`);
             return data.map((d: any) => ({
                 id: d.id,
                 originCode: d.origin,
@@ -121,7 +121,7 @@ export const flyApi = {
             }));
         },
         get: async (id: string): Promise<FareSector | undefined> => {
-            const d = await fetchWithCreds(`/routes/${id}`);
+            const d = await fetchWithCreds(`/routes/${id}?t=${Date.now()}`);
             return {
                 id: d.id,
                 originCode: d.origin,
