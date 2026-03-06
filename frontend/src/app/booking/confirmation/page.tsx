@@ -59,7 +59,7 @@ export default function ConfirmationPage() {
                             {booking.status === "PENDING" ? "Payment Submitted!" : "Booking Held!"}
                         </h1>
                         <p className="text-sm max-w-xs mx-auto leading-relaxed" style={{ color: '#EDE9FE' }}>
-                            {booking.status === "PENDING" ? "Your payment is being verified. Your ticket PNR will be sent shortly." : "Your seat has been successfully held. Your ticket PNR will be sent shortly."}
+                            {booking.status === "PENDING" ? "Your payment is being verified for instant approval and PNR issuance." : "Your seat has been held with instant approval. Your PNR will be sent shortly."}
                         </p>
                     </div>
 
@@ -100,7 +100,7 @@ export default function ConfirmationPage() {
                         {/* Info */}
                         <div className="rounded-xl p-3.5 text-sm flex gap-2.5 border border-[#EDE9FE] bg-[#F5F3FF]" style={{ color: '#2E0A57' }}>
                             <Plane className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                            <span>Our team will contact you within 30 minutes to finalize PNR and ticket issuance.</span>
+                            <span>Our team provides instant approval and will finalize PNR and ticket issuance immediately.</span>
                         </div>
 
                         {/* Actions */}

@@ -138,7 +138,7 @@ export function BookingModal({ sector, isOpen, onClose }: BookingModalProps) {
                         <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 dark:border-primary/30 p-3 mt-4 rounded-md flex items-start gap-3 text-sm">
                             <ShieldCheck className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                             <p className="text-muted-foreground leading-tight text-primary dark:text-primary-foreground/80">
-                                Tickets will be held provisionally for 30 minutes.
+                                Tickets are processed with instant approval.
                                 Our team will reach out immediately to finalize issuance.
                             </p>
                         </div>

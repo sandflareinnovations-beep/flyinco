@@ -403,7 +403,7 @@ export default function Home() {
             <div style={{ display: "flex", flexWrap: "wrap", gap: "10px 28px", marginTop: 36 }}>
               {[
                 { label: "4.9/5 Rated Agency", icon: <Star size={13} fill="#FBBF24" color="#FBBF24" /> },
-                { label: "PNR in 30 Minutes", icon: <Clock size={13} color="#86EFAC" /> },
+                { label: "Instant Approval", icon: <ShieldCheck size={13} color="#86EFAC" /> },
                 { label: "Verified B2B Fares", icon: <ShieldCheck size={13} color="#93C5FD" /> },
               ].map(({ label, icon }) => (
                 <div key={label} style={{ display: "flex", alignItems: "center", gap: 7, color: "rgba(255,255,255,0.80)", fontSize: 13, fontWeight: 500 }}>
@@ -424,7 +424,7 @@ export default function Home() {
             {[
               { Icon: ShieldCheck, label: "Verified Best Fares", color: "#10B981" },
               { Icon: Plane, label: "Direct & 1-Stop Options", color: B.accent },
-              { Icon: Clock, label: "PNR Issued in 30 Minutes", color: "#F59E0B" },
+              { Icon: ShieldCheck, label: "Instant Approval", color: "#F59E0B" },
               { Icon: Briefcase, label: "Corporate B2B Rates", color: "#3B82F6" },
             ].map(({ Icon, label, color }) => (
               <div key={label} style={{ display: "flex", alignItems: "center", gap: 9, color: "#374151", fontSize: 13, fontWeight: 600 }}>
