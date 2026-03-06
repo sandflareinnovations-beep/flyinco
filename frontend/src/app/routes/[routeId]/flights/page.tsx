@@ -110,7 +110,11 @@ export default function FlightsPage() {
 
                     <div className="flex items-center gap-1.5 text-sm font-medium" style={{ color: "#2E0A57" }}>
                         <Calendar className="h-4 w-4" style={{ color: "#6C2BD9" }} />
-                        <span>{activeSector?.departureDate || "Loading date..."}</span>
+                        <span>
+                            {activeSector?.departureDate
+                                ? new Date(activeSector.departureDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+                                : "Loading date..."}
+                        </span>
                     </div>
                 </div>
             </div>

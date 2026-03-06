@@ -322,7 +322,7 @@ export default function Home() {
                                     </div>
                                     <div style={{ fontSize: 11, color: "#6B7280", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                                       <span>{s.originCity} → {s.destinationCity}</span>
-                                      {s.departureDate && <span>📅 {s.departureDate}</span>}
+                                      {s.departureDate && <span>📅 {new Date(s.departureDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>}
                                       <span>✈ {s.airline}</span>
                                       {s.layover && <span>⏱ {s.layover}</span>}
                                     </div>
@@ -529,7 +529,7 @@ export default function Home() {
                         </div>
 
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                          {s.departureDate && <Pill>📅 {s.departureDate}</Pill>}
+                          {s.departureDate && <Pill>📅 {new Date(s.departureDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</Pill>}
                           {s.baggage && <Pill bg="#F0FDF4" color="#15803D">🧳 {s.baggage}</Pill>}
                           <Pill bg="#FEF2F2" color="#DC2626">⚠️ {s.remainingSeats} seats left</Pill>
                           {s.flightRules && <Pill bg="#FFFBEB" color="#D97706">📋 {s.flightRules}</Pill>}
@@ -626,7 +626,7 @@ export default function Home() {
                       </div>
                     </div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                      <Pill>📅 {dynamicRoute.date}</Pill>
+                      <Pill>📅 {new Date(dynamicRoute.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</Pill>
                       <Pill bg="#F0FDF4" color="#15803D">🧳 {dynamicRoute.baggage}</Pill>
                       <Pill bg="#FEF2F2" color="#DC2626">⚠️ Limited Seats</Pill>
                     </div>

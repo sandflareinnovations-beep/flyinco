@@ -58,16 +58,19 @@ export default function SectorManagement() {
     const createMutation = useMutation({
         mutationFn: (data: any) => flyApi.sectors.create(data),
         onSuccess: () => { qc.invalidateQueries({ queryKey: ["sectors"] }); toast({ title: "Route Created" }); closeModal(); },
+        onError: (err: any) => toast({ title: "Create Failed", description: err.message, variant: "destructive" }),
     });
 
     const updateMutation = useMutation({
         mutationFn: ({ id, data }: { id: string; data: any }) => flyApi.sectors.update(id, data),
         onSuccess: () => { qc.invalidateQueries({ queryKey: ["sectors"] }); toast({ title: "Updated Successfully" }); closeModal(); },
+        onError: (err: any) => toast({ title: "Update Failed", description: err.message, variant: "destructive" }),
     });
 
     const deleteMutation = useMutation({
         mutationFn: (id: string) => flyApi.sectors.delete(id),
         onSuccess: () => { qc.invalidateQueries({ queryKey: ["sectors"] }); toast({ title: "Route Deleted" }); closeModal(); },
+        onError: (err: any) => toast({ title: "Delete Failed", description: err.message, variant: "destructive" }),
     });
 
     const openModal = (type: ModalType, sector?: FareSector) => {
