@@ -77,28 +77,21 @@ function PaymentForm() {
                 }
             }
 
-            // 2) Get route ID from backend
-            let dbRouteId: string | null = null;
-            try {
-                const routesRes = await fetch(`${API_BASE}/routes`, { credentials: "include" });
-                if (routesRes.ok) {
-                    const routes = await routesRes.json();
-                    const ruhCok = routes.find((r: any) => r.origin === "RUH" && r.destination === "COK");
-                    if (ruhCok) dbRouteId = ruhCok.id;
-                }
-            } catch { /* fallback */ }
-
+            // 2) Create booking in backend using the flight.id (which is the route UUID)
             let dbBookingId: string | null = null;
             let bookingStatus = "PENDING";
 
-            if (dbRouteId) {
+            // The flight.id is the UUID from the backend's Route model
+            const routeId = flight.id;
+
+            if (routeId) {
                 try {
                     const res = await fetch(`${API_BASE}/bookings`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         credentials: "include",
                         body: JSON.stringify({
-                            routeId: dbRouteId,
+                            routeId: routeId,
                             passengerName: `${passenger.title || "Mr"} ${passenger.firstName} ${passenger.lastName}`,
                             passportNumber: passenger.passportNumber,
                             email,
@@ -114,17 +107,20 @@ function PaymentForm() {
                         bookingStatus = booking.status || "PENDING";
                     } else {
                         const err = await res.json().catch(() => ({}));
-                        throw new Error(err.message || "Booking failed");
+                        throw new Error(err.message || "Booking failed at backend");
                     }
                 } catch (apiErr: any) {
+                    console.error("Failed to save booking to backend:", apiErr);
                     toast({
-                        title: "Note",
-                        description: "Booking saved locally. Login to sync with your account.",
+                        title: "Backend Sync Error",
+                        description: "Payment recorded, but sync failed. Our admin will process this manually.",
                     });
                 }
+            } else {
+                console.error("No flight ID found in booking data");
             }
 
-            // 3) Store confirmation data
+            // 3) Store confirmation data for next page
             const bookingRef = dbBookingId
                 ? `FLY${dbBookingId.slice(0, 8).toUpperCase()}`
                 : `FLY${Date.now().toString().slice(-8)}`;
