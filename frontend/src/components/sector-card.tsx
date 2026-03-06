@@ -65,7 +65,7 @@ export function SectorCard({ sector, onBook }: SectorCardProps) {
                                 <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 rounded-full w-2 h-2 border bg-background" />
                             </div>
                             <div className="flex flex-col items-center mt-2 gap-1 text-xs text-muted-foreground font-medium">
-                                <span>Direct Flight</span>
+                                <span>{sector.layover ? `One Stop • ${sector.layover}` : "Direct Flight"}</span>
                                 {sector.baggage && (
                                     <span className="flex items-center gap-1 bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20">
                                         <Briefcase className="h-3 w-3" />

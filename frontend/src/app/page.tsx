@@ -362,7 +362,7 @@ export default function Home() {
 
                 {/* Search CTA */}
                 <button
-                  onClick={() => router.push("/routes/ruh-cok/flights")}
+                  onClick={() => router.push(`/routes/${activeSector ? activeSector.id : "ruh-cok"}/flights`)}
                   style={{
                     flex: "0 0 auto",
                     background: `linear-gradient(135deg, ${B.primary} 0%, ${B.accent} 100%)`,
@@ -548,7 +548,7 @@ export default function Home() {
                           <p style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 500 }}>per person</p>
                         </div>
                         <button
-                          onClick={() => router.push("/routes/ruh-cok/flights")}
+                          onClick={() => router.push(`/routes/${s.id}/flights`)}
                           style={{
                             width: "100%",
                             background: `linear-gradient(135deg, ${B.primary} 0%, ${B.accent} 100%)`,
@@ -641,7 +641,7 @@ export default function Home() {
                       <p style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 500 }}>per person</p>
                     </div>
                     <button
-                      onClick={() => router.push("/routes/ruh-cok/flights")}
+                      onClick={() => router.push(`/routes/${dynamicRoute && activeSector ? activeSector.id : "ruh-cok"}/flights`)}
                       style={{
                         width: "100%",
                         background: `linear-gradient(135deg, ${B.primary} 0%, ${B.accent} 100%)`,

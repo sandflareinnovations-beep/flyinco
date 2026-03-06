@@ -13,7 +13,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Eye, Ticket, XCircle, Search, RefreshCw, User, Phone, Mail, CreditCard, Plane } from "lucide-react";
+import {
+    Eye, Ticket, XCircle, Search, RefreshCw, User, Phone, Mail,
+    CreditCard, Plane, Trash2, AlertTriangle
+} from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
@@ -45,6 +48,8 @@ export default function AdminBookings() {
     const [selected, setSelected] = useState<any>(null);
     const [pnrInput, setPnrInput] = useState("");
     const [showDetail, setShowDetail] = useState(false);
+    const [showDelete, setShowDelete] = useState(false);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
 
     const { data: bookings = [], isLoading, refetch, isError } = useQuery({
         queryKey: ["admin-bookings"],
@@ -60,6 +65,20 @@ export default function AdminBookings() {
             setShowDetail(false);
         },
         onError: () => toast({ title: "Error", description: "Failed to update status.", variant: "destructive" }),
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: (id: string) => fetchWithCreds(`/bookings/${id}`, { method: "DELETE" }),
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ["admin-bookings"] });
+            toast({ title: "Booking Deleted", description: "The record has been permanently removed." });
+            setShowDelete(false);
+        },
+        onError: (err: any) => toast({
+            title: "Error",
+            description: err.message || "Failed to delete booking.",
+            variant: "destructive"
+        }),
     });
 
     const filtered = bookings.filter((b: any) => {
@@ -221,6 +240,17 @@ export default function AdminBookings() {
                                                 >
                                                     <XCircle className="h-3.5 w-3.5" />
                                                 </Button>
+                                                <Button
+                                                    variant="ghost" size="sm"
+                                                    className="h-7 w-7 p-0 rounded-lg hover:bg-red-100 hover:text-red-700"
+                                                    title="Delete Permanently"
+                                                    onClick={() => {
+                                                        setDeletingId(booking.id);
+                                                        setShowDelete(true);
+                                                    }}
+                                                >
+                                                    <Trash2 className="h-3.5 w-3.5 text-red-600" />
+                                                </Button>
                                             </div>
                                         </TableCell>
                                     </motion.tr>
@@ -380,6 +410,38 @@ export default function AdminBookings() {
                     <DialogFooter>
                         <Button variant="outline" className="rounded-xl" onClick={() => setShowDetail(false)}>
                             Close
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* ── Delete Confirmation Modal ── */}
+            <Dialog open={showDelete} onOpenChange={setShowDelete}>
+                <DialogContent className="max-w-sm rounded-2xl">
+                    <DialogHeader>
+                        <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mb-4">
+                            <AlertTriangle className="h-6 w-6 text-red-600" />
+                        </div>
+                        <DialogTitle className="font-black text-xl">Delete Booking?</DialogTitle>
+                        <p className="text-gray-500 text-sm py-2">
+                            This will permanently remove the booking record from the database. This action cannot be undone.
+                        </p>
+                    </DialogHeader>
+                    <DialogFooter className="flex gap-2 sm:gap-0 mt-4">
+                        <Button
+                            variant="outline"
+                            className="flex-1 rounded-xl"
+                            onClick={() => setShowDelete(false)}
+                            disabled={deleteMutation.isPending}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            className="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold"
+                            onClick={() => deletingId && deleteMutation.mutate(deletingId)}
+                            disabled={deleteMutation.isPending}
+                        >
+                            {deleteMutation.isPending ? "Deleting..." : "Delete Now"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

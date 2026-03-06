@@ -4,83 +4,88 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FlightCard } from "@/components/flights/flight-card";
 import { motion } from "framer-motion";
-import { ArrowLeft, Calendar, Lock } from "lucide-react";
+import { ArrowLeft, Calendar, Lock, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { API_BASE } from "@/lib/api";
+import { flyApi } from "@/lib/api";
+import { FareSector } from "@/lib/types";
 
 const BRAND = "#2E0A57";
-
-// The one supported route — always RUH → COK
-const ROUTE_INFO = {
-    id: "ruh-cok",
-    originCode: "RUH",
-    originCity: "Riyadh",
-    destinationCode: "COK",
-    destinationCity: "Kochi",
-    departureDate: "2026-03-09",
-    airline: "Saudia Airlines",
-};
-
-// Exact matching flight to remove mock data clutter and SalamAir
-const SAUDIA_FLIGHT = {
-    id: "ruh-cok-sv890",
-    routeId: "ruh-cok",
-    segments: [
-        {
-            flightNumber: 'SV 890',
-            airline: 'Saudia Airlines',
-            departureAirport: 'RUH',
-            departureCity: 'Riyadh',
-            departureTime: '11:00 AM',
-            arrivalAirport: 'COK',
-            arrivalCity: 'Cochin',
-            arrivalTime: '06:15 PM',
-            duration: '7h 15m',
-        }
-    ],
-    totalDuration: '7h 15m',
-    stops: 0,
-    baggage: '2 PC / 30kg',
-    price: 1300,
-    totalSeats: 150,
-    remainingSeats: 24, // shows availability but not critical
-    departureDate: '2026-03-09',
-    arrivalDate: '2026-03-09',
-};
 
 export default function FlightsPage() {
     const { routeId } = useParams<{ routeId: string }>();
     const router = useRouter();
 
     const [loading, setLoading] = useState(true);
-    const [bookingStatus, setBookingStatus] = useState<"OPEN" | "CLOSED">("OPEN");
+    const [error, setError] = useState<string | null>(null);
+    const [bookingStatus, setBookingStatus] = useState<string>("OPEN");
+    const [activeSector, setActiveSector] = useState<FareSector | null>(null);
 
     useEffect(() => {
-        // Check booking status from backend (RUH→COK route in DB)
-        const checkStatus = async () => {
+        const loadRoute = async () => {
             try {
-                const res = await fetch(`${API_BASE}/routes`, { credentials: "include" });
-                if (res.ok) {
-                    const routes = await res.json();
-                    const ruhCok = routes.find((r: any) => r.origin === "RUH" && r.destination === "COK");
-                    if (ruhCok) {
-                        setBookingStatus(ruhCok.bookingStatus || "OPEN");
-                        // Sync price and seats dynamically if DB has it
-                        SAUDIA_FLIGHT.price = ruhCok.price;
-                        SAUDIA_FLIGHT.remainingSeats = ruhCok.remainingSeats;
-                    }
+                setLoading(true);
+                const routes = await flyApi.sectors.list();
+                let foundSector: FareSector | undefined;
+
+                if (routeId === "ruh-cok") {
+                    // Legacy slug support
+                    foundSector = routes.find(r =>
+                        (r.originCode === "RUH" && r.destinationCode === "COK") ||
+                        (r.originCode === "RUH" && r.destinationCode === "BOM") ||
+                        r.id === routeId
+                    );
+                } else {
+                    // Try exact ID match first
+                    foundSector = routes.find(r => r.id === routeId);
                 }
-            } catch {
-                // Backend down — keep OPEN from mock
+
+                if (foundSector) {
+                    setActiveSector(foundSector);
+                    setBookingStatus(foundSector.bookingStatus || "OPEN");
+                } else {
+                    setError("Flight route not found or currently unavailable.");
+                }
+            } catch (err) {
+                console.error("Failed to load route:", err);
+                setError("Could not connect to the booking server. Please try again later.");
             } finally {
                 setLoading(false);
             }
         };
-        checkStatus();
-    }, []);
+        loadRoute();
+    }, [routeId]);
 
-    const availableFlights = [SAUDIA_FLIGHT];
+    // Format flight object for FlightCard (adapting DB model to UI model)
+    const availableFlights = activeSector ? [{
+        id: activeSector.id,
+        routeId: activeSector.id,
+        segments: [
+            {
+                flightNumber: activeSector.flightNumber,
+                airline: activeSector.airline,
+                departureAirport: activeSector.originCode,
+                departureCity: activeSector.originCity,
+                departureTime: activeSector.departureTime,
+                arrivalAirport: activeSector.destinationCode,
+                arrivalCity: activeSector.destinationCity,
+                arrivalTime: activeSector.arrivalTime,
+                duration: activeSector.duration,
+            }
+        ],
+        totalDuration: activeSector.duration,
+        stops: activeSector.layover ? 1 : 0,
+        baggage: activeSector.baggage,
+        price: activeSector.price,
+        totalSeats: activeSector.totalSeats,
+        remainingSeats: activeSector.remainingSeats,
+        departureDate: activeSector.departureDate,
+        arrivalDate: activeSector.departureDate,
+        airlineLogo: activeSector.airlineLogo,
+        flightRules: activeSector.flightRules,
+        flightDetails: activeSector.flightDetails,
+        layover: activeSector.layover
+    }] : [];
 
     return (
         <div className="min-h-screen bg-[#F7F7FB]">
@@ -92,14 +97,20 @@ export default function FlightsPage() {
                         Home
                     </Button>
                     <div className="h-5 w-px bg-gray-200 hidden md:block" />
-                    <div className="flex items-center gap-3">
-                        <span className="font-black text-xl" style={{ color: BRAND }}>{ROUTE_INFO.originCode}</span>
-                        <span style={{ color: "#9CA3AF" }}>→</span>
-                        <span className="font-black text-xl" style={{ color: BRAND }}>{ROUTE_INFO.destinationCode}</span>
-                    </div>
+
+                    {activeSector ? (
+                        <div className="flex items-center gap-3">
+                            <span className="font-black text-xl" style={{ color: BRAND }}>{activeSector.originCode}</span>
+                            <span style={{ color: "#9CA3AF" }}>→</span>
+                            <span className="font-black text-xl" style={{ color: BRAND }}>{activeSector.destinationCode}</span>
+                        </div>
+                    ) : (
+                        <Skeleton className="h-8 w-32 rounded-lg" />
+                    )}
+
                     <div className="flex items-center gap-1.5 text-sm font-medium" style={{ color: "#2E0A57" }}>
                         <Calendar className="h-4 w-4" style={{ color: "#6C2BD9" }} />
-                        <span>09 March 2026</span>
+                        <span>{activeSector?.departureDate || "Loading date..."}</span>
                     </div>
                 </div>
             </div>
@@ -108,6 +119,21 @@ export default function FlightsPage() {
                 {loading ? (
                     <div className="space-y-4">
                         {[...Array(1)].map((_, i) => <Skeleton key={i} className="h-36 w-full rounded-2xl" />)}
+                    </div>
+                ) : error ? (
+                    <div className="max-w-md w-full bg-white rounded-3xl shadow-md border border-gray-100 p-10 text-center mx-auto">
+                        <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center mx-auto mb-5">
+                            <AlertTriangle className="h-8 w-8 text-amber-500" />
+                        </div>
+                        <h2 className="text-2xl font-black text-gray-900 mb-2">Notice</h2>
+                        <p className="text-gray-500 mb-6 leading-relaxed">{error}</p>
+                        <Button
+                            variant="outline"
+                            className="rounded-xl w-full hover:bg-gray-50 text-gray-900"
+                            onClick={() => router.push("/")}
+                        >
+                            Back to Home
+                        </Button>
                     </div>
                 ) : bookingStatus === "CLOSED" ? (
                     /* Booking Closed Card */
@@ -126,7 +152,7 @@ export default function FlightsPage() {
                                 <br />We will reopen soon.
                             </p>
                             <div className="bg-orange-50 border border-orange-100 rounded-xl p-3 text-sm text-orange-700 font-medium mb-6">
-                                🔔 Route: <strong>RUH → COK</strong> · 09 March 2026
+                                🔔 Route: <strong>{activeSector?.originCode} → {activeSector?.destinationCode}</strong> · {activeSector?.departureDate}
                             </div>
                             <Button
                                 variant="outline"
@@ -146,9 +172,11 @@ export default function FlightsPage() {
                             className="mb-8"
                         >
                             <h1 className="text-2xl font-black text-gray-900 mb-1" style={{ letterSpacing: "-0.03em" }}>
-                                {ROUTE_INFO.originCity} → {ROUTE_INFO.destinationCity}
+                                {activeSector?.originCity} → {activeSector?.destinationCity}
                             </h1>
-                            <p className="text-gray-500 text-sm font-medium">1 special fare direct flight available</p>
+                            <p className="text-gray-500 text-sm font-medium">
+                                {availableFlights.length} special fare {availableFlights.some(f => f.layover) ? "flight" : "direct flight"}{availableFlights.length !== 1 ? "s" : ""} available
+                            </p>
                         </motion.div>
 
                         <div className="space-y-4">
@@ -162,3 +190,4 @@ export default function FlightsPage() {
         </div>
     );
 }
+

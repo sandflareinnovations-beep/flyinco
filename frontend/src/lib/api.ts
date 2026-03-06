@@ -199,6 +199,11 @@ export const flyApi = {
                     email: data.email,
                 }),
             });
+        },
+        delete: async (id: string) => {
+            return await fetchWithCreds(`/bookings/${id}`, {
+                method: 'DELETE',
+            });
         }
     },
     users: {

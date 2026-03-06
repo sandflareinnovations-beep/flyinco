@@ -79,8 +79,8 @@ export function FlightCard({ flight, routeId, index = 0 }: FlightCardProps) {
                                 <Plane size={14} style={{ color: BRAND_ACCENT }} />
                                 <div style={{ flex: 1, height: 2, background: "#F3F4F6", borderRadius: 2 }} />
                             </div>
-                            <span style={{ fontSize: 11, fontWeight: 700, color: "#10B981" }}>
-                                Direct
+                            <span style={{ fontSize: 11, fontWeight: 700, color: flight.layover ? "#F59E0B" : "#10B981" }}>
+                                {flight.layover ? "One Stop" : "Direct"}
                             </span>
                         </div>
 
