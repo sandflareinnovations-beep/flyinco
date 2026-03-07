@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsDateString } from 'class-validator';
+import { IsString, IsNumber, IsDateString, IsOptional } from 'class-validator';
 
 export class CreateRouteDto {
   @IsString()
