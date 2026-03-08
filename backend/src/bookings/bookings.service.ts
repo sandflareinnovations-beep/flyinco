@@ -6,10 +6,14 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class BookingsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private mailService: MailService,
+  ) { }
 
   async create(dto: CreateBookingDto, userId: string | null) {
     const route = await this.prisma.route.findUnique({
@@ -45,6 +49,11 @@ export class BookingsService {
         remainingSeats: route.remainingSeats - 1,
       },
     });
+
+    await this.mailService.sendBookingConfirmation(
+      booking.email,
+      booking.id
+    );
 
     return booking;
   }
