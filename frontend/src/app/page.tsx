@@ -25,6 +25,8 @@ const ROUTE = {
   layover: "",
   flightRules: "",
   flightDetails: "",
+  departureTime: "11:35 AM",
+  arrivalTime: "18:50 PM",
 };
 
 function Pill({ children, bg = B.light, color = B.primary }: any) {
@@ -102,6 +104,8 @@ export default function Home() {
     layover: activeSector.layover,
     flightRules: activeSector.flightRules,
     flightDetails: activeSector.flightDetails,
+    departureTime: activeSector.departureTime || ROUTE.departureTime,
+    arrivalTime: activeSector.arrivalTime || ROUTE.arrivalTime,
   } : ROUTE;
 
   return (
@@ -515,6 +519,7 @@ export default function Home() {
                           <div>
                             <p style={{ fontSize: 42, fontWeight: 900, color: B.primary, letterSpacing: "-0.05em", lineHeight: 1 }}>{s.originCode}</p>
                             <p style={{ fontSize: 12, color: "#6B7280", marginTop: 4, fontWeight: 500 }}>{s.originCity}</p>
+                            {s.departureTime && <p style={{ fontSize: 15, color: B.primary, fontWeight: 800, marginTop: 4 }}>{s.departureTime}</p>}
                           </div>
                           <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 60 }}>
                             <span style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 500 }}>{s.duration}</span>
@@ -532,6 +537,7 @@ export default function Home() {
                           <div style={{ textAlign: "right" }}>
                             <p style={{ fontSize: 42, fontWeight: 900, color: B.primary, letterSpacing: "-0.05em", lineHeight: 1 }}>{s.destinationCode}</p>
                             <p style={{ fontSize: 12, color: "#6B7280", marginTop: 4, fontWeight: 500, textAlign: "right" }}>{s.destinationCity}</p>
+                            {s.arrivalTime && <p style={{ fontSize: 15, color: B.primary, fontWeight: 800, marginTop: 4, textAlign: "right" }}>{s.arrivalTime}</p>}
                           </div>
                         </div>
 
@@ -615,6 +621,7 @@ export default function Home() {
                       <div>
                         <p style={{ fontSize: 50, fontWeight: 900, color: B.primary, letterSpacing: "-0.05em", lineHeight: 1 }}>{dynamicRoute.from.code}</p>
                         <p style={{ fontSize: 13, color: "#6B7280", marginTop: 4, fontWeight: 500 }}>{dynamicRoute.from.city}</p>
+                        {dynamicRoute.departureTime && <p style={{ fontSize: 15, color: B.primary, fontWeight: 800, marginTop: 4 }}>{dynamicRoute.departureTime}</p>}
                       </div>
                       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 80 }}>
                         <span style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 500 }}>{dynamicRoute.duration}</span>
@@ -630,6 +637,7 @@ export default function Home() {
                       <div style={{ textAlign: "right" }}>
                         <p style={{ fontSize: 50, fontWeight: 900, color: B.primary, letterSpacing: "-0.05em", lineHeight: 1 }}>{dynamicRoute.to.code}</p>
                         <p style={{ fontSize: 13, color: "#6B7280", marginTop: 4, fontWeight: 500, textAlign: "right" }}>{dynamicRoute.to.city}</p>
+                        {dynamicRoute.arrivalTime && <p style={{ fontSize: 15, color: B.primary, fontWeight: 800, marginTop: 4, textAlign: "right" }}>{dynamicRoute.arrivalTime}</p>}
                       </div>
                     </div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
