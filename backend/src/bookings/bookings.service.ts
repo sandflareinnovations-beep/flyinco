@@ -102,4 +102,21 @@ export class BookingsService {
     // Optionally restore seats here
     return this.prisma.booking.delete({ where: { id } });
   }
+
+  async sendTicketToCustomer(bookingId: string, file: Express.Multer.File) {
+    const booking = await this.prisma.booking.findUnique({
+      where: { id: bookingId }
+    });
+
+    if (!booking) {
+      throw new Error("Booking not found");
+    }
+
+    await this.mailService.sendTicketEmail(
+      booking.email,
+      file.buffer
+    );
+
+    return { message: "Ticket sent successfully" };
+  }
 }

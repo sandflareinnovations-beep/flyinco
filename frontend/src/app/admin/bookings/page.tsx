@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import {
     Eye, Ticket, XCircle, Search, RefreshCw, User, Phone, Mail,
-    CreditCard, Plane, Trash2, AlertTriangle
+    CreditCard, Plane, Trash2, AlertTriangle, UploadCloud
 } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -50,6 +50,7 @@ export default function AdminBookings() {
     const [showDetail, setShowDetail] = useState(false);
     const [showDelete, setShowDelete] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [ticketFile, setTicketFile] = useState<File | null>(null);
 
     const { data: bookings = [], isLoading, refetch, isError } = useQuery({
         queryKey: ["admin-bookings"],
@@ -65,6 +66,30 @@ export default function AdminBookings() {
             setShowDetail(false);
         },
         onError: () => toast({ title: "Error", description: "Failed to update status.", variant: "destructive" }),
+    });
+
+    const sendTicketMutation = useMutation({
+        mutationFn: async ({ id, file }: { id: string; file: File }) => {
+            const formData = new FormData();
+            formData.append("ticket", file);
+
+            const token = localStorage.getItem('token') || document.cookie.match(/(^| )token=([^;]+)/)?.[2] || '';
+            const res = await fetch(`${API_BASE}/bookings/${id}/send-ticket`, {
+                method: "POST",
+                headers: {
+                    ...(token && { Authorization: `Bearer ${token}` }),
+                },
+                body: formData,
+            });
+
+            if (!res.ok) throw new Error("Failed to send ticket");
+            return res.json();
+        },
+        onSuccess: () => {
+            toast({ title: "Ticket sent successfully!" });
+            setTicketFile(null);
+        },
+        onError: () => toast({ title: "Error", description: "Failed to send ticket.", variant: "destructive" }),
     });
 
     const deleteMutation = useMutation({
@@ -401,6 +426,30 @@ export default function AdminBookings() {
                                         disabled={!pnrInput}
                                     >
                                         <Ticket className="h-4 w-4 mr-1.5" /> Issue
+                                    </Button>
+                                </div>
+                            </div>
+                            {/* Send PDF Ticket */}
+                            <div className="space-y-2 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <Label className="text-xs font-bold text-gray-500">Upload Ticket & Send Email</Label>
+                                <div className="flex gap-2 items-center">
+                                    <Input
+                                        type="file"
+                                        accept="application/pdf"
+                                        className="bg-white text-sm"
+                                        onChange={(e) => setTicketFile(e.target.files?.[0] || null)}
+                                    />
+                                    <Button
+                                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold flex-shrink-0"
+                                        disabled={!ticketFile || sendTicketMutation.isPending}
+                                        onClick={() => {
+                                            if (ticketFile && selected) {
+                                                sendTicketMutation.mutate({ id: selected.id, file: ticketFile });
+                                            }
+                                        }}
+                                    >
+                                        <UploadCloud className="w-4 h-4 mr-1.5" />
+                                        {sendTicketMutation.isPending ? "Sending..." : "Send Ticket"}
                                     </Button>
                                 </div>
                             </div>

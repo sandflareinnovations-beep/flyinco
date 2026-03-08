@@ -27,4 +27,20 @@ export class MailService {
             console.error("Resend error:", error);
         }
     }
+
+    async sendTicketEmail(email: string, pdf: Buffer) {
+        await this.resend.emails.send({
+            from: "Flyinco <booking@flyincobooking.com>",
+            to: email,
+            subject: "Your Flyinco Flight Ticket",
+            html: `       <h2>Your Ticket is Confirmed</h2>       <p>Your airline ticket is attached to this email.</p>       <p>Have a pleasant journey.</p>       <b>Flyinco Travel & Tourism</b>
+    `,
+            attachments: [
+                {
+                    filename: "ticket.pdf",
+                    content: pdf
+                }
+            ]
+        });
+    }
 }

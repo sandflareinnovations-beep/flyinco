@@ -89,4 +89,16 @@ export class BookingsController {
   remove(@Param('id') id: string) {
     return this.bookingsService.remove(id);
   }
+
+  // ── Admin: send ticket PDF to customer ──
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Post(':id/send-ticket')
+  @UseInterceptors(FileInterceptor('ticket'))
+  async sendTicket(
+    @Param('id') bookingId: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.bookingsService.sendTicketToCustomer(bookingId, file);
+  }
 }
