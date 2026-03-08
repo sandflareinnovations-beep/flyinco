@@ -15,7 +15,7 @@ export class MailService {
 
         try {
             const response = await this.resend.emails.send({
-                from: "Flyinco <booking@flyinco.com>",
+                from: "Flyinco <no-reply@flyinco.com>",
                 to: email,
                 subject: "Flyinco Booking Confirmation",
                 html: `     <h2>Your seat has been held successfully</h2>     <p><b>Booking ID:</b> ${bookingId}</p>     <p>Your ticket with PNR will be issued shortly.</p>     <b>Flyinco Travel & Tourism</b>
