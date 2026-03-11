@@ -386,7 +386,7 @@ export default function AdminBookings() {
 
             {/* ── Booking Detail Modal ── */}
             <Dialog open={showDetail} onOpenChange={setShowDetail}>
-                <DialogContent className="max-w-lg rounded-2xl">
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-black text-lg">Booking Details</DialogTitle>
                         {selected && (
@@ -397,226 +397,191 @@ export default function AdminBookings() {
                     </DialogHeader>
 
                     {selected && (
-                        <div className="space-y-4 py-2">
-                            {/* Passenger info */}
-                            <div className="bg-gray-50 rounded-xl p-4 space-y-2.5">
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Passenger</p>
-                                <div className="flex items-center gap-2 text-sm">
-                                    <User className="h-4 w-4 text-violet-500" />
-                                    <span className="font-semibold text-gray-900">{selected.passengerName}</span>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-2">
+                            {/* Column 1: Info */}
+                            <div className="space-y-4">
+                                {/* Passenger info */}
+                                <div className="bg-gray-50 rounded-xl p-4 space-y-2.5">
+                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Passenger</p>
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <User className="h-4 w-4 text-violet-500" />
+                                        <span className="font-semibold text-gray-900">{selected.passengerName}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <CreditCard className="h-4 w-4 text-violet-500" />
+                                        <span className="text-gray-600 font-mono">{selected.passportNumber}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <Mail className="h-4 w-4 text-violet-500" />
+                                        <span className="text-gray-600">{selected.email}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <Phone className="h-4 w-4 text-violet-500" />
+                                        <span className="text-gray-600">{selected.phone}</span>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-2 text-sm">
-                                    <CreditCard className="h-4 w-4 text-violet-500" />
-                                    <span className="text-gray-600 font-mono">{selected.passportNumber}</span>
+
+                                {/* Flight info */}
+                                {selected.route && (
+                                    <div className="bg-violet-50 border border-violet-100 rounded-xl p-4 space-y-2">
+                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Flight</p>
+                                        <div className="flex items-center gap-2 text-sm">
+                                            <Plane className="h-4 w-4 text-violet-600" />
+                                            <span className="font-bold text-violet-800">
+                                                {selected.route.origin} → {selected.route.destination}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-500">Price</span>
+                                            <span className="font-black text-violet-700">SAR {(selected.route.price || 0).toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-500">Travel Date</span>
+                                            <span className="font-semibold text-gray-800">09 March 2026</span>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Update status */}
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Booking Status</Label>
+                                    <div className="flex gap-2">
+                                        <Select
+                                            defaultValue={selected.status}
+                                            onValueChange={v => statusMutation.mutate({ id: selected.id, status: v })}
+                                        >
+                                            <SelectTrigger className="rounded-xl border-gray-200 focus:ring-violet-400 flex-1">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {["PENDING", "HELD", "CONFIRMED", "CANCELLED"].map(s => (
+                                                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-2 text-sm">
-                                    <Mail className="h-4 w-4 text-violet-500" />
-                                    <span className="text-gray-600">{selected.email}</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-sm">
-                                    <Phone className="h-4 w-4 text-violet-500" />
-                                    <span className="text-gray-600">{selected.phone}</span>
+
+                                {/* Send PDF Ticket */}
+                                <div className="space-y-2 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                    <Label className="text-xs font-bold text-gray-500">Upload Ticket & Send Email</Label>
+                                    <div className="flex flex-col gap-3">
+                                        <Input
+                                            type="file"
+                                            accept="application/pdf"
+                                            className="bg-white text-xs h-9 py-1"
+                                            onChange={(e) => setTicketFile(e.target.files?.[0] || null)}
+                                        />
+                                        <Button
+                                            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold w-full h-9 rounded-xl"
+                                            disabled={!ticketFile || sendTicketMutation.isPending}
+                                            onClick={() => {
+                                                if (ticketFile && selected) {
+                                                    sendTicketMutation.mutate({ id: selected.id, file: ticketFile });
+                                                }
+                                            }}
+                                        >
+                                            <UploadCloud className="w-4 h-4 mr-1.5" />
+                                            {sendTicketMutation.isPending ? "Sending..." : "Send Ticket"}
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* Payment Info */}
-                            {selected.transactionId && (
-                                <div className="bg-amber-50 rounded-xl p-4 space-y-3">
-                                    <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-2">Payment Details</p>
-                                    <div className="flex justify-between items-center text-sm">
-                                        <span className="text-amber-700 font-medium">Transaction ID</span>
-                                        <span className="font-mono font-bold text-amber-900 bg-amber-200 px-2 py-0.5 rounded-lg border border-amber-300">
-                                            {selected.transactionId}
-                                        </span>
+                            {/* Column 2: Accounting & Payment */}
+                            <div className="space-y-4">
+                                {/* Accounting & Fares */}
+                                <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 space-y-4">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <Calculator className="h-4 w-4 text-emerald-600" />
+                                        <p className="text-xs font-bold text-emerald-700 uppercase tracking-widest">Accounting</p>
                                     </div>
-                                    {selected.paymentReceipt && (
-                                        <div className="space-y-2">
-                                            <div className="flex justify-between items-center text-sm">
-                                                <span className="text-amber-700 font-medium">Receipt</span>
-                                                <a
-                                                    href={selected.paymentReceipt}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-xs text-violet-600 font-semibold hover:underline"
-                                                >
-                                                    Open Full Image ↗
-                                                </a>
-                                            </div>
-                                            <img
-                                                src={selected.paymentReceipt}
-                                                alt="Payment receipt"
-                                                className="w-full rounded-xl border border-amber-200 object-contain max-h-56 bg-white shadow-sm"
-                                                onError={(e) => {
-                                                    (e.target as HTMLImageElement).style.display = 'none';
-                                                }}
+                                    
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1.5">
+                                            <Label className="text-[10px] font-bold text-gray-400 uppercase">Purchase</Label>
+                                            <Input 
+                                                type="number" 
+                                                className="h-8 rounded-lg text-sm"
+                                                value={accData.purchasePrice}
+                                                onChange={e => setAccData({...accData, purchasePrice: parseFloat(e.target.value) || 0})}
                                             />
                                         </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {/* Flight info */}
-                            {selected.route && (
-                                <div className="bg-violet-50 border border-violet-100 rounded-xl p-4 space-y-2">
-                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Flight</p>
-                                    <div className="flex items-center gap-2 text-sm">
-                                        <Plane className="h-4 w-4 text-violet-600" />
-                                        <span className="font-bold text-violet-800">
-                                            {selected.route.origin} → {selected.route.destination}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between text-sm">
-                                        <span className="text-gray-500">Price</span>
-                                        <span className="font-black text-violet-700">SAR {(selected.route.price || 0).toLocaleString()}</span>
-                                    </div>
-                                    <div className="flex justify-between text-sm">
-                                        <span className="text-gray-500">Travel Date</span>
-                                        <span className="font-semibold text-gray-800">09 March 2026</span>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Accounting & Fares */}
-                            <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 space-y-4">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <Calculator className="h-4 w-4 text-emerald-600" />
-                                    <p className="text-xs font-bold text-emerald-700 uppercase tracking-widest">Accounting & Fares</p>
-                                </div>
-                                
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-bold text-gray-400 uppercase">Purchase (Cost)</Label>
-                                        <Input 
-                                            type="number" 
-                                            className="h-8 rounded-lg text-sm"
-                                            value={accData.purchasePrice}
-                                            onChange={e => setAccData({...accData, purchasePrice: parseFloat(e.target.value) || 0})}
-                                        />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-bold text-gray-400 uppercase">Selling Price</Label>
-                                        <Input 
-                                            type="number" 
-                                            className="h-8 rounded-lg text-sm font-bold text-violet-700"
-                                            value={accData.sellingPrice}
-                                            onChange={e => setAccData({...accData, sellingPrice: parseFloat(e.target.value) || 0})}
-                                        />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-bold text-gray-400 uppercase">Base Fare</Label>
-                                        <Input 
-                                            type="number" 
-                                            className="h-8 rounded-lg text-sm"
-                                            value={accData.baseFare}
-                                            onChange={e => setAccData({...accData, baseFare: parseFloat(e.target.value) || 0})}
-                                        />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-bold text-gray-400 uppercase">Taxes</Label>
-                                        <Input 
-                                            type="number" 
-                                            className="h-8 rounded-lg text-sm"
-                                            value={accData.taxes}
-                                            onChange={e => setAccData({...accData, taxes: parseFloat(e.target.value) || 0})}
-                                        />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-bold text-gray-400 uppercase">Service Fee</Label>
-                                        <Input 
-                                            type="number" 
-                                            className="h-8 rounded-lg text-sm"
-                                            value={accData.serviceFee}
-                                            onChange={e => setAccData({...accData, serviceFee: parseFloat(e.target.value) || 0})}
-                                        />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-bold text-gray-400 uppercase">Current Profit</Label>
-                                        <div className={`h-8 flex items-center px-3 rounded-lg text-sm font-black border ${ (accData.sellingPrice - accData.purchasePrice) >= 0 ? 'bg-emerald-100 border-emerald-200 text-emerald-700' : 'bg-red-100 border-red-200 text-red-700'}`}>
-                                            SAR {(accData.sellingPrice - accData.purchasePrice).toLocaleString()}
+                                        <div className="space-y-1.5">
+                                            <Label className="text-[10px] font-bold text-gray-400 uppercase">Selling Price</Label>
+                                            <Input 
+                                                type="number" 
+                                                className="h-8 rounded-lg text-sm font-bold text-violet-700"
+                                                value={accData.sellingPrice}
+                                                onChange={e => setAccData({...accData, sellingPrice: parseFloat(e.target.value) || 0})}
+                                            />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <Label className="text-[10px] font-bold text-gray-400 uppercase">PNR</Label>
+                                            <Input 
+                                                className="h-8 rounded-lg text-sm font-mono uppercase"
+                                                placeholder="PNR"
+                                                value={pnrInput}
+                                                onChange={e => setPnrInput(e.target.value.toUpperCase())}
+                                            />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <Label className="text-[10px] font-bold text-gray-400 uppercase">Profit</Label>
+                                            <div className={`h-8 flex items-center px-3 rounded-lg text-[11px] font-black border ${ (accData.sellingPrice - accData.purchasePrice) >= 0 ? 'bg-emerald-100 border-emerald-200 text-emerald-700' : 'bg-red-100 border-red-200 text-red-700'}`}>
+                                                SAR {(accData.sellingPrice - accData.purchasePrice).toLocaleString()}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div className="grid grid-cols-2 gap-3 pt-1">
-                                    <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-bold text-gray-400 uppercase">PNR</Label>
-                                        <Input 
-                                            className="h-8 rounded-lg text-sm font-mono uppercase"
-                                            placeholder="PNR"
-                                            value={pnrInput}
-                                            onChange={e => setPnrInput(e.target.value.toUpperCase())}
-                                        />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-bold text-gray-400 uppercase">Ticket Number</Label>
-                                        <Input 
-                                            className="h-8 rounded-lg text-sm font-mono"
-                                            placeholder="e.g. 065-123..."
-                                            value={accData.ticketNumber}
-                                            onChange={e => setAccData({...accData, ticketNumber: e.target.value})}
-                                        />
-                                    </div>
-                                </div>
-
-                                <Button 
-                                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold h-9 mt-2"
-                                    disabled={updateMutation.isPending}
-                                    onClick={() => {
-                                        updateMutation.mutate({
-                                            id: selected.id,
-                                            data: {
-                                                ...accData,
-                                                pnr: pnrInput
-                                            }
-                                        });
-                                    }}
-                                >
-                                    {updateMutation.isPending ? "Saving..." : "Save Accounting & Data"}
-                                </Button>
-                            </div>
-
-                            {/* Update status */}
-                            <div className="space-y-2">
-                                <Label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Booking Status</Label>
-                                <div className="flex gap-2">
-                                    <Select
-                                        defaultValue={selected.status}
-                                        onValueChange={v => statusMutation.mutate({ id: selected.id, status: v })}
-                                    >
-                                        <SelectTrigger className="rounded-xl border-gray-200 focus:ring-violet-400 flex-1">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {["PENDING", "HELD", "CONFIRMED", "CANCELLED"].map(s => (
-                                                <SelectItem key={s} value={s}>{s}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-                            {/* Send PDF Ticket */}
-                            <div className="space-y-2 bg-gray-50 p-4 rounded-xl border border-gray-100">
-                                <Label className="text-xs font-bold text-gray-500">Upload Ticket & Send Email</Label>
-                                <div className="flex gap-2 items-center">
-                                    <Input
-                                        type="file"
-                                        accept="application/pdf"
-                                        className="bg-white text-sm"
-                                        onChange={(e) => setTicketFile(e.target.files?.[0] || null)}
-                                    />
-                                    <Button
-                                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold flex-shrink-0"
-                                        disabled={!ticketFile || sendTicketMutation.isPending}
+                                    <Button 
+                                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold h-9"
+                                        disabled={updateMutation.isPending}
                                         onClick={() => {
-                                            if (ticketFile && selected) {
-                                                sendTicketMutation.mutate({ id: selected.id, file: ticketFile });
-                                            }
+                                            updateMutation.mutate({
+                                                id: selected.id,
+                                                data: { ...accData, pnr: pnrInput }
+                                            });
                                         }}
                                     >
-                                        <UploadCloud className="w-4 h-4 mr-1.5" />
-                                        {sendTicketMutation.isPending ? "Sending..." : "Send Ticket"}
+                                        {updateMutation.isPending ? "Saving..." : "Save Changes"}
                                     </Button>
                                 </div>
+
+                                {/* Payment Info */}
+                                {selected.transactionId && (
+                                    <div className="bg-amber-50 rounded-xl p-4 space-y-3">
+                                        <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-2">Payment</p>
+                                        <div className="flex justify-between items-center text-[11px]">
+                                            <span className="text-amber-700 font-medium">TxID</span>
+                                            <span className="font-mono font-bold text-amber-900 bg-amber-200 px-1.5 py-0.5 rounded border border-amber-300">
+                                                {selected.transactionId}
+                                            </span>
+                                        </div>
+                                        {selected.paymentReceipt && (
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between items-center text-[10px]">
+                                                    <span className="text-amber-700 font-medium">Receipt</span>
+                                                    <a
+                                                        href={selected.paymentReceipt}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-violet-600 font-semibold hover:underline"
+                                                    >
+                                                        Open ↗
+                                                    </a>
+                                                </div>
+                                                <img
+                                                    src={selected.paymentReceipt}
+                                                    alt="Payment receipt"
+                                                    className="w-full rounded-lg border border-amber-200 object-contain max-h-40 bg-white shadow-sm"
+                                                    onError={(e) => {
+                                                        (e.target as HTMLImageElement).style.display = 'none';
+                                                    }}
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
