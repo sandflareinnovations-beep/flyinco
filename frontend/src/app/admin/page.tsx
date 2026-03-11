@@ -11,9 +11,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Plane, Users, DollarSign, Activity, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 
-const statCards = (totalRevenue: number, totalBookings: number, seatsSold: number, remainingSeats: number) => [
-    { label: "Total Revenue", value: `SAR ${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-50", sub: "From active bookings" },
-    { label: "Total Bookings", value: totalBookings, icon: Activity, color: "text-[#2E0A57]", bg: "bg-purple-50", sub: "Lifetime bookings" },
+const statCards = (totalRevenue: number, totalProfit: number, totalBookings: number, seatsSold: number, remainingSeats: number) => [
+    { label: "Total Revenue", value: `SAR ${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-50", sub: "From selling prices" },
+    { label: "Total Profit", value: `SAR ${totalProfit.toLocaleString()}`, icon: TrendingUp, color: "text-violet-600", bg: "bg-violet-50", sub: "Net margin" },
     { label: "Seats Sold/Held", value: seatsSold, icon: Users, color: "text-indigo-600", bg: "bg-indigo-50", sub: "Across all sectors" },
     { label: "Remaining Seats", value: remainingSeats, icon: Plane, color: "text-amber-600", bg: "bg-amber-50", sub: "Available to sell" },
 ];
@@ -32,7 +32,9 @@ export default function AdminDashboard() {
     const isLoading = loadingBookings || loadingSectors;
 
     const totalBookings = bookings?.length || 0;
-    const totalRevenue = bookings?.filter(b => b.status !== "CANCELLED").reduce((acc, b) => acc + b.farePrice, 0) || 0;
+    const activeBookings = bookings?.filter(b => b.status !== "CANCELLED") || [];
+    const totalRevenue = activeBookings.reduce((acc, b) => acc + (b.sellingPrice || b.farePrice || 0), 0);
+    const totalProfit = activeBookings.reduce((acc, b) => acc + (b.profit || 0), 0);
     const seatsSold = sectors?.reduce((acc, s) => acc + s.soldSeats + s.heldSeats, 0) || 0;
     const remainingSeats = sectors?.reduce((acc, s) => acc + s.remainingSeats, 0) || 0;
 
@@ -61,7 +63,7 @@ export default function AdminDashboard() {
                 {isLoading ? (
                     [...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 w-full rounded-2xl" />)
                 ) : (
-                    statCards(totalRevenue, totalBookings, seatsSold, remainingSeats).map(({ label, value, icon: Icon, color, bg, sub }, i) => (
+                    statCards(totalRevenue, totalProfit, totalBookings, seatsSold, remainingSeats).map(({ label, value, icon: Icon, color, bg, sub }, i) => (
                         <motion.div key={label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
                             <Card className="border-gray-100 shadow-sm hover:shadow-md transition-shadow">
                                 <CardContent className="p-5">

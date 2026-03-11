@@ -184,6 +184,9 @@ export const flyApi = {
                 email: d.email,
                 status: d.status,
                 farePrice: d.route?.price || 0,
+                purchasePrice: d.purchasePrice || 0,
+                sellingPrice: d.sellingPrice || d.route?.price || 0,
+                profit: d.profit || 0,
                 createdAt: d.createdAt,
                 route: d.route ? `${d.route.origin} - ${d.route.destination}` : 'Unknown Route',
             }));

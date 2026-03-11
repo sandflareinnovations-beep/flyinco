@@ -33,8 +33,11 @@ export type Booking = {
     nationality: string;
     phone: string;
     email: string;
-    status: 'HELD' | 'CONFIRMED' | 'CANCELLED';
+    status: 'HELD' | 'CONFIRMED' | 'CANCELLED' | 'PENDING';
     farePrice: number;
+    purchasePrice?: number;
+    sellingPrice?: number;
+    profit?: number;
     createdAt: string;
     route: string;
 };
