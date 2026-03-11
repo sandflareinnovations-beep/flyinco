@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import {
     Eye, Ticket, XCircle, Search, RefreshCw, User, Phone, Mail,
-    CreditCard, Plane, Trash2, AlertTriangle, UploadCloud
+    CreditCard, Plane, Trash2, AlertTriangle, UploadCloud, Plus, Calculator
 } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -49,13 +49,74 @@ export default function AdminBookings() {
     const [pnrInput, setPnrInput] = useState("");
     const [showDetail, setShowDetail] = useState(false);
     const [showDelete, setShowDelete] = useState(false);
+    const [showAdd, setShowAdd] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [ticketFile, setTicketFile] = useState<File | null>(null);
+
+    // Add state
+    const [addData, setAddData] = useState({
+        routeId: "",
+        passengerName: "",
+        passportNumber: "",
+        email: "",
+        phone: "",
+        sellingPrice: 0,
+        purchasePrice: 0,
+        baseFare: 0,
+        taxes: 0,
+        serviceFee: 0,
+        pnr: "",
+        ticketNumber: "",
+    });
+
+    const { data: routes = [] } = useQuery({
+        queryKey: ["admin-routes"],
+        queryFn: () => fetchWithCreds('/routes'),
+    });
+
+    // Accounting states
+    const [accData, setAccData] = useState({
+        purchasePrice: 0,
+        sellingPrice: 0,
+        baseFare: 0,
+        taxes: 0,
+        serviceFee: 0,
+        ticketNumber: "",
+    });
 
     const { data: bookings = [], isLoading, refetch, isError } = useQuery({
         queryKey: ["admin-bookings"],
         queryFn: fetchBookings,
         refetchInterval: 30000,
+    });
+
+    const updateMutation = useMutation({
+        mutationFn: ({ id, data }: { id: string; data: any }) => fetchWithCreds(`/bookings/${id}`, {
+            method: "PATCH",
+            body: JSON.stringify(data),
+        }),
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ["admin-bookings"] });
+            toast({ title: "Booking Updated", description: "All changes saved successfully." });
+        },
+        onError: () => toast({ title: "Error", description: "Failed to update booking.", variant: "destructive" }),
+    });
+
+    const createMutation = useMutation({
+        mutationFn: (data: any) => fetchWithCreds('/bookings', {
+            method: "POST",
+            body: JSON.stringify(data),
+        }),
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ["admin-bookings"] });
+            toast({ title: "Booking Created", description: "Manual booking added successfully." });
+            setShowAdd(false);
+            setAddData({
+                routeId: "", passengerName: "", passportNumber: "", email: "", phone: "",
+                sellingPrice: 0, purchasePrice: 0, baseFare: 0, taxes: 0, serviceFee: 0, pnr: "", ticketNumber: ""
+            });
+        },
+        onError: () => toast({ title: "Error", description: "Failed to create booking.", variant: "destructive" }),
     });
 
     const statusMutation = useMutation({
@@ -118,8 +179,11 @@ export default function AdminBookings() {
     });
 
     // Metrics
-    const totalRevenue = bookings.filter((b: any) => b.status !== "CANCELLED")
-        .reduce((acc: number, b: any) => acc + (b.route?.price || 0), 0);
+    const activeBookings = bookings.filter((b: any) => b.status !== "CANCELLED");
+    const totalRevenue = activeBookings.reduce((acc: number, b: any) => acc + (b.sellingPrice || b.route?.price || 0), 0);
+    const totalPurchase = activeBookings.reduce((acc: number, b: any) => acc + (b.purchasePrice || 0), 0);
+    const totalProfit = activeBookings.reduce((acc: number, b: any) => acc + (b.profit || 0), 0);
+    
     const heldCount = bookings.filter((b: any) => b.status === "HELD").length;
     const confirmedCount = bookings.filter((b: any) => b.status === "CONFIRMED").length;
 
@@ -134,6 +198,12 @@ export default function AdminBookings() {
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
+                    <Button 
+                        className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl gap-1.5"
+                        onClick={() => setShowAdd(true)}
+                    >
+                        <Plus className="h-4 w-4" /> Add Booking
+                    </Button>
                     <div className="relative flex-1 min-w-[220px]">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                         <Input
@@ -158,6 +228,10 @@ export default function AdminBookings() {
                 <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-2">
                     <span className="text-amber-500 font-medium">Held: </span>
                     <span className="font-black text-amber-700">{heldCount}</span>
+                </div>
+                <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-2">
+                    <span className="text-emerald-500 font-medium">Profit: </span>
+                    <span className="font-black text-emerald-700">SAR {totalProfit.toLocaleString()}</span>
                 </div>
                 <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-2">
                     <span className="text-emerald-500 font-medium">Confirmed: </span>
@@ -185,7 +259,7 @@ export default function AdminBookings() {
                     <Table>
                         <TableHeader>
                             <TableRow className="bg-gray-50 border-gray-100">
-                                {["#", "Passenger", "Contact", "Route", "Price", "Status", "Date", "Actions"].map(h => (
+                                {["#", "Passenger", "Contact", "Route", "Sale Price", "Profit", "Status", "Date", "Actions"].map(h => (
                                     <TableHead key={h} className="text-[11px] font-bold text-gray-500 uppercase tracking-wide whitespace-nowrap py-3">
                                         {h}
                                     </TableHead>
@@ -226,7 +300,12 @@ export default function AdminBookings() {
                                         </TableCell>
                                         <TableCell className="py-3">
                                             <span className="font-black text-violet-700 text-sm">
-                                                SAR {(route?.price || 0).toLocaleString()}
+                                                SAR {(booking.sellingPrice || route?.price || 0).toLocaleString()}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell className="py-3">
+                                            <span className={`font-bold text-sm ${ (booking.profit || 0) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                                                SAR {(booking.profit || 0).toLocaleString()}
                                             </span>
                                         </TableCell>
                                         <TableCell className="py-3">
@@ -245,7 +324,19 @@ export default function AdminBookings() {
                                                     variant="ghost" size="sm"
                                                     className="h-7 w-7 p-0 rounded-lg hover:bg-violet-50 hover:text-violet-700"
                                                     title="View Details"
-                                                    onClick={() => { setSelected(booking); setPnrInput(""); setShowDetail(true); }}
+                                                    onClick={() => {
+                                                        setSelected(booking);
+                                                        setPnrInput(booking.pnr || "");
+                                                        setAccData({
+                                                            purchasePrice: booking.purchasePrice || 0,
+                                                            sellingPrice: booking.sellingPrice || booking.route?.price || 0,
+                                                            baseFare: booking.baseFare || 0,
+                                                            taxes: booking.taxes || 0,
+                                                            serviceFee: booking.serviceFee || 0,
+                                                            ticketNumber: booking.ticketNumber || "",
+                                                        });
+                                                        setShowDetail(true);
+                                                    }}
                                                 >
                                                     <Eye className="h-3.5 w-3.5" />
                                                 </Button>
@@ -385,9 +476,108 @@ export default function AdminBookings() {
                                 </div>
                             )}
 
+                            {/* Accounting & Fares */}
+                            <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 space-y-4">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <Calculator className="h-4 w-4 text-emerald-600" />
+                                    <p className="text-xs font-bold text-emerald-700 uppercase tracking-widest">Accounting & Fares</p>
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] font-bold text-gray-400 uppercase">Purchase (Cost)</Label>
+                                        <Input 
+                                            type="number" 
+                                            className="h-8 rounded-lg text-sm"
+                                            value={accData.purchasePrice}
+                                            onChange={e => setAccData({...accData, purchasePrice: parseFloat(e.target.value) || 0})}
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] font-bold text-gray-400 uppercase">Selling Price</Label>
+                                        <Input 
+                                            type="number" 
+                                            className="h-8 rounded-lg text-sm font-bold text-violet-700"
+                                            value={accData.sellingPrice}
+                                            onChange={e => setAccData({...accData, sellingPrice: parseFloat(e.target.value) || 0})}
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] font-bold text-gray-400 uppercase">Base Fare</Label>
+                                        <Input 
+                                            type="number" 
+                                            className="h-8 rounded-lg text-sm"
+                                            value={accData.baseFare}
+                                            onChange={e => setAccData({...accData, baseFare: parseFloat(e.target.value) || 0})}
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] font-bold text-gray-400 uppercase">Taxes</Label>
+                                        <Input 
+                                            type="number" 
+                                            className="h-8 rounded-lg text-sm"
+                                            value={accData.taxes}
+                                            onChange={e => setAccData({...accData, taxes: parseFloat(e.target.value) || 0})}
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] font-bold text-gray-400 uppercase">Service Fee</Label>
+                                        <Input 
+                                            type="number" 
+                                            className="h-8 rounded-lg text-sm"
+                                            value={accData.serviceFee}
+                                            onChange={e => setAccData({...accData, serviceFee: parseFloat(e.target.value) || 0})}
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] font-bold text-gray-400 uppercase">Current Profit</Label>
+                                        <div className={`h-8 flex items-center px-3 rounded-lg text-sm font-black border ${ (accData.sellingPrice - accData.purchasePrice) >= 0 ? 'bg-emerald-100 border-emerald-200 text-emerald-700' : 'bg-red-100 border-red-200 text-red-700'}`}>
+                                            SAR {(accData.sellingPrice - accData.purchasePrice).toLocaleString()}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3 pt-1">
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] font-bold text-gray-400 uppercase">PNR</Label>
+                                        <Input 
+                                            className="h-8 rounded-lg text-sm font-mono uppercase"
+                                            placeholder="PNR"
+                                            value={pnrInput}
+                                            onChange={e => setPnrInput(e.target.value.toUpperCase())}
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] font-bold text-gray-400 uppercase">Ticket Number</Label>
+                                        <Input 
+                                            className="h-8 rounded-lg text-sm font-mono"
+                                            placeholder="e.g. 065-123..."
+                                            value={accData.ticketNumber}
+                                            onChange={e => setAccData({...accData, ticketNumber: e.target.value})}
+                                        />
+                                    </div>
+                                </div>
+
+                                <Button 
+                                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold h-9 mt-2"
+                                    disabled={updateMutation.isPending}
+                                    onClick={() => {
+                                        updateMutation.mutate({
+                                            id: selected.id,
+                                            data: {
+                                                ...accData,
+                                                pnr: pnrInput
+                                            }
+                                        });
+                                    }}
+                                >
+                                    {updateMutation.isPending ? "Saving..." : "Save Accounting & Data"}
+                                </Button>
+                            </div>
+
                             {/* Update status */}
                             <div className="space-y-2">
-                                <Label className="text-xs font-bold text-gray-500">Update Status</Label>
+                                <Label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Booking Status</Label>
                                 <div className="flex gap-2">
                                     <Select
                                         defaultValue={selected.status}
@@ -402,31 +592,6 @@ export default function AdminBookings() {
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                </div>
-                            </div>
-
-                            {/* Issue PNR */}
-                            <div className="space-y-2">
-                                <Label className="text-xs font-bold text-gray-500">Issue PNR / Ticket Number</Label>
-                                <div className="flex gap-2">
-                                    <Input
-                                        placeholder="e.g. ABCDEF"
-                                        className="rounded-xl border-gray-200 focus-visible:ring-violet-400 font-mono uppercase"
-                                        value={pnrInput}
-                                        onChange={e => setPnrInput(e.target.value.toUpperCase())}
-                                    />
-                                    <Button
-                                        className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold whitespace-nowrap"
-                                        onClick={() => {
-                                            if (pnrInput) {
-                                                toast({ title: `PNR ${pnrInput} issued!`, description: `Booking #${selected.id.slice(0, 8).toUpperCase()}` });
-                                                statusMutation.mutate({ id: selected.id, status: "CONFIRMED" });
-                                            }
-                                        }}
-                                        disabled={!pnrInput}
-                                    >
-                                        <Ticket className="h-4 w-4 mr-1.5" /> Issue
-                                    </Button>
                                 </div>
                             </div>
                             {/* Send PDF Ticket */}
@@ -491,6 +656,170 @@ export default function AdminBookings() {
                             disabled={deleteMutation.isPending}
                         >
                             {deleteMutation.isPending ? "Deleting..." : "Delete Now"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+            {/* ── Add Manual Booking Modal ── */}
+            <Dialog open={showAdd} onOpenChange={setShowAdd}>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="font-black text-xl">Add Manual Booking</DialogTitle>
+                        <p className="text-gray-500 text-sm">Create a new booking record for a customer manually.</p>
+                    </DialogHeader>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
+                        {/* Passenger Details */}
+                        <div className="space-y-4">
+                            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Customer Info</h3>
+                            
+                            <div className="space-y-2">
+                                <Label className="text-sm font-semibold">Select Route / Sector</Label>
+                                <Select onValueChange={v => {
+                                    const r = routes.find((route: any) => route.id === v);
+                                    setAddData({...addData, routeId: v, sellingPrice: r?.price || 0});
+                                }}>
+                                    <SelectTrigger className="rounded-xl">
+                                        <SelectValue placeholder="Chose a flight route" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {routes.map((r: any) => (
+                                            <SelectItem key={r.id} value={r.id}>
+                                                {r.origin} → {r.destination} ({r.airline})
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label className="text-sm font-semibold">Passenger Name</Label>
+                                <Input 
+                                    placeholder="Full name as per passport"
+                                    className="rounded-xl"
+                                    value={addData.passengerName}
+                                    onChange={e => setAddData({...addData, passengerName: e.target.value})}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-semibold">Passport Number</Label>
+                                    <Input 
+                                        placeholder="P1234567"
+                                        className="rounded-xl font-mono uppercase"
+                                        value={addData.passportNumber}
+                                        onChange={e => setAddData({...addData, passportNumber: e.target.value.toUpperCase()})}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-semibold">Phone</Label>
+                                    <Input 
+                                        placeholder="+966..."
+                                        className="rounded-xl"
+                                        value={addData.phone}
+                                        onChange={e => setAddData({...addData, phone: e.target.value})}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label className="text-sm font-semibold">Email Address</Label>
+                                <Input 
+                                    type="email"
+                                    placeholder="customer@example.com"
+                                    className="rounded-xl"
+                                    value={addData.email}
+                                    onChange={e => setAddData({...addData, email: e.target.value})}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Accounting Details */}
+                        <div className="space-y-4">
+                            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Accounting & Fare</h3>
+                            
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-semibold text-emerald-700">Purchase Price</Label>
+                                    <Input 
+                                        type="number"
+                                        placeholder="0.00"
+                                        className="rounded-xl border-emerald-200"
+                                        value={addData.purchasePrice}
+                                        onChange={e => setAddData({...addData, purchasePrice: parseFloat(e.target.value) || 0})}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-semibold text-violet-700">Selling Price</Label>
+                                    <Input 
+                                        type="number"
+                                        placeholder="0.00"
+                                        className="rounded-xl border-violet-200"
+                                        value={addData.sellingPrice}
+                                        onChange={e => setAddData({...addData, sellingPrice: parseFloat(e.target.value) || 0})}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-semibold">Base Fare</Label>
+                                    <Input 
+                                        type="number"
+                                        placeholder="0.00"
+                                        className="rounded-xl"
+                                        value={addData.baseFare}
+                                        onChange={e => setAddData({...addData, baseFare: parseFloat(e.target.value) || 0})}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-semibold">Taxes</Label>
+                                    <Input 
+                                        type="number"
+                                        placeholder="0.00"
+                                        className="rounded-xl"
+                                        value={addData.taxes}
+                                        onChange={e => setAddData({...addData, taxes: parseFloat(e.target.value) || 0})}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label className="text-sm font-semibold">PNR / Ticket</Label>
+                                <div className="flex gap-2">
+                                    <Input 
+                                        placeholder="PNR (ABCDEF)"
+                                        className="rounded-xl font-mono uppercase w-1/2"
+                                        value={addData.pnr}
+                                        onChange={e => setAddData({...addData, pnr: e.target.value.toUpperCase()})}
+                                    />
+                                    <Input 
+                                        placeholder="Ticket No"
+                                        className="rounded-xl font-mono w-1/2"
+                                        value={addData.ticketNumber}
+                                        onChange={e => setAddData({...addData, ticketNumber: e.target.value})}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-xl flex justify-between items-center">
+                                <div>
+                                    <p className="text-[10px] font-bold text-emerald-600 uppercase">Estimated Profit</p>
+                                    <p className="text-lg font-black text-emerald-700">
+                                        SAR {(addData.sellingPrice - addData.purchasePrice).toLocaleString()}
+                                    </p>
+                                </div>
+                                <Calculator className="h-8 w-8 text-emerald-200" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <DialogFooter className="mt-4 gap-2">
+                        <Button variant="outline" className="rounded-xl" onClick={() => setShowAdd(false)}>Cancel</Button>
+                        <Button 
+                            className="bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl px-8"
+                            disabled={createMutation.isPending || !addData.routeId || !addData.passengerName}
+                            onClick={() => createMutation.mutate(addData)}
+                        >
+                            {createMutation.isPending ? "Creating..." : "Create Booking"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

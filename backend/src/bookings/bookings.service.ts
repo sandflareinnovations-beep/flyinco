@@ -39,6 +39,14 @@ export class BookingsService {
         transactionId: dto.transactionId,
         paymentReceipt: dto.paymentReceipt,
         status: dto.transactionId || dto.paymentReceipt ? 'PENDING' : 'HELD',
+        purchasePrice: dto.purchasePrice || 0,
+        sellingPrice: dto.sellingPrice || route.price,
+        profit: (dto.sellingPrice || route.price) - (dto.purchasePrice || 0),
+        baseFare: dto.baseFare || 0,
+        taxes: dto.taxes || 0,
+        serviceFee: dto.serviceFee || 0,
+        pnr: dto.pnr,
+        ticketNumber: dto.ticketNumber,
       },
       include: { route: true },
     });
@@ -91,9 +99,19 @@ export class BookingsService {
   }
 
   async update(id: string, dto: UpdateBookingDto) {
+    const current = await this.prisma.booking.findUnique({ where: { id } });
+    if (!current) throw new NotFoundException('Booking not found');
+
+    const purchasePrice = dto.purchasePrice !== undefined ? dto.purchasePrice : current.purchasePrice;
+    const sellingPrice = dto.sellingPrice !== undefined ? dto.sellingPrice : current.sellingPrice;
+    const profit = (sellingPrice || 0) - (purchasePrice || 0);
+
     return this.prisma.booking.update({
       where: { id },
-      data: dto,
+      data: {
+        ...dto,
+        profit: profit,
+      },
       include: { route: true },
     });
   }

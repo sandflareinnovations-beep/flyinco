@@ -16,6 +16,6 @@ import { MailService } from './mail/mail.service';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, MailService],
 })
 export class AppModule { }

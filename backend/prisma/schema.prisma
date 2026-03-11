@@ -43,6 +43,14 @@ model Booking {
   status         String
   transactionId  String?
   paymentReceipt String?
+  purchasePrice  Float?    @default(0)
+  sellingPrice   Float?    @default(0)
+  profit         Float?    @default(0)
+  baseFare       Float?    @default(0)
+  taxes          Float?    @default(0)
+  serviceFee     Float?    @default(0)
+  pnr            String?
+  ticketNumber   String?
   createdAt      DateTime  @default(now())
   
   route          Route     @relation(fields: [routeId], references: [id], onDelete: Cascade)

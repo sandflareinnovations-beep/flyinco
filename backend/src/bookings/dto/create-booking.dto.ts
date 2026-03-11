@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsOptional } from 'class-validator';
+import { IsString, IsEmail, IsOptional, IsNumber } from 'class-validator';
 
 export class CreateBookingDto {
   @IsString()
@@ -23,4 +23,32 @@ export class CreateBookingDto {
   @IsOptional()
   @IsString()
   paymentReceipt?: string;
+
+  @IsOptional()
+  @IsNumber()
+  purchasePrice?: number;
+
+  @IsOptional()
+  @IsNumber()
+  sellingPrice?: number;
+
+  @IsOptional()
+  @IsNumber()
+  baseFare?: number;
+
+  @IsOptional()
+  @IsNumber()
+  taxes?: number;
+
+  @IsOptional()
+  @IsNumber()
+  serviceFee?: number;
+
+  @IsOptional()
+  @IsString()
+  pnr?: string;
+
+  @IsOptional()
+  @IsString()
+  ticketNumber?: string;
 }
