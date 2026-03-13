@@ -357,17 +357,20 @@ export default function Home() {
                 {/* DATE */}
                 <div style={{
                   flex: "1 1 160px", padding: "16px 20px",
-                  background: B.light, borderRadius: 14,
-                  cursor: "default"
+                  background: "#FEF3C7",
+                  borderRadius: 14,
+                  cursor: "default",
+                  border: "2px solid #F59E0B",
+                  boxShadow: "0 8px 16px rgba(245, 158, 11, 0.2)"
                 }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: B.accent, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 6 }}>
-                    TRAVEL DATE
+                  <div style={{ fontSize: 10, fontWeight: 900, color: "#D97706", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 6 }}>
+                    📅 TRAVEL DATE
                   </div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: B.primary, letterSpacing: "-0.02em" }}>
+                  <div style={{ fontSize: 24, fontWeight: 900, color: "#92400E", letterSpacing: "-0.04em" }}>
                     {activeSector?.departureDate ? activeSector.departureDate.split(" ").slice(0, 2).join(" ") : "09 March"}
                   </div>
-                  <div style={{ fontSize: 11, color: B.accent, marginTop: 2, fontWeight: 500 }}>
-                    {activeSector?.departureDate ? activeSector.departureDate.split(" ").slice(2).join(" ") : "2026"} · One way
+                  <div style={{ fontSize: 12, color: "#B45309", marginTop: 2, fontWeight: 700 }}>
+                    {activeSector?.departureDate ? activeSector.departureDate.split(" ").slice(2).join(" ") : "2026"} · <span style={{ background: "#FDE68A", padding: "2px 6px", borderRadius: 4 }}>One way</span>
                   </div>
                 </div>
 
@@ -542,7 +545,7 @@ export default function Home() {
                         </div>
 
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                          {s.departureDate && <Pill>📅 {new Date(s.departureDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</Pill>}
+                          {s.departureDate && <Pill bg="#FEF3C7" color="#92400E">📅 {new Date(s.departureDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</Pill>}
                           {s.baggage && <Pill bg="#F0FDF4" color="#15803D">🧳 {s.baggage}</Pill>}
                           <Pill bg="#FEF2F2" color="#DC2626">⚠️ {s.remainingSeats} seats left</Pill>
                           {s.flightRules && <Pill bg="#FFFBEB" color="#D97706">📋 {s.flightRules}</Pill>}
@@ -641,7 +644,7 @@ export default function Home() {
                       </div>
                     </div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                      <Pill>📅 {dynamicRoute.date}</Pill>
+                      <Pill bg="#FEF3C7" color="#92400E">📅 {dynamicRoute.date}</Pill>
                       <Pill bg="#F0FDF4" color="#15803D">🧳 {dynamicRoute.baggage}</Pill>
                       <Pill bg="#FEF2F2" color="#DC2626">⚠️ Limited Seats</Pill>
                     </div>
