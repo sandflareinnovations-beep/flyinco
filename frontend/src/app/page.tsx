@@ -491,10 +491,10 @@ export default function Home() {
                     border: "1px solid #E5E7EB",
                     boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
                     position: "relative",
-                    padding: "10px 14px",
+                    padding: "16px 22px",
                     display: "flex",
                     flexDirection: "column",
-                    gap: 8
+                    gap: 12
                   }}>
                     {idx === 0 && (
                       <div style={{ display: "flex", marginBottom: -6 }}>
@@ -514,67 +514,67 @@ export default function Home() {
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
                       
                       {/* Airline Section */}
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 80, flexShrink: 0 }}>
-                        <div style={{ height: 32, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 2 }}>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 100, flexShrink: 0 }}>
+                        <div style={{ height: 40, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 2 }}>
                           {s.airlineLogo ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={s.airlineLogo} alt={s.airline} style={{ maxWidth: 60, maxHeight: 32, objectFit: "contain" }} />
+                            <img src={s.airlineLogo} alt={s.airline} style={{ maxWidth: 80, maxHeight: 40, objectFit: "contain" }} />
                           ) : (
-                            <Plane size={22} color={B.accent} />
+                            <Plane size={28} color={B.accent} />
                           )}
                         </div>
-                        <span style={{ fontSize: 11, color: "#333", textAlign: "center", lineHeight: 1.2 }}>{s.airline}</span>
-                        <span style={{ fontSize: 10, color: "#666", textAlign: "center", marginTop: 2 }}>{s.flightNumber}</span>
+                        <span style={{ fontSize: 13, color: "#333", textAlign: "center", lineHeight: 1.2 }}>{s.airline}</span>
+                        <span style={{ fontSize: 12, color: "#666", textAlign: "center", marginTop: 2 }}>{s.flightNumber}</span>
                       </div>
 
                       {/* Departure Section */}
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 120 }}>
-                        <span style={{ fontSize: 12, color: "#333", marginBottom: 4 }}>{s.originCity} ({s.originCode})</span>
-                        <span style={{ fontSize: 22, fontWeight: 800, color: "#000", lineHeight: 1.1 }}>{s.departureTime || "--:--"}</span>
-                        <span style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 140 }}>
+                        <span style={{ fontSize: 13, color: "#333", marginBottom: 4 }}>{s.originCity} ({s.originCode})</span>
+                        <span style={{ fontSize: 26, fontWeight: 800, color: "#000", lineHeight: 1.1 }}>{s.departureTime || "--:--"}</span>
+                        <span style={{ fontSize: 13, color: "#666", marginTop: 4 }}>
                           {s.departureDate ? new Date(s.departureDate).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }).replace(',', '') : "--"}
                         </span>
                       </div>
 
                       {/* Duration Section */}
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: "1 1 100px", minWidth: 100, maxWidth: 160 }}>
-                        <span style={{ fontSize: 11, color: "#555", marginBottom: 4 }}>{s.duration}</span>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: "1 1 120px", minWidth: 120, maxWidth: 180 }}>
+                        <span style={{ fontSize: 12, color: "#555", marginBottom: 6 }}>{s.duration}</span>
                         <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
-                          <div style={{ width: 5, height: 5, borderRadius: "50%", border: "1.5px solid #9CA3AF", background: "transparent", flexShrink: 0 }}></div>
+                          <div style={{ width: 6, height: 6, borderRadius: "50%", border: "1.5px solid #9CA3AF", background: "transparent", flexShrink: 0 }}></div>
                           <div style={{ flex: 1, height: 1.5, background: "#9CA3AF" }}></div>
-                          <svg width="6" height="8" viewBox="0 0 6 10" fill="none" style={{ flexShrink: 0, marginLeft: -1 }}>
+                          <svg width="6" height="10" viewBox="0 0 6 10" fill="none" style={{ flexShrink: 0, marginLeft: -1 }}>
                             <path d="M1 1L5 5L1 9" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                           </svg>
                         </div>
                         {s.layover && (
-                          <div style={{ background: "#5BC0DE", color: "#fff", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 4, marginTop: 4 }}>
+                          <div style={{ background: "#5BC0DE", color: "#fff", fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 4, marginTop: 6 }}>
                             {s.layover} Stop
                           </div>
                         )}
-                        <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: s.layover ? 2 : 4 }}>
-                          <Briefcase size={12} color="#374151" />
-                          <span style={{ fontSize: 11, color: "#111", fontWeight: 600 }}>{s.baggage || "40KG"}</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: s.layover ? 4 : 6 }}>
+                          <Briefcase size={14} color="#374151" />
+                          <span style={{ fontSize: 13, color: "#111", fontWeight: 600 }}>{s.baggage || "40KG"}</span>
                         </div>
                       </div>
 
                       {/* Arrival Section */}
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 120 }}>
-                        <span style={{ fontSize: 12, color: "#333", marginBottom: 4 }}>{s.destinationCity} ({s.destinationCode})</span>
-                        <span style={{ fontSize: 22, fontWeight: 800, color: "#000", lineHeight: 1.1 }}>{s.arrivalTime || "--:--"}</span>
-                        <span style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 140 }}>
+                        <span style={{ fontSize: 13, color: "#333", marginBottom: 4 }}>{s.destinationCity} ({s.destinationCode})</span>
+                        <span style={{ fontSize: 26, fontWeight: 800, color: "#000", lineHeight: 1.1 }}>{s.arrivalTime || "--:--"}</span>
+                        <span style={{ fontSize: 13, color: "#666", marginTop: 4 }}>
                           {s.departureDate ? new Date(s.departureDate).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }).replace(',', '') : "--"}
                         </span>
                       </div>
 
                       {/* Price Section */}
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 110 }}>
-                        <span style={{ background: "#4B5563", color: "#fff", fontSize: 10, fontWeight: 600, padding: "2px 6px", borderRadius: 4, marginBottom: 4 }}>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 120 }}>
+                        <span style={{ background: "#4B5563", color: "#fff", fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 4, marginBottom: 6 }}>
                           {s.flightRules === "Refundable" ? "Refundable" : "NonRefundable"}
                         </span>
-                        <span style={{ fontSize: 18, fontWeight: 700, color: B.primary, display: "flex", alignItems: "baseline", gap: 2 }}>
-                          <span style={{ fontSize: 12 }}>SAR </span>{s.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                        <span style={{ fontSize: 20, fontWeight: 700, color: B.primary, display: "flex", alignItems: "baseline", gap: 3 }}>
+                          <span style={{ fontSize: 13 }}>SAR </span>{s.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                         </span>
-                        <span style={{ fontSize: 11, color: "#555", marginTop: 2 }}>
+                        <span style={{ fontSize: 12, color: "#555", marginTop: 2 }}>
                           NetFare - {s.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                         </span>
                       </div>
@@ -588,8 +588,8 @@ export default function Home() {
                             color: "#fff",
                             border: "none",
                             borderRadius: 4,
-                            padding: "6px 24px",
-                            fontSize: 13,
+                            padding: "8px 28px",
+                            fontSize: 14,
                             fontWeight: 600,
                             cursor: "pointer",
                             width: "100%",
@@ -631,115 +631,115 @@ export default function Home() {
               viewport={{ once: true }} transition={{ delay: 0.1, duration: 0.45 }}
               style={{ maxWidth: 780, margin: "0 auto" }}
             >
-              <div style={{
-                background: "#F9FAFB",
-                borderRadius: 4,
-                border: "1px solid #E5E7EB",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-                position: "relative",
-                padding: "10px 14px",
-                display: "flex",
-                flexDirection: "column",
-                gap: 8,
-                marginTop: 12
-              }}>
-                <div style={{ display: "flex", marginBottom: -6 }}>
-                  <div style={{
-                    background: B.primary,
-                    color: "#fff",
-                    fontSize: 10,
-                    fontWeight: 500,
-                    padding: "2px 8px",
-                    borderRadius: 4,
-                  }}>
-                    Flyinco Special Fare
-                  </div>
-                </div>
-
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                  
-                  {/* Airline Section */}
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 80, flexShrink: 0 }}>
-                    <div style={{ height: 32, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 2 }}>
-                      {dynamicRoute.airlineLogo ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={dynamicRoute.airlineLogo} alt={dynamicRoute.airline} style={{ maxWidth: 60, maxHeight: 32, objectFit: "contain" }} />
-                      ) : (
-                        <Plane size={22} color={B.accent} />
-                      )}
+                <div style={{
+                  background: "#F9FAFB",
+                  borderRadius: 4,
+                  border: "1px solid #E5E7EB",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                  position: "relative",
+                  padding: "16px 22px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 12,
+                  marginTop: 12
+                }}>
+                  <div style={{ display: "flex", marginBottom: -6 }}>
+                    <div style={{
+                      background: B.primary,
+                      color: "#fff",
+                      fontSize: 10,
+                      fontWeight: 500,
+                      padding: "2px 8px",
+                      borderRadius: 4,
+                    }}>
+                      Flyinco Special Fare
                     </div>
-                    <span style={{ fontSize: 11, color: "#333", textAlign: "center", lineHeight: 1.2 }}>{dynamicRoute.airline}</span>
-                    <span style={{ fontSize: 10, color: "#666", textAlign: "center", marginTop: 2 }}>{dynamicRoute.flight}</span>
                   </div>
 
-                  {/* Departure Section */}
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 120 }}>
-                    <span style={{ fontSize: 12, color: "#333", marginBottom: 4 }}>{dynamicRoute.from.city} ({dynamicRoute.from.code})</span>
-                    <span style={{ fontSize: 22, fontWeight: 800, color: "#000", lineHeight: 1.1 }}>{dynamicRoute.departureTime || "--:--"}</span>
-                    <span style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
-                      Mon Mar 16, 2026
-                    </span>
-                  </div>
-
-                  {/* Duration Section */}
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: "1 1 100px", minWidth: 100, maxWidth: 160 }}>
-                    <span style={{ fontSize: 11, color: "#555", marginBottom: 4 }}>{dynamicRoute.duration}</span>
-                    <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
-                      <div style={{ width: 5, height: 5, borderRadius: "50%", border: "1.5px solid #9CA3AF", background: "transparent", flexShrink: 0 }}></div>
-                      <div style={{ flex: 1, height: 1.5, background: "#9CA3AF" }}></div>
-                      <svg width="6" height="8" viewBox="0 0 6 10" fill="none" style={{ flexShrink: 0, marginLeft: -1 }}>
-                        <path d="M1 1L5 5L1 9" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    {dynamicRoute.layover && (
-                      <div style={{ background: "#5BC0DE", color: "#fff", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 4, marginTop: 4 }}>
-                        {dynamicRoute.layover} Stop
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                    
+                    {/* Airline Section */}
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 100, flexShrink: 0 }}>
+                      <div style={{ height: 40, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 2 }}>
+                        {dynamicRoute.airlineLogo ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={dynamicRoute.airlineLogo} alt={dynamicRoute.airline} style={{ maxWidth: 80, maxHeight: 40, objectFit: "contain" }} />
+                        ) : (
+                          <Plane size={28} color={B.accent} />
+                        )}
                       </div>
-                    )}
-                    <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: dynamicRoute.layover ? 2 : 4 }}>
-                      <Briefcase size={12} color="#374151" />
-                      <span style={{ fontSize: 11, color: "#111", fontWeight: 600 }}>{dynamicRoute.baggage || "40KG"}</span>
+                      <span style={{ fontSize: 13, color: "#333", textAlign: "center", lineHeight: 1.2 }}>{dynamicRoute.airline}</span>
+                      <span style={{ fontSize: 12, color: "#666", textAlign: "center", marginTop: 2 }}>{dynamicRoute.flight}</span>
                     </div>
-                  </div>
 
-                  {/* Arrival Section */}
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 120 }}>
-                    <span style={{ fontSize: 12, color: "#333", marginBottom: 4 }}>{dynamicRoute.to.city} ({dynamicRoute.to.code})</span>
-                    <span style={{ fontSize: 22, fontWeight: 800, color: "#000", lineHeight: 1.1 }}>{dynamicRoute.arrivalTime || "--:--"}</span>
-                    <span style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
-                      Mon Mar 16, 2026
-                    </span>
-                  </div>
+                    {/* Departure Section */}
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 140 }}>
+                      <span style={{ fontSize: 13, color: "#333", marginBottom: 4 }}>{dynamicRoute.from.city} ({dynamicRoute.from.code})</span>
+                      <span style={{ fontSize: 26, fontWeight: 800, color: "#000", lineHeight: 1.1 }}>{dynamicRoute.departureTime || "--:--"}</span>
+                      <span style={{ fontSize: 13, color: "#666", marginTop: 4 }}>
+                        Mon Mar 16, 2026
+                      </span>
+                    </div>
 
-                  {/* Price Section */}
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 110 }}>
-                    <span style={{ background: "#4B5563", color: "#fff", fontSize: 10, fontWeight: 600, padding: "2px 6px", borderRadius: 4, marginBottom: 4 }}>
-                      NonRefundable
-                    </span>
-                    <span style={{ fontSize: 18, fontWeight: 700, color: B.primary, display: "flex", alignItems: "baseline", gap: 2 }}>
-                      <span style={{ fontSize: 12 }}>SAR </span>{dynamicRoute.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                    </span>
-                    <span style={{ fontSize: 11, color: "#555", marginTop: 2 }}>
-                      NetFare - {dynamicRoute.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
+                    {/* Duration Section */}
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: "1 1 120px", minWidth: 120, maxWidth: 180 }}>
+                      <span style={{ fontSize: 12, color: "#555", marginBottom: 6 }}>{dynamicRoute.duration}</span>
+                      <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
+                        <div style={{ width: 6, height: 6, borderRadius: "50%", border: "1.5px solid #9CA3AF", background: "transparent", flexShrink: 0 }}></div>
+                        <div style={{ flex: 1, height: 1.5, background: "#9CA3AF" }}></div>
+                        <svg width="6" height="10" viewBox="0 0 6 10" fill="none" style={{ flexShrink: 0, marginLeft: -1 }}>
+                          <path d="M1 1L5 5L1 9" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
+                      {dynamicRoute.layover && (
+                        <div style={{ background: "#5BC0DE", color: "#fff", fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 4, marginTop: 6 }}>
+                          {dynamicRoute.layover} Stop
+                        </div>
+                      )}
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: dynamicRoute.layover ? 4 : 6 }}>
+                        <Briefcase size={14} color="#374151" />
+                        <span style={{ fontSize: 13, color: "#111", fontWeight: 600 }}>{dynamicRoute.baggage || "40KG"}</span>
+                      </div>
+                    </div>
 
-                  {/* Action Section */}
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 100 }}>
-                    <button
-                      onClick={() => router.push(`/routes/${dynamicRoute && activeSector ? activeSector.id : "ruh-cok"}/flights`)}
-                      style={{
-                        background: B.primary,
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: 4,
-                        padding: "6px 24px",
-                        fontSize: 13,
-                        fontWeight: 600,
-                        cursor: "pointer",
-                        width: "100%",
-                        transition: "background 0.2s"
-                      }}
+                    {/* Arrival Section */}
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 140 }}>
+                      <span style={{ fontSize: 13, color: "#333", marginBottom: 4 }}>{dynamicRoute.to.city} ({dynamicRoute.to.code})</span>
+                      <span style={{ fontSize: 26, fontWeight: 800, color: "#000", lineHeight: 1.1 }}>{dynamicRoute.arrivalTime || "--:--"}</span>
+                      <span style={{ fontSize: 13, color: "#666", marginTop: 4 }}>
+                        Mon Mar 16, 2026
+                      </span>
+                    </div>
+
+                    {/* Price Section */}
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 120 }}>
+                      <span style={{ background: "#4B5563", color: "#fff", fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 4, marginBottom: 6 }}>
+                        NonRefundable
+                      </span>
+                      <span style={{ fontSize: 20, fontWeight: 700, color: B.primary, display: "flex", alignItems: "baseline", gap: 3 }}>
+                        <span style={{ fontSize: 13 }}>SAR </span>{dynamicRoute.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                      </span>
+                      <span style={{ fontSize: 12, color: "#555", marginTop: 2 }}>
+                        NetFare - {dynamicRoute.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                      </span>
+                    </div>
+
+                    {/* Action Section */}
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 100 }}>
+                      <button
+                        onClick={() => router.push(`/routes/${dynamicRoute && activeSector ? activeSector.id : "ruh-cok"}/flights`)}
+                        style={{
+                          background: B.primary,
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: 4,
+                          padding: "8px 28px",
+                          fontSize: 14,
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          width: "100%",
+                          transition: "background 0.2s"
+                        }}
                       onMouseEnter={e => e.currentTarget.style.background = "#1D063A"}
                       onMouseLeave={e => e.currentTarget.style.background = B.primary}
                     >
