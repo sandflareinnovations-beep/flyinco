@@ -528,10 +528,10 @@ export default function Home() {
                       </div>
 
                       {/* Departure Section */}
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 100 }}>
-                        <span style={{ fontSize: 11, color: "#555", marginBottom: 2 }}>{s.originCity} ({s.originCode})</span>
-                        <span style={{ fontSize: 20, fontWeight: 700, color: "#111", lineHeight: 1.1 }}>{s.departureTime || "--:--"}</span>
-                        <span style={{ fontSize: 11, color: "#666", marginTop: 2 }}>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 120 }}>
+                        <span style={{ fontSize: 12, color: "#333", marginBottom: 4 }}>{s.originCity} ({s.originCode})</span>
+                        <span style={{ fontSize: 22, fontWeight: 800, color: "#000", lineHeight: 1.1 }}>{s.departureTime || "--:--"}</span>
+                        <span style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
                           {s.departureDate ? new Date(s.departureDate).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }).replace(',', '') : "--"}
                         </span>
                       </div>
@@ -540,23 +540,28 @@ export default function Home() {
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: "1 1 100px", minWidth: 100, maxWidth: 160 }}>
                         <span style={{ fontSize: 11, color: "#555", marginBottom: 4 }}>{s.duration}</span>
                         <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
-                          <div style={{ width: 4, height: 4, borderRadius: "50%", border: "1.5px solid #9CA3AF", background: "transparent", flexShrink: 0 }}></div>
+                          <div style={{ width: 5, height: 5, borderRadius: "50%", border: "1.5px solid #9CA3AF", background: "transparent", flexShrink: 0 }}></div>
                           <div style={{ flex: 1, height: 1.5, background: "#9CA3AF" }}></div>
                           <svg width="6" height="8" viewBox="0 0 6 10" fill="none" style={{ flexShrink: 0, marginLeft: -1 }}>
                             <path d="M1 1L5 5L1 9" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                           </svg>
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 4 }}>
+                        {s.layover && (
+                          <div style={{ background: "#5BC0DE", color: "#fff", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 4, marginTop: 4 }}>
+                            {s.layover} Stop
+                          </div>
+                        )}
+                        <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: s.layover ? 2 : 4 }}>
                           <Briefcase size={12} color="#374151" />
                           <span style={{ fontSize: 11, color: "#111", fontWeight: 600 }}>{s.baggage || "40KG"}</span>
                         </div>
                       </div>
 
                       {/* Arrival Section */}
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 100 }}>
-                        <span style={{ fontSize: 11, color: "#555", marginBottom: 2 }}>{s.destinationCity} ({s.destinationCode})</span>
-                        <span style={{ fontSize: 20, fontWeight: 700, color: "#111", lineHeight: 1.1 }}>{s.arrivalTime || "--:--"}</span>
-                        <span style={{ fontSize: 11, color: "#666", marginTop: 2 }}>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 120 }}>
+                        <span style={{ fontSize: 12, color: "#333", marginBottom: 4 }}>{s.destinationCity} ({s.destinationCode})</span>
+                        <span style={{ fontSize: 22, fontWeight: 800, color: "#000", lineHeight: 1.1 }}>{s.arrivalTime || "--:--"}</span>
+                        <span style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
                           {s.departureDate ? new Date(s.departureDate).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }).replace(',', '') : "--"}
                         </span>
                       </div>
@@ -668,11 +673,11 @@ export default function Home() {
                   </div>
 
                   {/* Departure Section */}
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 100 }}>
-                    <span style={{ fontSize: 11, color: "#555", marginBottom: 2 }}>{dynamicRoute.from.city} ({dynamicRoute.from.code})</span>
-                    <span style={{ fontSize: 20, fontWeight: 700, color: "#111", lineHeight: 1.1 }}>{dynamicRoute.departureTime || "--:--"}</span>
-                    <span style={{ fontSize: 11, color: "#666", marginTop: 2 }}>
-                      Mon Mar 16 2026
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 120 }}>
+                    <span style={{ fontSize: 12, color: "#333", marginBottom: 4 }}>{dynamicRoute.from.city} ({dynamicRoute.from.code})</span>
+                    <span style={{ fontSize: 22, fontWeight: 800, color: "#000", lineHeight: 1.1 }}>{dynamicRoute.departureTime || "--:--"}</span>
+                    <span style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
+                      Mon Mar 16, 2026
                     </span>
                   </div>
 
@@ -680,24 +685,29 @@ export default function Home() {
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: "1 1 100px", minWidth: 100, maxWidth: 160 }}>
                     <span style={{ fontSize: 11, color: "#555", marginBottom: 4 }}>{dynamicRoute.duration}</span>
                     <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
-                      <div style={{ width: 4, height: 4, borderRadius: "50%", border: "1.5px solid #9CA3AF", background: "transparent", flexShrink: 0 }}></div>
+                      <div style={{ width: 5, height: 5, borderRadius: "50%", border: "1.5px solid #9CA3AF", background: "transparent", flexShrink: 0 }}></div>
                       <div style={{ flex: 1, height: 1.5, background: "#9CA3AF" }}></div>
                       <svg width="6" height="8" viewBox="0 0 6 10" fill="none" style={{ flexShrink: 0, marginLeft: -1 }}>
                         <path d="M1 1L5 5L1 9" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 4 }}>
+                    {dynamicRoute.layover && (
+                      <div style={{ background: "#5BC0DE", color: "#fff", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 4, marginTop: 4 }}>
+                        {dynamicRoute.layover} Stop
+                      </div>
+                    )}
+                    <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: dynamicRoute.layover ? 2 : 4 }}>
                       <Briefcase size={12} color="#374151" />
                       <span style={{ fontSize: 11, color: "#111", fontWeight: 600 }}>{dynamicRoute.baggage || "40KG"}</span>
                     </div>
                   </div>
 
                   {/* Arrival Section */}
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 100 }}>
-                    <span style={{ fontSize: 11, color: "#555", marginBottom: 2 }}>{dynamicRoute.to.city} ({dynamicRoute.to.code})</span>
-                    <span style={{ fontSize: 20, fontWeight: 700, color: "#111", lineHeight: 1.1 }}>{dynamicRoute.arrivalTime || "--:--"}</span>
-                    <span style={{ fontSize: 11, color: "#666", marginTop: 2 }}>
-                      Mon Mar 16 2026
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 120 }}>
+                    <span style={{ fontSize: 12, color: "#333", marginBottom: 4 }}>{dynamicRoute.to.city} ({dynamicRoute.to.code})</span>
+                    <span style={{ fontSize: 22, fontWeight: 800, color: "#000", lineHeight: 1.1 }}>{dynamicRoute.arrivalTime || "--:--"}</span>
+                    <span style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
+                      Mon Mar 16, 2026
                     </span>
                   </div>
 
