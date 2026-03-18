@@ -6,4 +6,8 @@ export class UpdateBookingDto extends PartialType(CreateBookingDto) {
   @IsOptional()
   @IsString()
   status?: string;
+
+  @IsOptional()
+  @IsString()
+  paymentStatus?: string;
 }

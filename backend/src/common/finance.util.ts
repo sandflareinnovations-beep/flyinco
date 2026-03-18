@@ -21,24 +21,22 @@ export async function calculateAgentFinances(prisma: PrismaService, user: any) {
     }
   });
   
-  // Include HELD? The user said "HOW MANY BOOKING ARE EACH AGENT DID AND PAID OR DUE". Usually held bookings don't generate dues until Confirmed. Let's stick to CONFIRMED and PENDING.
   const confirmedBookings = bookings.filter(b => b.status === "CONFIRMED" || b.status === "PENDING" || b.status === "COMPLETED");
 
-  const payments = await prisma.payment.findMany({
-    where: { agentId: user.id }
-  });
+  const unpaidBookings = confirmedBookings.filter(b => (b as any).paymentStatus === "UNPAID");
+  const paidBookings = confirmedBookings.filter(b => (b as any).paymentStatus === "PAID");
 
-  const bookingsOwed = confirmedBookings.reduce((sum, b) => sum + (b.purchasePrice || 0), 0);
-  const manualDues = payments.reduce((sum, p) => sum + (p.type === 'DUES' ? (p.amount || 0) : 0), 0);
-  const totalPaidAmt = payments.reduce((sum, p) => sum + (p.type === 'PAYMENT' ? (p.amount || 0) : 0), 0);
+  const unpaidAmount = unpaidBookings.reduce((sum, b) => sum + (b.purchasePrice || 0), 0);
+  const paidAmount = paidBookings.reduce((sum, b) => sum + (b.purchasePrice || 0), 0);
 
-  const totalOwed = bookingsOwed + manualDues;
-  const pendingDues = totalOwed - totalPaidAmt;
+  // Total Gross Sales (Agent selling to customer)
+  const totalSales = confirmedBookings.reduce((sum, b) => sum + (b.sellingPrice || b.purchasePrice || 0), 0);
 
   return {
     ...user,
-    totalPaid: totalPaidAmt,
-    outstanding: totalOwed,
-    pendingDues: pendingDues > 0 ? pendingDues : 0,
+    totalPaid: paidAmount, // Only Bookings marked PAID
+    outstanding: totalSales, // Show Total Sales in the outstanding field or a dedicated one
+    pendingDues: unpaidAmount, // Only Bookings marked UNPAID
+    totalSales: totalSales,
   };
 }

@@ -43,6 +43,7 @@ model Booking {
   email          String
   phone          String
   status         String
+  paymentStatus  String    @default("UNPAID")
   transactionId  String?
   paymentReceipt String?
   purchasePrice  Float?    @default(0)

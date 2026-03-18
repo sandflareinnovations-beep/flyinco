@@ -191,6 +191,7 @@ export const flyApi = {
                 phone: d.phone,
                 email: d.email,
                 status: d.status,
+                paymentStatus: d.paymentStatus || 'UNPAID',
                 farePrice: d.route?.price || 0,
                 purchasePrice: d.purchasePrice || 0,
                 sellingPrice: d.sellingPrice || d.route?.price || 0,

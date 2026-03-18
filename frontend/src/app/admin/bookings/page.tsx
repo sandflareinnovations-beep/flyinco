@@ -91,6 +91,7 @@ export default function AdminBookings() {
         taxes: 0,
         serviceFee: 0,
         ticketNumber: "",
+        paymentStatus: "UNPAID",
     });
 
     const { data: bookings = [], isLoading, refetch, isError } = useQuery({
@@ -429,9 +430,14 @@ export default function AdminBookings() {
                                             )}
                                         </TableCell>
                                         <TableCell className="py-3">
-                                            <span className="font-black text-violet-700 text-sm">
-                                                SAR {(booking.sellingPrice || route?.price || 0).toLocaleString()}
-                                            </span>
+                                            <div className="flex flex-col gap-1 items-start">
+                                                <span className="font-black text-violet-700 text-sm">
+                                                    SAR {(booking.sellingPrice || route?.price || 0).toLocaleString()}
+                                                </span>
+                                                <Badge variant="outline" className={`text-[9px] py-0 h-4 ${booking.paymentStatus === 'PAID' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-600 border-red-200'}`}>
+                                                    {booking.paymentStatus || 'UNPAID'}
+                                                </Badge>
+                                            </div>
                                         </TableCell>
                                         <TableCell className="py-3">
                                             <span className={`font-bold text-sm ${ (booking.profit || 0) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
@@ -464,6 +470,7 @@ export default function AdminBookings() {
                                                             taxes: booking.taxes || 0,
                                                             serviceFee: booking.serviceFee || 0,
                                                             ticketNumber: booking.ticketNumber || "",
+                                                            paymentStatus: booking.paymentStatus || "UNPAID",
                                                         });
                                                         setShowDetail(true);
                                                     }}
@@ -727,6 +734,21 @@ export default function AdminBookings() {
                                                 value={accData.ticketNumber}
                                                 onChange={e => setAccData({...accData, ticketNumber: e.target.value})}
                                             />
+                                        </div>
+                                        <div className="space-y-1.5 col-span-2">
+                                            <Label className="text-[10px] font-bold text-gray-400 uppercase">Payment Status</Label>
+                                            <Select
+                                                defaultValue={accData.paymentStatus}
+                                                onValueChange={v => setAccData({...accData, paymentStatus: v})}
+                                            >
+                                                <SelectTrigger className={`h-8 rounded-lg text-xs font-bold border ${accData.paymentStatus === 'PAID' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="UNPAID">UNPAID (Adds to Pending Dues)</SelectItem>
+                                                    <SelectItem value="PAID">PAID</SelectItem>
+                                                </SelectContent>
+                                            </Select>
                                         </div>
                                     </div>
 

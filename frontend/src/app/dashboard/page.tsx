@@ -336,7 +336,12 @@ export default function UserDashboard() {
                                                 {booking.passengerName}
                                             </TableCell>
                                             <TableCell className="font-bold text-primary">
-                                                ₹{booking.sellingPrice?.toLocaleString() || "0"}
+                                                <div className="flex flex-col gap-1 items-start">
+                                                    <span>₹{booking.sellingPrice?.toLocaleString() || "0"}</span>
+                                                    <Badge variant="outline" className={`text-[9px] py-0 h-4 ${booking.paymentStatus === 'PAID' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-600 border-red-200'}`}>
+                                                        {booking.paymentStatus || 'UNPAID'}
+                                                    </Badge>
+                                                </div>
                                             </TableCell>
                                             <TableCell>
                                                 <Badge

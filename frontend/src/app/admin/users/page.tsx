@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { format } from "date-fns";
-import { Users, Mail, Phone, Calendar, Plus, KeyRound, Trash2, ShieldCheck, User, AlertTriangle } from "lucide-react";
+import { Users, Mail, Phone, Calendar, Plus, KeyRound, Trash2, ShieldCheck, User, AlertTriangle, Download } from "lucide-react";
+import * as XLSX from "xlsx";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -115,6 +116,58 @@ export default function UsersAdminPage() {
         } finally { setSaving(false); }
     };
 
+    const handleDownloadAgentReport = async (agent: any) => {
+        setIsLoading(true);
+        try {
+            const bookings = await flyApi.bookings.list();
+            const agentBookings = bookings.filter((b: any) => {
+                if (b.userId === agent.id) return true;
+                const agentDetailsStr = b.agentDetails?.toLowerCase() || '';
+                if (agent.name && agentDetailsStr.includes(agent.name.toLowerCase())) return true;
+                if (agent.agencyName && agentDetailsStr.includes(agent.agencyName.toLowerCase())) return true;
+                return false;
+            });
+
+            const dataToExport = agentBookings.map((b: any) => ({
+                "Booking ID": b.id,
+                "Date": new Date(b.createdAt).toLocaleDateString(),
+                "Passenger": b.passengerName,
+                "Passport": b.passportNumber,
+                "Route": b.route || "N/A",
+                "Sale Price": b.sellingPrice,
+                "Agent Cost": b.purchasePrice,
+                "Payment Status": b.paymentStatus || 'UNPAID',
+                "Booking Status": b.status
+            }));
+
+            const paidAmt = agentBookings.filter((b: any) => b.paymentStatus === 'PAID').reduce((s: number, b: any) => s + (b.purchasePrice || 0), 0);
+            const unpaidAmt = agentBookings.filter((b: any) => (b.paymentStatus || 'UNPAID') === 'UNPAID').reduce((s: number, b: any) => s + (b.purchasePrice || 0), 0);
+            
+            dataToExport.push({
+                "Booking ID": "TOTALS",
+                "Date": "",
+                "Passenger": "",
+                "Passport": "",
+                "Route": "",
+                "Sale Price": agentBookings.reduce((s: number, b: any) => s + (b.sellingPrice || 0), 0),
+                "Agent Cost": agentBookings.reduce((s: number, b: any) => s + (b.purchasePrice || 0), 0),
+                "Payment Status": `Unpaid: ${unpaidAmt} | Paid: ${paidAmt}`,
+                "Booking Status": ""
+            });
+
+            const ws = XLSX.utils.json_to_sheet(dataToExport);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Agent Accounts");
+            
+            XLSX.writeFile(wb, `${agent.name || 'Agent'}_Accounts_${new Date().toISOString().split('T')[0]}.xlsx`);
+            toast({ title: "Export Complete", description: "The Excel file is downloading." });
+        } catch(e) {
+            toast({ title: "Export Failed", variant: "destructive" });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <div className="space-y-6 max-w-6xl">
             {/* Header */}
@@ -223,6 +276,7 @@ export default function UsersAdminPage() {
                                 <TableCell>
                                     {user.role === "AGENT" ? (
                                         <div className="flex flex-col gap-0.5 text-xs">
+                                            <span className="text-violet-600 font-black">Sales: ₹{user.totalSales?.toLocaleString() || 0}</span>
                                             <span className="text-emerald-600 font-bold">Paid: ₹{user.totalPaid?.toLocaleString() || 0}</span>
                                             <span className="text-red-500 font-bold">Dues: ₹{user.pendingDues?.toLocaleString() || 0}</span>
                                         </div>
@@ -233,10 +287,16 @@ export default function UsersAdminPage() {
                                 <TableCell className="text-right">
                                     <div className="flex items-center justify-end gap-2">
                                         {user.role === "AGENT" && (
-                                            <Button variant="ghost" size="sm" className="h-8 rounded-lg gap-1.5 text-xs text-emerald-600 hover:bg-emerald-50"
-                                                onClick={() => openModal("manageFinances", user)}>
-                                                Finances
-                                            </Button>
+                                            <>
+                                                <Button variant="ghost" size="sm" className="h-8 rounded-lg gap-1.5 text-xs text-blue-600 hover:bg-blue-50"
+                                                    onClick={() => handleDownloadAgentReport(user)}>
+                                                    <Download className="h-3.5 w-3.5" /> Export
+                                                </Button>
+                                                <Button variant="ghost" size="sm" className="h-8 rounded-lg gap-1.5 text-xs text-emerald-600 hover:bg-emerald-50"
+                                                    onClick={() => openModal("manageFinances", user)}>
+                                                    Finances
+                                                </Button>
+                                            </>
                                         )}
                                         <Button variant="ghost" size="sm" className="h-8 rounded-lg gap-1.5 text-xs text-violet-600 hover:bg-violet-50"
                                             onClick={() => openModal("changePassword", user)}>
