@@ -445,8 +445,8 @@ export default function UsersAdminPage() {
                         <div className="space-y-4 py-4">
                             <div className="p-3 bg-gray-50 rounded-lg border border-gray-100 mb-2 flex justify-between text-sm">
                                 <div>
-                                    <p className="text-gray-500 text-xs uppercase font-bold">Outstanding</p>
-                                    <p className="font-black text-gray-900">₹{selected?.outstanding || 0}</p>
+                                    <p className="text-gray-500 text-xs uppercase font-bold">Total Sales</p>
+                                    <p className="font-black text-gray-900">₹{selected?.totalSales || 0}</p>
                                 </div>
                                 <div>
                                     <p className="text-gray-500 text-xs uppercase font-bold text-right">Pending Dues</p>

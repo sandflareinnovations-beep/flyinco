@@ -35,7 +35,7 @@ export async function calculateAgentFinances(prisma: PrismaService, user: any) {
   return {
     ...user,
     totalPaid: paidAmount, // Only Bookings marked PAID
-    outstanding: totalSales, // Show Total Sales in the outstanding field or a dedicated one
+    outstanding: unpaidAmount, // Both outstanding and pendingDues mean the same thing
     pendingDues: unpaidAmount, // Only Bookings marked UNPAID
     totalSales: totalSales,
   };

@@ -113,11 +113,11 @@ export default function UserDashboard() {
                     <Card className="shadow-md">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
-                                Outstanding
+                                Total Bookings
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">₹{userProfile.outstanding?.toLocaleString() || 0}</div>
+                            <div className="text-2xl font-bold">{bookings.length}</div>
                         </CardContent>
                     </Card>
                     <Card className="shadow-md">
