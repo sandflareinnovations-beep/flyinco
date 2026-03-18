@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength, IsOptional, IsIn } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsOptional, IsIn, IsNumber } from 'class-validator';
 
 export class CreateUserDto {
     @IsString()
@@ -16,6 +16,14 @@ export class CreateUserDto {
     password: string;
 
     @IsOptional()
-    @IsIn(['USER', 'ADMIN'])
+    @IsIn(['USER', 'ADMIN', 'AGENT'])
     role?: string;
+
+    @IsOptional()
+    @IsString()
+    agencyName?: string;
+
+    @IsOptional()
+    @IsNumber()
+    creditLimit?: number;
 }
