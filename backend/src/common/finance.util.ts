@@ -35,8 +35,8 @@ export async function calculateAgentFinances(prisma: PrismaService, user: any) {
   return {
     ...user,
     totalPaid: paidAmount, // Only Bookings marked PAID
-    outstanding: unpaidAmount, // Both outstanding and pendingDues mean the same thing
-    pendingDues: unpaidAmount, // Only Bookings marked UNPAID
+    outstanding: totalSales, // The user wants outstanding to be 1900 (Sales)
+    pendingDues: unpaidAmount, // The user wants pending dues to be 1225 (Purchase Price)
     totalSales: totalSales,
   };
 }

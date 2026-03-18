@@ -276,9 +276,8 @@ export default function UsersAdminPage() {
                                 <TableCell>
                                     {user.role === "AGENT" ? (
                                         <div className="flex flex-col gap-0.5 text-xs">
-                                            <span className="text-violet-600 font-black">Sales: ₹{user.totalSales?.toLocaleString() || 0}</span>
-                                            <span className="text-emerald-600 font-bold">Paid: ₹{user.totalPaid?.toLocaleString() || 0}</span>
-                                            <span className="text-red-500 font-bold">Dues: ₹{user.pendingDues?.toLocaleString() || 0}</span>
+                                            <span className="text-violet-600 font-black">Outstanding: ₹{user.outstanding?.toLocaleString() || 0}</span>
+                                            <span className="text-red-500 font-bold">Pending Dues: ₹{user.pendingDues?.toLocaleString() || 0}</span>
                                         </div>
                                     ) : (
                                         <span className="text-xs text-gray-400">N/A</span>
