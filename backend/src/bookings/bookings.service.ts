@@ -65,16 +65,16 @@ export class BookingsService {
 
         // Handle variations in column names from the provided file
         const prefix = nr['PREFIX'] || '';
-        const givenName = nr['GIVEN NAME'] || nr['PASSENGER NAME'] || nr['PASSENGERNAME'] || '';
+        const givenName = nr['GIVEN NAME'] || nr['PASSENGER NAME'] || nr['PASSENGERNAME'] || nr['NAME'] || '';
         const surname = nr['SURNAME'] || '';
         
         const passengerName = `${prefix} ${givenName} ${surname}`.trim().replace(/\s+/g, ' ');
 
-        const passportNumber = String(nr['PASSPORT'] || nr['PASSPORT NUMBER'] || nr['PASSPORT NO'] || '');
+        const passportNumber = String(nr['PASSPORT'] || nr['PASSPORT NUMBER'] || nr['PASSPORT NO'] || nr['PP NO'] || '');
         
-        let pnr = String(nr['PNR'] || nr['PNR NO'] || nr['PNR '] || '');
-        let refNo = String(nr['REF NO'] || nr['REFERENCE NUMBER'] || '');
-        let agentDetails = String(nr['AGENT'] || nr['AGENT DETAILS'] || nr['AGENT NAME'] || '');
+        let pnr = String(nr['PNR'] || nr['PNR NO'] || nr['PNR '] || nr['CONFIRMATION'] || '');
+        let refNo = String(nr['REF NO'] || nr['REFERENCE NUMBER'] || nr['REFERENCE'] || '');
+        let agentDetails = String(nr['AGENT'] || nr['AGENT DETAILS'] || nr['AGENT NAME'] || nr['AGENTS'] || nr['AGENCY'] || '');
 
         // Overrides for the specific charter file
         if (isCharterFormat) {
@@ -82,26 +82,27 @@ export class BookingsService {
           refNo = 'FLRUHCOKMAR18SV';
         }
 
-        const purchasePrice = parseFloat(nr['NET PRICE'] || nr['PURCHASE PRICE'] || 0);
-        const sellingPrice = parseFloat(nr['SELLING PRICE'] || 0);
+        const purchasePrice = parseFloat(nr['NET PRICE'] || nr['PURCHASE PRICE'] || nr['NETPRICE'] || 0);
+        const sellingPrice = parseFloat(nr['SELLING PRICE'] || nr['SALE PRICE'] || nr['SELLINGPRICE'] || 0);
         
         // New columns
-        const airline = String(nr['AIRLINES'] || nr['AIRLINE'] || '');
-        const sector = String(nr['SECTOR'] || '');
+        const airline = String(nr['AIRLINES'] || nr['AIRLINE'] || nr['CARRIER'] || '');
+        const sector = String(nr['SECTOR'] || nr['ROUTE'] || '');
         let travelDate: Date | null = null;
-        const travelDateStr = nr['TRAVEL DATE'];
+        const travelDateStr = nr['TRAVEL DATE'] || nr['FLIGHT DATE'] || nr['DATE'] || nr['DEPARTURE DATE'];
         if (travelDateStr) {
           if (!isNaN(Number(travelDateStr))) {
             const excelEpoch = new Date(1899, 11, 30);
             travelDate = new Date(excelEpoch.getTime() + Number(travelDateStr) * 86400000);
           } else {
-            travelDate = new Date(travelDateStr);
+            const d = new Date(travelDateStr);
+            if (!isNaN(d.getTime())) travelDate = d;
           }
         }
         
-        const supplier = String(nr['SUPPLYER'] || nr['SUPPLIER'] || '');
-        const agencyEmail = String(nr['AGENCY EMAIL ID'] || nr['AGENCY EMAIL'] || nr['EMAIL'] || '');
-        const paymentStatus = String(nr['PAYMENT STATUS'] || 'UNPAID');
+        const supplier = String(nr['SUPPLYER'] || nr['SUPPLIER'] || nr['SOURCE'] || '');
+        const agencyEmail = String(nr['AGENCY EMAIL ID'] || nr['AGENCY EMAIL'] || nr['EMAIL'] || nr['EMAIL ID'] || '');
+        const paymentStatus = String(nr['PAYMENT STATUS'] || nr['STATUS'] || 'UNPAID');
         const paymentMethod = String(nr['PAYMENT METHOD'] || nr['CASH OR BANK TRANSFER'] || '');
         const requestField = String(nr['REQUEST'] || '');
         const remarksField = String(nr['REMARKS'] || nr['REMARK'] || '');

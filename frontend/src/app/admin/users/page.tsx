@@ -158,12 +158,25 @@ export default function UsersAdminPage() {
                 const aAgencyName = (agent.agencyName || '').toLowerCase().trim();
                 const aEmail = (agent.email || '').toLowerCase().trim();
 
+                // 1. Direct ID match
                 if (b.userId === agent.id) return true;
                 
-                if (aName && bDetails.includes(aName)) return true;
-                if (aAgencyName && bDetails.includes(aAgencyName)) return true;
+                // 2. Exact Email match (most reliable)
                 if (aEmail && bAgencyEmail.includes(aEmail)) return true;
+                if (aEmail && bDetails.includes(aEmail)) return true;
+
+                // 3. Robust Name matching (substrings)
+                if (aName && bDetails.includes(aName)) return true;
                 if (bDetails && aName.includes(bDetails)) return true;
+                
+                // 4. Agency Name matching
+                if (aAgencyName && bDetails.includes(aAgencyName)) return true;
+                
+                // 5. Hard Logic: Split and match significant words
+                const nameWords = aName.split(' ').filter((w: string) => w.length > 3);
+                for (const word of nameWords) {
+                    if (bDetails.includes(word)) return true;
+                }
                 
                 return false;
             });
