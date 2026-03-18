@@ -27,6 +27,11 @@ export class UsersController {
     return this.usersService.changePassword(dto);
   }
 
+  @Patch(':id')
+  updateUser(@Param('id') id: string, @Body() data: any) {
+    return this.usersService.updateUser(id, data);
+  }
+
   @Delete(':id')
   deleteUser(@Param('id') id: string) {
     return this.usersService.deleteUser(id);

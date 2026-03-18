@@ -57,6 +57,33 @@ export class UsersService {
     });
   }
 
+  async updateUser(id: string, data: any) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) throw new NotFoundException('User not found');
+    
+    // If updating email, check for duplicates
+    if (data.email && data.email !== user.email) {
+      const existing = await this.prisma.user.findUnique({ where: { email: data.email } });
+      if (existing) throw new BadRequestException('Email already in use');
+    }
+
+    // Password reset if provided
+    if (data.password && data.password.trim().length >= 6) {
+      data.password = await bcrypt.hash(data.password, 10);
+    } else {
+      delete data.password;
+    }
+
+    return this.prisma.user.update({
+      where: { id },
+      data: {
+        ...data,
+        creditLimit: data.creditLimit !== undefined ? Number(data.creditLimit) : undefined
+      },
+      select: { id: true, name: true, email: true, phone: true, role: true, agencyName: true, createdAt: true },
+    });
+  }
+
   async changePassword(dto: ChangePasswordDto) {
     const user = await this.prisma.user.findUnique({ where: { id: dto.userId } });
     if (!user) throw new NotFoundException('User not found');

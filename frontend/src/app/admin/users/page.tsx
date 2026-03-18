@@ -18,7 +18,7 @@ import { motion } from "framer-motion";
 
 const B = { primary: "#2E0A57", accent: "#6C2BD9" };
 
-type ModalType = "addUser" | "changePassword" | "deleteUser" | "manageFinances" | null;
+type ModalType = "addUser" | "editUser" | "changePassword" | "deleteUser" | "manageFinances" | null;
 
 export default function UsersAdminPage() {
     const [users, setUsers] = useState<any[]>([]);
@@ -46,9 +46,39 @@ export default function UsersAdminPage() {
     const openModal = (type: ModalType, user?: any) => {
         setModal(type);
         setSelected(user || null);
-        setForm(type === "addUser" ? { role: "USER" } : {});
+        if (type === "addUser") {
+            setForm({ role: "USER" });
+        } else if (type === "editUser" && user) {
+            setForm({
+                name: user.name,
+                email: user.email,
+                phone: user.phone || "",
+                role: user.role,
+                agencyName: user.agencyName || "",
+                creditLimit: user.creditLimit || 0
+            });
+        } else {
+            setForm({});
+        }
     };
     const closeModal = () => { setModal(null); setSelected(null); setForm({}); };
+
+    const handleUpdateUser = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!selected) return;
+        setSaving(true);
+        try {
+            await flyApi.users.update(selected.id, {
+                ...form,
+                creditLimit: form.creditLimit ? Number(form.creditLimit) : 0
+            });
+            toast({ title: "User Updated", description: `${form.name} profile has been updated.` });
+            fetchUsers();
+            closeModal();
+        } catch (err: any) {
+            toast({ title: "Error", description: err.message, variant: "destructive" });
+        } finally { setSaving(false); }
+    };
 
     const handleAddUser = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -324,6 +354,10 @@ export default function UsersAdminPage() {
                                                 </Button>
                                             </>
                                         )}
+                                        <Button variant="ghost" size="sm" className="h-8 rounded-lg gap-1.5 text-xs text-blue-500 hover:bg-blue-50"
+                                            onClick={() => openModal("editUser", user)}>
+                                            Edit
+                                        </Button>
                                         <Button variant="ghost" size="sm" className="h-8 rounded-lg gap-1.5 text-xs text-violet-600 hover:bg-violet-50"
                                             onClick={() => openModal("changePassword", user)}>
                                             <KeyRound className="h-3.5 w-3.5" /> Password
@@ -392,6 +426,66 @@ export default function UsersAdminPage() {
                             <Button type="button" variant="outline" className="rounded-xl" onClick={closeModal}>Cancel</Button>
                             <Button type="submit" disabled={saving} className="rounded-xl text-white" style={{ background: `linear-gradient(135deg, ${B.primary}, ${B.accent})` }}>
                                 {saving ? "Adding..." : "Add User"}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* ─── EDIT USER MODAL ─── */}
+            <Dialog open={modal === "editUser"} onOpenChange={() => closeModal()}>
+                <DialogContent className="max-w-md rounded-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="font-black flex items-center gap-2">
+                            Edit User Profile
+                        </DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleUpdateUser}>
+                        <div className="space-y-4 py-4">
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold text-gray-600">Full Name</Label>
+                                <Input className="rounded-xl" value={form.name || ""} onChange={e => setForm({ ...form, name: e.target.value })} />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold text-gray-600">Email Address</Label>
+                                <Input className="rounded-xl" type="email" value={form.email || ""} onChange={e => setForm({ ...form, email: e.target.value })} />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold text-gray-600">Phone</Label>
+                                <Input className="rounded-xl" value={form.phone || ""} onChange={e => setForm({ ...form, phone: e.target.value })} />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold text-gray-600">Role</Label>
+                                <select className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
+                                    value={form.role || "USER"} onChange={e => setForm({ ...form, role: e.target.value })}>
+                                    <option value="USER">Customer / User</option>
+                                    <option value="AGENT">Agent</option>
+                                    <option value="ADMIN">Admin</option>
+                                </select>
+                            </div>
+                            {form.role === "AGENT" && (
+                                <>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-xs font-semibold text-gray-600">Agency Name</Label>
+                                        <Input className="rounded-xl" value={form.agencyName || ""} onChange={e => setForm({ ...form, agencyName: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-xs font-semibold text-gray-600">Credit Limit (₹)</Label>
+                                        <Input className="rounded-xl" type="number" value={form.creditLimit || ""} onChange={e => setForm({ ...form, creditLimit: e.target.value })} />
+                                    </div>
+                                </>
+                            )}
+                            <div className="pt-2 border-t mt-4">
+                                <Label className="text-xs font-bold text-gray-400 uppercase">Change Password (Optional)</Label>
+                                <div className="mt-2 space-y-2">
+                                    <Input className="rounded-xl" type="password" placeholder="Leave blank to keep current" value={form.password || ""} onChange={e => setForm({ ...form, password: e.target.value })} />
+                                </div>
+                            </div>
+                        </div>
+                        <DialogFooter className="gap-2">
+                            <Button type="button" variant="outline" className="rounded-xl" onClick={closeModal}>Cancel</Button>
+                            <Button type="submit" disabled={saving} className="rounded-xl text-white px-8" style={{ background: `linear-gradient(135deg, ${B.primary}, ${B.accent})` }}>
+                                {saving ? "Saving..." : "Save Changes"}
                             </Button>
                         </DialogFooter>
                     </form>

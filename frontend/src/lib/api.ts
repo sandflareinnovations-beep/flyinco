@@ -234,6 +234,12 @@ export const flyApi = {
                 body: JSON.stringify({ userId, newPassword }),
             });
         },
+        update: async (id: string, data: any) => {
+            return await fetchWithCreds(`/users/${id}`, {
+                method: 'PATCH',
+                body: JSON.stringify(data),
+            });
+        },
         delete: async (id: string) => {
             return await fetchWithCreds(`/users/${id}`, {
                 method: 'DELETE',
