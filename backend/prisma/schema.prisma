@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Route {
+  id             String    @id @default(uuid())
+  origin         String
+  originCity     String    @default("Origin City")
+  destination    String
+  destinationCity String   @default("Dest City")
+  price          Float
+  totalSeats     Int
+  remainingSeats Int
+  departureDate  DateTime
+  arrivalDate    DateTime?
+  airline        String    @default("Saudia Airlines")
+  flightNumber   String    @default("SV 890")
+  departureTime  String    @default("11:35 AM")
+  arrivalTime    String    @default("18:50 PM")
+  baggage        String    @default("2PC BAGGAGE")
+  duration       String    @default("7h 15m")
+  airlineLogo    String?
+  layover        String?
+  flightRules    String?
+  flightDetails  String?
+  bookingStatus  String    @default("OPEN")
+  isCharter      Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  bookings       Booking[]
+}
+
+model Booking {
+  id             String    @id @default(uuid())
+  userId         String?   // Make optional temporarily to not break existing mock bookings, or string if required
+  routeId        String
+  passengerName  String
+  passportNumber String
+  email          String
+  phone          String
+  status         String
+  transactionId  String?
+  paymentReceipt String?
+  purchasePrice  Float?    @default(0)
+  sellingPrice   Float?    @default(0)
+  profit         Float?    @default(0)
+  baseFare       Float?    @default(0)
+  taxes          Float?    @default(0)
+  serviceFee     Float?    @default(0)
+  pnr            String?
+  ticketNumber   String?
+  refNo          String?
+  agentDetails   String?
+  isNew          Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  
+  route          Route     @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  user           User?     @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  phone     String?
+  password  String
+  role      String    @default("USER")
+  createdAt DateTime  @default(now())
+  
+  bookings  Booking[]
+}

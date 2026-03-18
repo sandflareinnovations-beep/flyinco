@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Flyinco Brand Fonts ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    /* Flyinco Brand: #2E0A57 primary, #6C2BD9 accent */
+    --background: 0 0% 100%;
+    --foreground: 270 80% 10%;
+
+    --card: 240 20% 98%;
+    --card-foreground: 270 80% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 270 80% 10%;
+
+    /* Primary = #2E0A57 → hsl(270, 78%, 19%) */
+    --primary: 270 78% 19%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary = #6C2BD9 → hsl(268, 68%, 51%) */
+    --secondary: 268 68% 51%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 240 15% 96%;
+    --muted-foreground: 240 10% 50%;
+
+    --accent: 268 60% 95%;
+    --accent-foreground: 270 78% 19%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 91%;
+    --input: 220 15% 91%;
+    --ring: 270 78% 19%;
+
+    --chart-1: 270 78% 19%;
+    --chart-2: 268 68% 51%;
+    --chart-3: 145 55% 48%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-white text-foreground;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Inter', system-ui, sans-serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* ── Brand utility classes ── */
+.btn-brand {
+  background-color: #2E0A57;
+  color: white;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-weight: 600;
+  transition: background-color 0.15s ease;
+}
+
+.btn-brand:hover {
+  background-color: #3B0F70;
+}
+
+/* ── Custom scrollbar ── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f5f3ff;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #6C2BD9;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2E0A57;
+}
