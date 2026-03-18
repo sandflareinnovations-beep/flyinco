@@ -88,9 +88,9 @@ export class BookingsController {
     return this.bookingsService.bulkImport(file);
   }
 
-  // ── Admin: view all bookings ──
+  // ── Admin/Agent/User: view their bookings ──
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'AGENT', 'USER')
   @Get()
   findAll(@Req() req: any) {
     return this.bookingsService.findAll(req.user);

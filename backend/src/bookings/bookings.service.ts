@@ -239,6 +239,25 @@ export class BookingsService {
           user: { select: { id: true, name: true, email: true, phone: true } },
         },
       });
+    } else if (user.role === 'AGENT') {
+      const fullUser = await this.prisma.user.findUnique({ where: { id: user.id } });
+      const agentName = fullUser?.name || '';
+      const agencyName = fullUser?.agencyName || '';
+
+      const orConditions: any[] = [{ userId: user.id }];
+      
+      if (agentName.trim()) {
+        orConditions.push({ agentDetails: { contains: agentName.trim(), mode: 'insensitive' } });
+      }
+      if (agencyName.trim()) {
+        orConditions.push({ agentDetails: { contains: agencyName.trim(), mode: 'insensitive' } });
+      }
+
+      return this.prisma.booking.findMany({
+        where: { OR: orConditions },
+        orderBy: { createdAt: 'desc' },
+        include: { route: true },
+      });
     } else {
       return this.prisma.booking.findMany({
         where: { userId: user.id },
@@ -255,8 +274,24 @@ export class BookingsService {
     });
     if (!booking) throw new NotFoundException('Booking not found');
 
-    if (user.role !== 'ADMIN' && booking.userId !== user.id) {
-      throw new NotFoundException('Booking not found');
+    if (user.role !== 'ADMIN') {
+      if (booking.userId !== user.id) {
+        if (user.role === 'AGENT') {
+          const fullUser = await this.prisma.user.findUnique({ where: { id: user.id } });
+          const agentName = (fullUser?.name || '').toLowerCase();
+          const agencyName = (fullUser?.agencyName || '').toLowerCase();
+          const details = (booking.agentDetails || '').toLowerCase();
+          
+          const matchName = agentName && details.includes(agentName);
+          const matchAgency = agencyName && details.includes(agencyName);
+          
+          if (!matchName && !matchAgency) {
+            throw new NotFoundException('Booking not found');
+          }
+        } else {
+          throw new NotFoundException('Booking not found');
+        }
+      }
     }
 
     return booking;
