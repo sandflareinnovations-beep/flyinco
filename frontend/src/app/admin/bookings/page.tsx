@@ -367,7 +367,7 @@ export default function AdminBookings() {
                                         }}
                                     />
                                 </TableHead>
-                                {["#", "Passenger / Agent", "Contact", "Route", "Sale Price", "Profit", "Status", "Date", "Actions"].map(h => (
+                                {["#", "Passenger / Agent", "Contact", "Route", "Sale Price", "Profit", "Status", "Travel Date", "Actions"].map(h => (
                                     <TableHead key={h} className="text-[11px] font-bold text-gray-500 uppercase tracking-wide whitespace-nowrap py-3">
                                         {h}
                                     </TableHead>
@@ -407,9 +407,6 @@ export default function AdminBookings() {
                                         <TableCell className="py-3">
                                             <div className="flex items-center gap-2">
                                                 <p className="font-semibold text-sm text-gray-900">{booking.passengerName}</p>
-                                                {booking.isNew && (
-                                                    <Badge className="bg-blue-500 text-white text-[9px] h-4 px-1 rounded hover:bg-blue-600 animate-pulse">NEW</Badge>
-                                                )}
                                             </div>
                                             <p className="text-xs text-gray-400 font-mono">{booking.passportNumber}</p>
                                             {booking.agentDetails && (
@@ -446,10 +443,10 @@ export default function AdminBookings() {
                                                 {booking.status}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className="py-3 text-xs text-gray-400 whitespace-nowrap">
-                                            {new Date(booking.createdAt).toLocaleDateString('en-GB', {
+                                        <TableCell className="py-3 text-xs text-gray-400 whitespace-nowrap font-medium text-emerald-700">
+                                            {route?.departureDate ? new Date(route.departureDate).toLocaleDateString('en-GB', {
                                                 day: '2-digit', month: 'short', year: 'numeric'
-                                            })}
+                                            }) : "N/A"}
                                         </TableCell>
                                         <TableCell className="py-3">
                                             <div className="flex items-center gap-1">
