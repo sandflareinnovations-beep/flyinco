@@ -109,25 +109,35 @@ export default function UserDashboard() {
             </div>
 
             {userProfile?.role === 'AGENT' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                     <Card className="shadow-md">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
-                                Outstanding
+                                Total Sales
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">₹{userProfile.outstanding?.toLocaleString() || 0}</div>
+                            <div className="text-2xl font-bold text-primary">₹{userProfile.totalSales?.toLocaleString() || 0}</div>
                         </CardContent>
                     </Card>
                     <Card className="shadow-md">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
-                                Pending Dues
+                                Unpaid Dues
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-amber-600">₹{userProfile.pendingDues?.toLocaleString() || 0}</div>
+                            <div className="text-2xl font-bold text-red-500">₹{userProfile.pendingDues?.toLocaleString() || 0}</div>
+                        </CardContent>
+                    </Card>
+                    <Card className="shadow-md">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
+                                Total Paid
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-emerald-600">₹{userProfile.totalPaid?.toLocaleString() || 0}</div>
                         </CardContent>
                     </Card>
                 </div>

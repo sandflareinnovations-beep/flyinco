@@ -276,8 +276,9 @@ export default function UsersAdminPage() {
                                 <TableCell>
                                     {user.role === "AGENT" ? (
                                         <div className="flex flex-col gap-0.5 text-xs">
-                                            <span className="text-violet-600 font-black">Outstanding: ₹{user.outstanding?.toLocaleString() || 0}</span>
-                                            <span className="text-red-500 font-bold">Pending Dues: ₹{user.pendingDues?.toLocaleString() || 0}</span>
+                                            <span className="text-violet-600 font-black">Sales: ₹{user.totalSales?.toLocaleString() || 0}</span>
+                                            <span className="text-red-500 font-bold">Unpaid: ₹{user.pendingDues?.toLocaleString() || 0}</span>
+                                            <span className="text-emerald-600 font-bold">Paid: ₹{user.totalPaid?.toLocaleString() || 0}</span>
                                         </div>
                                     ) : (
                                         <span className="text-xs text-gray-400">N/A</span>
@@ -448,7 +449,7 @@ export default function UsersAdminPage() {
                                     <p className="font-black text-gray-900">₹{selected?.totalSales || 0}</p>
                                 </div>
                                 <div>
-                                    <p className="text-gray-500 text-xs uppercase font-bold text-right">Pending Dues</p>
+                                    <p className="text-gray-500 text-xs uppercase font-bold text-right">Unpaid Dues</p>
                                     <p className="font-black text-red-500 text-right">₹{selected?.pendingDues || 0}</p>
                                 </div>
                             </div>
