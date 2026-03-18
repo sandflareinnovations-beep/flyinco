@@ -273,7 +273,7 @@ export default function UserDashboard() {
                                             <TableCell className="font-bold">
                                                 <div className="flex items-center gap-2">
                                                     <Map className="h-4 w-4 text-primary" />
-                                                    {booking.route?.origin} → {booking.route?.destination}
+                                                    {booking.sector ? booking.sector : (booking.route ? `${booking.route.origin} → ${booking.route.destination}` : "N/A")}
                                                 </div>
                                             </TableCell>
                                             <TableCell className="font-medium text-muted-foreground">
@@ -303,7 +303,11 @@ export default function UserDashboard() {
                                             <TableCell className="whitespace-nowrap">
                                                 <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
                                                     <Calendar className="h-4 w-4" />
-                                                    {booking.travelDate ? format(new Date(booking.travelDate), "MMM dd, yyyy") : (booking.route?.departureDate ? format(new Date(booking.route.departureDate), "MMM dd, yyyy") : "N/A")}
+                                                    {booking.travelDate 
+                                                        ? format(new Date(booking.travelDate), "MMM dd, yyyy") 
+                                                        : (booking.route?.departureDate 
+                                                            ? format(new Date(booking.route.departureDate), "MMM dd, yyyy") 
+                                                            : "N/A")}
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-right">
