@@ -121,43 +121,46 @@ export default function UsersAdminPage() {
         try {
             const bookings = await flyApi.bookings.list();
             const agentBookings = bookings.filter((b: any) => {
-                // 1. Direct match with userId
-                if (b.userId === agent.id) return true;
-
-                // 2. Prepare normalized data for comparison
-                const bDetails = (b.agentDetails || '').toLowerCase().trim();
-                const bAgencyEmail = (b.agencyEmail || '').toLowerCase().trim();
+                const bDetails = (b.agentDetails || '').toLowerCase();
+                const bAgencyEmail = (b.agencyEmail || '').toLowerCase();
                 
                 const aName = (agent.name || '').toLowerCase().trim();
                 const aAgencyName = (agent.agencyName || '').toLowerCase().trim();
                 const aEmail = (agent.email || '').toLowerCase().trim();
 
-                // 3. Robust matching logic
+                if (b.userId === agent.id) return true;
+                
                 if (aName && bDetails.includes(aName)) return true;
                 if (aAgencyName && bDetails.includes(aAgencyName)) return true;
                 if (aEmail && bAgencyEmail.includes(aEmail)) return true;
-                if (aEmail && bDetails.includes(aEmail)) return true;
+                if (bDetails && aName.includes(bDetails)) return true;
                 
                 return false;
             });
 
-            const dataToExport = agentBookings.map((b: any) => ({
-                "Travel Date": b.travelDate 
-                    ? new Date(b.travelDate).toLocaleDateString('en-GB') 
-                    : (b.route?.departureDate ? new Date(b.route.departureDate).toLocaleDateString('en-GB') : "N/A"),
-                "PNR": b.pnr || "PENDING",
-                "Sector": b.sector ? b.sector : (b.route ? `${b.route.origin} → ${b.route.destination}` : "N/A"),
-                "Airline": b.airline || b.route?.airline || "N/A",
-                "Passenger": b.passengerName,
-                "Passport": b.passportNumber || "N/A",
-                "Booking Status": b.status,
-                "Payment Status": b.paymentStatus || 'UNPAID',
-                "Sale Price": b.sellingPrice || 0,
-                "Agent Cost": b.purchasePrice || 0,
-                "Profit": (b.sellingPrice || 0) - (b.purchasePrice || 0),
-                "Supplier": b.supplier || "",
-                "Booking ID": b.id.substring(0,8)
-            }));
+            const dataToExport = agentBookings.map((b: any) => {
+                const travelDateObj = b.travelDate ? new Date(b.travelDate) : (b.route?.departureDate ? new Date(b.route.departureDate) : null);
+                let travelDateStr = "N/A";
+                if (travelDateObj && !isNaN(travelDateObj.getTime())) {
+                    travelDateStr = travelDateObj.toLocaleDateString('en-GB');
+                }
+
+                return {
+                    "Travel Date": travelDateStr,
+                    "PNR": b.pnr || "PENDING",
+                    "Sector": b.sector || (b.route ? `${b.route.origin} → ${b.route.destination}` : "N/A"),
+                    "Airline": b.airline || b.route?.airline || "N/A",
+                    "Passenger": b.passengerName,
+                    "Passport": b.passportNumber || "N/A",
+                    "Booking Status": b.status,
+                    "Payment Status": b.paymentStatus || 'UNPAID',
+                    "Sale Price": b.sellingPrice || 0,
+                    "Agent Cost": b.purchasePrice || 0,
+                    "Profit": (b.sellingPrice || 0) - (b.purchasePrice || 0),
+                    "Supplier": b.supplier || "",
+                    "Booking ID": b.id.substring(0,8)
+                };
+            });
 
             const paidAmt = agentBookings.filter((b: any) => b.paymentStatus === 'PAID').reduce((s: number, b: any) => s + (b.purchasePrice || 0), 0);
             const unpaidAmt = agentBookings.filter((b: any) => (b.paymentStatus || 'UNPAID') === 'UNPAID').reduce((s: number, b: any) => s + (b.purchasePrice || 0), 0);

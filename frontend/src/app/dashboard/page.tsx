@@ -303,11 +303,13 @@ export default function UserDashboard() {
                                             <TableCell className="whitespace-nowrap">
                                                 <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
                                                     <Calendar className="h-4 w-4" />
-                                                    {booking.travelDate 
-                                                        ? format(new Date(booking.travelDate), "MMM dd, yyyy") 
-                                                        : (booking.route?.departureDate 
-                                                            ? format(new Date(booking.route.departureDate), "MMM dd, yyyy") 
-                                                            : "N/A")}
+                                                    {(() => {
+                                                        const dateObj = booking.travelDate ? new Date(booking.travelDate) : (booking.route?.departureDate ? new Date(booking.route.departureDate) : null);
+                                                        if (dateObj && !isNaN(dateObj.getTime())) {
+                                                            return format(dateObj, "MMM dd, yyyy");
+                                                        }
+                                                        return "N/A";
+                                                    })()}
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-right">
