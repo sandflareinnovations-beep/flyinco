@@ -121,10 +121,23 @@ export default function UsersAdminPage() {
         try {
             const bookings = await flyApi.bookings.list();
             const agentBookings = bookings.filter((b: any) => {
+                // 1. Direct match with userId
                 if (b.userId === agent.id) return true;
-                const agentDetailsStr = b.agentDetails?.toLowerCase() || '';
-                if (agent.name && agentDetailsStr.includes(agent.name.toLowerCase())) return true;
-                if (agent.agencyName && agentDetailsStr.includes(agent.agencyName.toLowerCase())) return true;
+
+                // 2. Prepare normalized data for comparison
+                const bDetails = (b.agentDetails || '').toLowerCase().trim();
+                const bAgencyEmail = (b.agencyEmail || '').toLowerCase().trim();
+                
+                const aName = (agent.name || '').toLowerCase().trim();
+                const aAgencyName = (agent.agencyName || '').toLowerCase().trim();
+                const aEmail = (agent.email || '').toLowerCase().trim();
+
+                // 3. Robust matching logic
+                if (aName && bDetails.includes(aName)) return true;
+                if (aAgencyName && bDetails.includes(aAgencyName)) return true;
+                if (aEmail && bAgencyEmail.includes(aEmail)) return true;
+                if (aEmail && bDetails.includes(aEmail)) return true;
+                
                 return false;
             });
 
