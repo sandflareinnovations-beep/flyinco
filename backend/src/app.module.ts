@@ -7,6 +7,9 @@ import { BookingsModule } from './bookings/bookings.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { MailService } from './mail/mail.service';
+import { AnnouncementsModule } from './announcements/announcements.module';
+import { PaymentsModule } from './payments/payments.module';
+
 @Module({
   imports: [
     PrismaModule,
@@ -14,6 +17,8 @@ import { MailService } from './mail/mail.service';
     BookingsModule,
     UsersModule,
     AuthModule,
+    AnnouncementsModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [AppService, MailService],

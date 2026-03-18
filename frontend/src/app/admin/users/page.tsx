@@ -17,7 +17,7 @@ import { motion } from "framer-motion";
 
 const B = { primary: "#2E0A57", accent: "#6C2BD9" };
 
-type ModalType = "addUser" | "changePassword" | "deleteUser" | null;
+type ModalType = "addUser" | "changePassword" | "deleteUser" | "manageFinances" | null;
 
 export default function UsersAdminPage() {
     const [users, setUsers] = useState<any[]>([]);
@@ -53,8 +53,31 @@ export default function UsersAdminPage() {
         e.preventDefault();
         setSaving(true);
         try {
-            await flyApi.users.create(form);
+            await flyApi.users.create({
+                ...form,
+                creditLimit: form.creditLimit ? Number(form.creditLimit) : 0
+            });
             toast({ title: "User Added", description: `${form.name} has been created.` });
+            fetchUsers();
+            closeModal();
+        } catch (err: any) {
+            toast({ title: "Error", description: err.message, variant: "destructive" });
+        } finally { setSaving(false); }
+    };
+
+    const handleFinance = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!selected) return;
+        setSaving(true);
+        try {
+            await flyApi.payments.create({
+                agentId: selected.id,
+                amount: Number(form.amount || 0),
+                type: form.paymentType || "PAYMENT", // "PAYMENT" or "DUES"
+                status: "COMPLETED",
+                reference: form.reference || ""
+            });
+            toast({ title: "Finance Updated", description: `Transaction recorded for ${selected.name}.` });
             fetchUsers();
             closeModal();
         } catch (err: any) {
@@ -113,8 +136,8 @@ export default function UsersAdminPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {[
                     { label: "Total Users", value: users.length, color: B.primary },
-                    { label: "Admins", value: users.filter(u => u.role === "ADMIN").length, color: "#D97706" },
-                    { label: "Customers", value: users.filter(u => u.role === "USER").length, color: "#10B981" },
+                    { label: "Agents", value: users.filter(u => u.role === "AGENT").length, color: "#10B981" },
+                    { label: "Customers", value: users.filter(u => u.role === "USER").length, color: "#64748B" },
                 ].map(stat => (
                     <div key={stat.label} className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
                         <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide">{stat.label}</p>
@@ -131,7 +154,7 @@ export default function UsersAdminPage() {
                             <TableHead className="text-xs font-bold text-gray-500 uppercase tracking-wide">User</TableHead>
                             <TableHead className="text-xs font-bold text-gray-500 uppercase tracking-wide">Contact</TableHead>
                             <TableHead className="text-xs font-bold text-gray-500 uppercase tracking-wide">Role</TableHead>
-                            <TableHead className="text-xs font-bold text-gray-500 uppercase tracking-wide">Joined</TableHead>
+                            <TableHead className="text-xs font-bold text-gray-500 uppercase tracking-wide">Finances</TableHead>
                             <TableHead className="text-xs font-bold text-gray-500 uppercase tracking-wide text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -187,6 +210,10 @@ export default function UsersAdminPage() {
                                         <Badge className="bg-violet-50 text-violet-700 border-violet-200 gap-1 font-semibold" variant="outline">
                                             <ShieldCheck className="h-3 w-3" /> Admin
                                         </Badge>
+                                    ) : user.role === "AGENT" ? (
+                                        <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 gap-1 font-semibold" variant="outline">
+                                            <User className="h-3 w-3" /> Agent
+                                        </Badge>
                                     ) : (
                                         <Badge className="bg-gray-50 text-gray-600 border-gray-200 gap-1 font-semibold" variant="outline">
                                             <User className="h-3 w-3" /> User
@@ -194,13 +221,23 @@ export default function UsersAdminPage() {
                                     )}
                                 </TableCell>
                                 <TableCell>
-                                    <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                                        <Calendar className="h-3 w-3" />
-                                        {format(new Date(user.createdAt), "MMM dd, yyyy")}
-                                    </div>
+                                    {user.role === "AGENT" ? (
+                                        <div className="flex flex-col gap-0.5 text-xs">
+                                            <span className="text-emerald-600 font-bold">Paid: ₹{user.totalPaid?.toLocaleString() || 0}</span>
+                                            <span className="text-red-500 font-bold">Dues: ₹{user.pendingDues?.toLocaleString() || 0}</span>
+                                        </div>
+                                    ) : (
+                                        <span className="text-xs text-gray-400">N/A</span>
+                                    )}
                                 </TableCell>
                                 <TableCell className="text-right">
                                     <div className="flex items-center justify-end gap-2">
+                                        {user.role === "AGENT" && (
+                                            <Button variant="ghost" size="sm" className="h-8 rounded-lg gap-1.5 text-xs text-emerald-600 hover:bg-emerald-50"
+                                                onClick={() => openModal("manageFinances", user)}>
+                                                Finances
+                                            </Button>
+                                        )}
                                         <Button variant="ghost" size="sm" className="h-8 rounded-lg gap-1.5 text-xs text-violet-600 hover:bg-violet-50"
                                             onClick={() => openModal("changePassword", user)}>
                                             <KeyRound className="h-3.5 w-3.5" /> Password
@@ -248,9 +285,22 @@ export default function UsersAdminPage() {
                                 <select className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
                                     value={form.role || "USER"} onChange={e => setForm({ ...form, role: e.target.value })}>
                                     <option value="USER">Customer / User</option>
+                                    <option value="AGENT">Agent</option>
                                     <option value="ADMIN">Admin</option>
                                 </select>
                             </div>
+                            {form.role === "AGENT" && (
+                                <>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-xs font-semibold text-gray-600">Agency Name</Label>
+                                        <Input className="rounded-xl" placeholder="Agency XYZ" value={form.agencyName || ""} onChange={e => setForm({ ...form, agencyName: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-xs font-semibold text-gray-600">Credit Limit (₹)</Label>
+                                        <Input className="rounded-xl" type="number" placeholder="50000" value={form.creditLimit || ""} onChange={e => setForm({ ...form, creditLimit: e.target.value })} />
+                                    </div>
+                                </>
+                            )}
                         </div>
                         <DialogFooter className="gap-2">
                             <Button type="button" variant="outline" className="rounded-xl" onClick={closeModal}>Cancel</Button>
@@ -320,6 +370,53 @@ export default function UsersAdminPage() {
                             {saving ? "Deleting..." : "Delete User"}
                         </Button>
                     </DialogFooter>
+                </DialogContent>
+            </Dialog>
+            {/* ─── MANAGE FINANCES MODAL ─── */}
+            <Dialog open={modal === "manageFinances"} onOpenChange={() => closeModal()}>
+                <DialogContent className="max-w-sm rounded-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="font-black flex items-center gap-2">
+                            Manage Finances
+                        </DialogTitle>
+                        <p className="text-sm text-gray-400">{selected?.name} ({selected?.agencyName || "Agent"})</p>
+                    </DialogHeader>
+                    <form onSubmit={handleFinance}>
+                        <div className="space-y-4 py-4">
+                            <div className="p-3 bg-gray-50 rounded-lg border border-gray-100 mb-2 flex justify-between text-sm">
+                                <div>
+                                    <p className="text-gray-500 text-xs uppercase font-bold">Outstanding</p>
+                                    <p className="font-black text-gray-900">₹{selected?.outstanding || 0}</p>
+                                </div>
+                                <div>
+                                    <p className="text-gray-500 text-xs uppercase font-bold text-right">Pending Dues</p>
+                                    <p className="font-black text-red-500 text-right">₹{selected?.pendingDues || 0}</p>
+                                </div>
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold text-gray-600">Transaction Type</Label>
+                                <select className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
+                                    value={form.paymentType || "PAYMENT"} onChange={e => setForm({ ...form, paymentType: e.target.value })}>
+                                    <option value="PAYMENT">Record Payment (Reduces Dues)</option>
+                                    <option value="DUES">Add Pending Dues (Increases Dues)</option>
+                                </select>
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold text-gray-600">Amount (₹) *</Label>
+                                <Input className="rounded-xl" type="number" required placeholder="10000" value={form.amount || ""} onChange={e => setForm({ ...form, amount: e.target.value })} />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold text-gray-600">Reference / Notes</Label>
+                                <Input className="rounded-xl" placeholder="NEFT-12345" value={form.reference || ""} onChange={e => setForm({ ...form, reference: e.target.value })} />
+                            </div>
+                        </div>
+                        <DialogFooter className="gap-2">
+                            <Button type="button" variant="outline" className="rounded-xl" onClick={closeModal}>Cancel</Button>
+                            <Button type="submit" disabled={saving} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl">
+                                {saving ? "Saving..." : "Save Transaction"}
+                            </Button>
+                        </DialogFooter>
+                    </form>
                 </DialogContent>
             </Dialog>
         </div>

@@ -206,6 +206,22 @@ export class BookingsService {
       },
     });
 
+    if (userId) {
+      const user = await this.prisma.user.findUnique({ where: { id: userId } });
+      if (user && user.role === 'AGENT') {
+        const owedAmount = dto.purchasePrice || 0;
+        if (owedAmount > 0) {
+          await this.prisma.user.update({
+            where: { id: userId },
+            data: {
+              pendingDues: { increment: owedAmount },
+              outstanding: { increment: owedAmount }
+            }
+          });
+        }
+      }
+    }
+
     await this.mailService.sendBookingConfirmation(
       booking.email,
       booking.id

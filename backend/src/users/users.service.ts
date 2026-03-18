@@ -16,13 +16,18 @@ export class UsersService {
         email: true,
         phone: true,
         role: true,
+        agencyName: true,
+        creditLimit: true,
+        totalPaid: true,
+        outstanding: true,
+        pendingDues: true,
         createdAt: true,
       },
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  async createUser(dto: CreateUserDto) {
+  async createUser(dto: CreateUserDto & { agencyName?: string; creditLimit?: number }) {
     const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (existing) throw new BadRequestException('Email already in use');
     const hashed = await bcrypt.hash(dto.password, 10);
@@ -33,8 +38,10 @@ export class UsersService {
         phone: dto.phone,
         password: hashed,
         role: dto.role || 'USER',
+        agencyName: dto.agencyName,
+        creditLimit: dto.creditLimit ? Number(dto.creditLimit) : 0,
       },
-      select: { id: true, name: true, email: true, phone: true, role: true, createdAt: true },
+      select: { id: true, name: true, email: true, phone: true, role: true, agencyName: true, createdAt: true },
     });
   }
 

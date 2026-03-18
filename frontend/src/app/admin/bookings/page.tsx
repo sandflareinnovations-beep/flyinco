@@ -252,7 +252,8 @@ export default function AdminBookings() {
             b.email?.toLowerCase().includes(q) ||
             b.phone?.toLowerCase().includes(q) ||
             b.route?.origin?.toLowerCase().includes(q) ||
-            b.id?.toLowerCase().includes(q)
+            b.id?.toLowerCase().includes(q) ||
+            b.agentDetails?.toLowerCase().includes(q)
         );
     });
 

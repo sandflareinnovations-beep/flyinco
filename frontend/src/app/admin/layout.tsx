@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
     ShieldCheck, BookOpen, Plane, LayoutDashboard,
-    Users, LogOut
+    Users, LogOut, Megaphone
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -16,6 +16,7 @@ const links = [
     { href: "/admin/sectors", label: "Sector Management", icon: Plane },
     { href: "/admin/bookings", label: "Bookings", icon: BookOpen },
     { href: "/admin/users", label: "Users", icon: Users },
+    { href: "/admin/announcements", label: "Announcements", icon: Megaphone },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

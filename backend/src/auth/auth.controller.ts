@@ -12,10 +12,14 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { Response, Request } from 'express';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(
+    private readonly authService: AuthService,
+    private readonly prisma: PrismaService,
+  ) { }
 
   @Post('register')
   async register(
@@ -49,8 +53,15 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  getProfile(@Req() req: any) {
-    return req.user;
+  async getProfile(@Req() req: any) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: {
+        id: true, name: true, email: true, phone: true, role: true,
+        agencyName: true, creditLimit: true, totalPaid: true, outstanding: true, pendingDues: true,
+      }
+    });
+    return user || req.user;
   }
 
   private setCookie(res: any, token: string) {

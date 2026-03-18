@@ -232,5 +232,38 @@ export const flyApi = {
                 method: 'DELETE',
             });
         }
+    },
+    auth: {
+        me: async () => {
+            return await fetchWithCreds('/auth/me');
+        }
+    },
+    announcements: {
+        list: async () => {
+            return await fetchWithCreds('/announcements');
+        },
+        create: async (data: any) => {
+            return await fetchWithCreds('/announcements', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+        },
+        delete: async (id: string) => {
+            return await fetchWithCreds(`/announcements/${id}`, { method: 'DELETE' });
+        }
+    },
+    payments: {
+        list: async () => {
+            return await fetchWithCreds('/payments');
+        },
+        create: async (data: any) => {
+            return await fetchWithCreds('/payments', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+        },
+        byAgent: async (agentId: string) => {
+            return await fetchWithCreds(`/payments/agent/${agentId}`);
+        }
     }
 };

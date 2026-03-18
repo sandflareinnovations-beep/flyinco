@@ -69,7 +69,35 @@ model User {
   phone     String?
   password  String
   role      String    @default("USER")
+  agencyName String?
+  creditLimit Float   @default(0)
+  totalPaid   Float   @default(0)
+  outstanding Float   @default(0) // computed or updated based on bookings
+  pendingDues Float   @default(0)
   createdAt DateTime  @default(now())
   
   bookings  Booking[]
+  payments  Payment[]
+}
+
+model Announcement {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  type      String   @default("INFO")
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id        String   @id @default(uuid())
+  agentId   String
+  amount    Float
+  type      String   @default("PAYMENT") // PAYMENT, DUES
+  status    String   @default("COMPLETED")
+  reference String?
+  notes     String?
+  createdAt DateTime @default(now())
+  
+  agent     User     @relation(fields: [agentId], references: [id], onDelete: Cascade)
 }

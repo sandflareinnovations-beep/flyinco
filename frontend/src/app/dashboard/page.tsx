@@ -18,20 +18,39 @@ export default function UserDashboard() {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedBooking, setSelectedBooking] = useState<any>(null);
     const [showReceipt, setShowReceipt] = useState(false);
+    const [userProfile, setUserProfile] = useState<any>(null);
+    const [announcements, setAnnouncements] = useState<any[]>([]);
+    const [sectors, setSectors] = useState<any[]>([]);
     const { toast } = useToast();
     const router = useRouter();
 
     useEffect(() => {
-        async function fetchMyBookings() {
+        async function fetchData() {
             try {
+                const profile = await flyApi.auth.me();
+                setUserProfile(profile);
                 const data = await flyApi.bookings.list();
                 setBookings(data);
+                
+                try {
+                    const anns = await flyApi.announcements.list();
+                    setAnnouncements(anns.filter((a: any) => a.active));
+                } catch (e) {
+                    // Ignore announcement errors
+                }
+
+                try {
+                    const scs = await flyApi.sectors.list();
+                    setSectors(scs.filter((s: any) => s.bookingStatus !== "CLOSED" && s.bookingStatus !== "SOLD" && s.remainingSeats > 0));
+                } catch(e) {
+                    // Ignore sector errors
+                }
             } catch (error: any) {
-                if (error.message.includes("Unauthorized") || error.message.includes("401")) {
+                if (error.message?.includes("Unauthorized") || error.message?.includes("401")) {
                     router.push("/login");
                 }
                 toast({
-                    title: "Error fetching bookings",
+                    title: "Error fetching data",
                     description: error.message,
                     variant: "destructive",
                 });
@@ -39,7 +58,7 @@ export default function UserDashboard() {
                 setIsLoading(false);
             }
         }
-        fetchMyBookings();
+        fetchData();
     }, [toast, router]);
 
     const handleLogout = async () => {
@@ -81,7 +100,142 @@ export default function UserDashboard() {
                 </div>
             </div>
 
+            {userProfile?.role === 'AGENT' && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <Card className="shadow-md">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
+                                Outstanding
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">₹{userProfile.outstanding?.toLocaleString() || 0}</div>
+                        </CardContent>
+                    </Card>
+                    <Card className="shadow-md">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
+                                Pending Dues
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-amber-600">₹{userProfile.pendingDues?.toLocaleString() || 0}</div>
+                        </CardContent>
+                    </Card>
+                    <Card className="shadow-md">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
+                                Total Paid
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-emerald-600">₹{userProfile.totalPaid?.toLocaleString() || 0}</div>
+                        </CardContent>
+                    </Card>
+                    <Card className="shadow-md">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
+                                Total Sales
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-primary">₹{bookings.reduce((sum, b) => sum + (b.sellingPrice || b.farePrice || 0), 0).toLocaleString()}</div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                {announcements.length > 0 && (
+                    <Card className="col-span-1 md:col-span-3 shadow-sm border border-border">
+                        <CardHeader className="bg-primary/5 pb-3">
+                            <CardTitle className="text-lg font-bold flex items-center gap-2">
+                                <FileText className="h-5 w-5 text-primary" />
+                                Notifications & Announcements
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-4 space-y-3">
+                            {announcements.map((ann) => (
+                                <div key={ann.id} className="p-3 bg-muted/30 rounded-lg border border-border/50">
+                                    <div className="flex justify-between mb-1">
+                                        <h4 className="font-bold text-sm text-foreground">{ann.title}</h4>
+                                        <Badge variant="outline" className="text-[10px]">{new Date(ann.createdAt).toLocaleDateString()}</Badge>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{ann.content}</p>
+                                </div>
+                            ))}
+                        </CardContent>
+                    </Card>
+                )}
+
+                {userProfile?.role === 'AGENT' && sectors.length > 0 && (
+                    <Card className="col-span-1 md:col-span-3 shadow-md border-2 border-emerald-100 mb-6">
+                        <CardHeader className="bg-emerald-50/50 pb-3 border-b border-emerald-100">
+                            <CardTitle className="text-xl flex items-center gap-2 font-bold text-emerald-800">
+                                <Plane className="h-6 w-6" />
+                                Available Routes for Booking
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                            <Table>
+                                <TableHeader className="bg-transparent border-b">
+                                    <TableRow className="hover:bg-transparent">
+                                        <TableHead className="font-semibold">Airline</TableHead>
+                                        <TableHead className="font-semibold">Route Sectors</TableHead>
+                                        <TableHead className="font-semibold">Departure Date</TableHead>
+                                        <TableHead className="font-semibold">Remaining Seats</TableHead>
+                                        <TableHead className="font-semibold">Agent Price</TableHead>
+                                        <TableHead className="text-right font-semibold">Action</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {sectors.map((s) => (
+                                        <TableRow key={s.id} className="group hover:bg-emerald-50/30 transition-colors">
+                                            <TableCell className="font-medium">
+                                                <div className="flex items-center gap-2 text-sm">
+                                                    {s.airlineLogo ? (
+                                                        <img src={s.airlineLogo} alt={s.airline} className="h-4 w-auto object-contain" />
+                                                    ) : (
+                                                        <Plane className="h-4 w-4 text-emerald-600" />
+                                                    )}
+                                                    {s.airline}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="font-bold">
+                                                <div className="flex items-center gap-2 text-sm">
+                                                    {s.originCode} <span className="text-emerald-300">→</span> {s.destinationCode}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="text-sm">
+                                                {s.departureDate ? new Date(s.departureDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : "N/A"}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200 border-none font-bold">
+                                                    {s.remainingSeats} left
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="font-black text-emerald-700 text-base">
+                                                ₹{s.price?.toLocaleString()}
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <Button 
+                                                    size="sm" 
+                                                    className="h-8 gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4"
+                                                    onClick={() => router.push(`/routes/${s.id}/flights`)}
+                                                >
+                                                    <Plane className="h-3.5 w-3.5" />
+                                                    Book Now
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
+                )}
+
                 <Card className="col-span-1 md:col-span-3 shadow-lg border-2 border-primary/10">
                     <CardHeader className="bg-muted/30 pb-4 border-b">
                         <CardTitle className="text-xl flex items-center gap-2 font-bold text-primary">
