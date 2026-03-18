@@ -280,16 +280,21 @@ export class BookingsService {
       });
     } else if (user.role === 'AGENT') {
       const fullUser = await this.prisma.user.findUnique({ where: { id: user.id } });
-      const agentName = fullUser?.name || '';
-      const agencyName = fullUser?.agencyName || '';
+      const agentName = (fullUser?.name || '').trim();
+      const agencyName = (fullUser?.agencyName || '').trim();
+      const agentEmail = (fullUser?.email || '').trim();
 
       const orConditions: any[] = [{ userId: user.id }];
       
-      if (agentName.trim()) {
-        orConditions.push({ agentDetails: { contains: agentName.trim(), mode: 'insensitive' } });
+      if (agentName) {
+        orConditions.push({ agentDetails: { contains: agentName, mode: 'insensitive' } });
       }
-      if (agencyName.trim()) {
-        orConditions.push({ agentDetails: { contains: agencyName.trim(), mode: 'insensitive' } });
+      if (agencyName) {
+        orConditions.push({ agentDetails: { contains: agencyName, mode: 'insensitive' } });
+      }
+      if (agentEmail) {
+        orConditions.push({ agencyEmail: { contains: agentEmail, mode: 'insensitive' } });
+        orConditions.push({ agentDetails: { contains: agentEmail, mode: 'insensitive' } });
       }
 
       return this.prisma.booking.findMany({
