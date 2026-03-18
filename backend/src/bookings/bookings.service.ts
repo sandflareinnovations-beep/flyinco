@@ -59,14 +59,14 @@ export class BookingsService {
       try {
         // Handle variations in column names from the provided file
         const prefix = row['PREFIX'] || row['prefix'] || '';
-        const givenName = row['GIVEN NAME '] || row['givenName'] || row['Passenger Name'] || row['passengerName'] || '';
-        const surname = row[' SURNAME'] || row['surname'] || '';
+        const givenName = row['GIVEN NAME'] || row['GIVEN NAME '] || row['givenName'] || row['Passenger Name'] || row['passengerName'] || '';
+        const surname = row['SURNAME'] || row[' SURNAME'] || row['surname'] || '';
         
         const passengerName = `${prefix} ${givenName} ${surname}`.trim().replace(/\s+/g, ' ');
 
-        const passportNumber = String(row['PASSPORT NUMBER'] || row['passportNumber'] || row['Passport Number'] || '');
+        const passportNumber = String(row['PASSPORT'] || row['PASSPORT NUMBER'] || row['passportNumber'] || row['Passport Number'] || '');
         
-        let pnr = String(row['PNR'] || row['pnr'] || '');
+        let pnr = String(row['PNR'] || row['PNR '] || row['pnr'] || '');
         let refNo = String(row['Ref No'] || row['referenceNumber'] || '');
         let agentDetails = String(row['Agent'] || row['agent'] || row['AGENT'] || row['Agent Details'] || row['Agent Name'] || row['AGENT DETAILS'] || '');
 
@@ -80,7 +80,7 @@ export class BookingsService {
         const sellingPrice = parseFloat(row['SELLING PRICE'] || row['sellingPrice'] || row['Selling Price'] || 0);
         
         // New columns
-        const airline = String(row['AIRLINE'] || row['airline'] || row['Airline'] || '');
+        const airline = String(row['AIRLINES'] || row['AIRLINE'] || row['airline'] || row['Airline'] || '');
         const sector = String(row['SECTOR'] || row['sector'] || row['Sector'] || '');
         let travelDate: Date | null = null;
         const travelDateStr = row['TRAVEL DATE'] || row['travelDate'] || row['Travel Date'];
@@ -93,12 +93,12 @@ export class BookingsService {
           }
         }
         
-        const supplier = String(row['SUPPLIER'] || row['supplier'] || row['Supplier'] || '');
-        const agencyEmail = String(row['AGENCY EMAIL ID'] || row['agencyEmailId'] || row['Agency Email'] || row['agencyEmail'] || '');
+        const supplier = String(row['SUPPLYER'] || row['SUPPLIER'] || row['supplier'] || row['Supplier'] || '');
+        const agencyEmail = String(row['AGENCY EMAIL ID'] || row['AGENCY EMAIL ID '] || row['agencyEmailId'] || row['Agency Email'] || row['agencyEmail'] || '');
         const paymentStatus = String(row['PAYMENT STATUS'] || row['paymentStatus'] || row['Payment Status'] || 'UNPAID');
         const paymentMethod = String(row['PAYMENT METHOD'] || row['paymentMethod'] || row['Payment Method'] || row['CASH OR BANK TRANSFER'] || row['Cash or Bank Transfer'] || '');
         const requestField = String(row['REQUEST'] || row['request'] || row['Request'] || '');
-        const remarksField = String(row['REMARK'] || row['remarks'] || row['Remark'] || row['REMARKS'] || '');
+        const remarksField = String(row['REMARKS'] || row['REMARK'] || row['remarks'] || row['Remark'] || '');
         
         // Status mapping
         let status = row['STATUS'] || row['status'] || 'CONFIRMED';
@@ -242,7 +242,7 @@ export class BookingsService {
     if (userId) {
       const user = await this.prisma.user.findUnique({ where: { id: userId } });
       if (user && user.role === 'AGENT') {
-        const owedAmount = dto.purchasePrice || 0;
+        const owedAmount = dto.sellingPrice || route.price || 0;
         if (owedAmount > 0) {
           await this.prisma.user.update({
             where: { id: userId },

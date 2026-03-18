@@ -26,8 +26,8 @@ export async function calculateAgentFinances(prisma: PrismaService, user: any) {
   const unpaidBookings = confirmedBookings.filter(b => (b as any).paymentStatus === "UNPAID");
   const paidBookings = confirmedBookings.filter(b => (b as any).paymentStatus === "PAID");
 
-  const unpaidAmount = unpaidBookings.reduce((sum, b) => sum + (b.purchasePrice || 0), 0);
-  const paidAmount = paidBookings.reduce((sum, b) => sum + (b.purchasePrice || 0), 0);
+  const unpaidAmount = unpaidBookings.reduce((sum, b) => sum + (b.sellingPrice || b.purchasePrice || 0), 0);
+  const paidAmount = paidBookings.reduce((sum, b) => sum + (b.sellingPrice || b.purchasePrice || 0), 0);
 
   // Total Gross Sales (Agent selling to customer)
   const totalSales = confirmedBookings.reduce((sum, b) => sum + (b.sellingPrice || b.purchasePrice || 0), 0);
