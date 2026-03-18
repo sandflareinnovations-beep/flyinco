@@ -3,13 +3,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { calculateAgentFinances } from '../common/finance.util';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) { }
 
   async findAll() {
-    return this.prisma.user.findMany({
+    const users = await this.prisma.user.findMany({
       select: {
         id: true,
         name: true,
@@ -25,6 +26,17 @@ export class UsersService {
       },
       orderBy: { createdAt: 'desc' },
     });
+
+    const results = [];
+    for (const u of users) {
+      if (u.role === 'AGENT') {
+        const calculated = await calculateAgentFinances(this.prisma, u);
+        results.push(calculated);
+      } else {
+        results.push(u);
+      }
+    }
+    return results;
   }
 
   async createUser(dto: CreateUserDto & { agencyName?: string; creditLimit?: number }) {

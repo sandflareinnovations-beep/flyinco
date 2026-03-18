@@ -13,6 +13,7 @@ import { LoginDto } from './dto/login.dto';
 import { Response, Request } from 'express';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
+import { calculateAgentFinances } from '../common/finance.util';
 
 @Controller('auth')
 export class AuthController {
@@ -61,6 +62,11 @@ export class AuthController {
         agencyName: true, creditLimit: true, totalPaid: true, outstanding: true, pendingDues: true,
       }
     });
+    
+    if (user && user.role === 'AGENT') {
+      return await calculateAgentFinances(this.prisma, user);
+    }
+    
     return user || req.user;
   }
 
