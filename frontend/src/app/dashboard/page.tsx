@@ -48,10 +48,7 @@ export default function UserDashboard() {
                 }
 
                 if (profile?.role === 'AGENT') {
-                    try {
-                        const py = await flyApi.payments.byAgent(profile.id);
-                        setPayments(py);
-                    } catch(e) {}
+                    // Removed fetching payments for agent dashboard for privacy explicitly requested by admin
                 }
             } catch (error: any) {
                 if (error.message?.includes("Unauthorized") || error.message?.includes("401")) {
@@ -234,50 +231,7 @@ export default function UserDashboard() {
                     </Card>
                 )}
 
-                {userProfile?.role === 'AGENT' && payments.length > 0 && (
-                    <Card className="col-span-1 md:col-span-3 shadow-md border-2 border-indigo-100 mb-6">
-                        <CardHeader className="bg-indigo-50/50 pb-3 border-b border-indigo-100">
-                            <CardTitle className="text-xl flex items-center gap-2 font-bold text-indigo-800">
-                                <FileText className="h-6 w-6" />
-                                Payment & Remarks History
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-0">
-                            <Table>
-                                <TableHeader className="bg-transparent border-b">
-                                    <TableRow className="hover:bg-transparent">
-                                        <TableHead className="font-semibold">Date</TableHead>
-                                        <TableHead className="font-semibold">Amount</TableHead>
-                                        <TableHead className="font-semibold">Type</TableHead>
-                                        <TableHead className="font-semibold w-1/2">Remarks / Note</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {payments.map((p) => (
-                                        <TableRow key={p.id} className="hover:bg-indigo-50/30 transition-colors">
-                                            <TableCell className="text-sm">
-                                                {format(new Date(p.createdAt), "MMM dd, yyyy")}
-                                            </TableCell>
-                                            <TableCell className="font-bold">
-                                                <span className={p.type === 'PAYMENT' ? 'text-emerald-600' : 'text-amber-600'}>
-                                                    ₹{p.amount?.toLocaleString() || 0}
-                                                </span>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant="outline" className={p.type === 'PAYMENT' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}>
-                                                    {p.type}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-muted-foreground text-sm">
-                                                {p.remarks || "No remarks"}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
-                )}
+                {/* Removed Payment and Remarks history card to secure ledger privacy for agents */}
 
                 <Card className="col-span-1 md:col-span-3 shadow-lg border-2 border-primary/10">
                     <CardHeader className="bg-muted/30 pb-4 border-b">
@@ -306,7 +260,7 @@ export default function UserDashboard() {
                                         <TableHead className="font-semibold">Passenger</TableHead>
                                         <TableHead className="font-semibold">Sale Price</TableHead>
                                         <TableHead className="font-semibold">Status</TableHead>
-                                        <TableHead className="font-semibold">Booking Date</TableHead>
+                                        <TableHead className="font-semibold">Travel Date</TableHead>
                                         <TableHead className="text-right font-semibold">Itinerary</TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -349,7 +303,7 @@ export default function UserDashboard() {
                                             <TableCell className="whitespace-nowrap">
                                                 <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
                                                     <Calendar className="h-4 w-4" />
-                                                    {format(new Date(booking.createdAt), "MMM dd, yyyy")}
+                                                    {booking.travelDate ? format(new Date(booking.travelDate), "MMM dd, yyyy") : (booking.route?.departureDate ? format(new Date(booking.route.departureDate), "MMM dd, yyyy") : "N/A")}
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-right">
