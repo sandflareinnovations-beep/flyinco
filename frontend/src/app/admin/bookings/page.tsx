@@ -462,9 +462,11 @@ export default function AdminBookings() {
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="py-3 text-xs text-gray-400 whitespace-nowrap font-medium text-emerald-700">
-                                            {route?.departureDate ? new Date(route.departureDate).toLocaleDateString('en-GB', {
-                                                day: '2-digit', month: 'short', year: 'numeric'
-                                            }) : "N/A"}
+                                            {booking.travelDate 
+                                                ? new Date(booking.travelDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) 
+                                                : route?.departureDate 
+                                                    ? new Date(route.departureDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) 
+                                                    : "N/A"}
                                         </TableCell>
                                         <TableCell className="py-3">
                                             <div className="flex items-center gap-1">
@@ -628,7 +630,11 @@ export default function AdminBookings() {
                                         </div>
                                         <div className="flex justify-between text-sm">
                                             <span className="text-gray-500">Travel Date</span>
-                                            <span className="font-semibold text-gray-800">09 March 2026</span>
+                                            <span className="font-semibold text-gray-800">
+                                                {selected.travelDate 
+                                                    ? new Date(selected.travelDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) 
+                                                    : new Date(selected.route.departureDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                            </span>
                                         </div>
                                     </div>
                                 )}

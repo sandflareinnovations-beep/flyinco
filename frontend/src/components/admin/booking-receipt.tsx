@@ -172,7 +172,7 @@ export function BookingReceipt({ booking, onClose, autoPrint = false }: BookingR
                                 <div>
                                     <p className="text-[9px] text-gray-400 uppercase font-black mb-1">Departure</p>
                                     <p className="text-[12px] font-black text-gray-900">{route.departureTime}</p>
-                                    <p className="text-[10px] text-gray-500 whitespace-nowrap">{format(new Date(route.departureDate), 'dd MMM yy')}</p>
+                                    <p className="text-[10px] text-gray-500 whitespace-nowrap">{format(new Date(booking.travelDate || route.departureDate), 'dd MMM yy')}</p>
                                 </div>
                                 <div>
                                     <p className="text-[9px] text-gray-400 uppercase font-black mb-1">Duration</p>
@@ -187,7 +187,7 @@ export function BookingReceipt({ booking, onClose, autoPrint = false }: BookingR
                                     <p className="text-[9px] text-emerald-600 uppercase font-black mb-1">Arrival</p>
                                     <p className="text-[12px] font-black text-gray-900">{route.arrivalTime}</p>
                                     <p className="text-[10px] text-emerald-700 font-bold whitespace-nowrap">
-                                        {format(new Date(route.arrivalDate || route.departureDate), 'dd MMM yy')}
+                                        {format(new Date(booking.travelDate || route.arrivalDate || route.departureDate), 'dd MMM yy')}
                                     </p>
                                 </div>
                             </div>
