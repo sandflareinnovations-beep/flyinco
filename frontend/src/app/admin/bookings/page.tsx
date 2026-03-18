@@ -92,6 +92,18 @@ export default function AdminBookings() {
         serviceFee: 0,
         ticketNumber: "",
         paymentStatus: "UNPAID",
+        prefix: "",
+        givenName: "",
+        surname: "",
+        airline: "",
+        sector: "",
+        travelDate: "",
+        supplier: "",
+        agencyEmail: "",
+        paymentMethod: "",
+        request: "",
+        remarks: "",
+        agentDetails: "",
     });
 
     const { data: bookings = [], isLoading, refetch, isError } = useQuery({
@@ -471,6 +483,18 @@ export default function AdminBookings() {
                                                             serviceFee: booking.serviceFee || 0,
                                                             ticketNumber: booking.ticketNumber || "",
                                                             paymentStatus: booking.paymentStatus || "UNPAID",
+                                                            prefix: booking.prefix || "",
+                                                            givenName: booking.givenName || "",
+                                                            surname: booking.surname || "",
+                                                            airline: booking.airline || "",
+                                                            sector: booking.sector || "",
+                                                            travelDate: booking.travelDate ? new Date(booking.travelDate).toISOString().split('T')[0] : "",
+                                                            supplier: booking.supplier || "",
+                                                            agencyEmail: booking.agencyEmail || "",
+                                                            paymentMethod: booking.paymentMethod || "",
+                                                            request: booking.request || "",
+                                                            remarks: booking.remarks || "",
+                                                            agentDetails: booking.agentDetails || "",
                                                         });
                                                         setShowDetail(true);
                                                     }}
@@ -752,13 +776,52 @@ export default function AdminBookings() {
                                         </div>
                                     </div>
 
+                                    <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-emerald-200">
+                                        <div className="space-y-1.5">
+                                            <Label className="text-[10px] font-bold text-gray-400 uppercase">Airline</Label>
+                                            <Input className="h-8 rounded-lg text-sm" value={accData.airline} onChange={e => setAccData({...accData, airline: e.target.value})} />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <Label className="text-[10px] font-bold text-gray-400 uppercase">Sector</Label>
+                                            <Input className="h-8 rounded-lg text-sm" value={accData.sector} onChange={e => setAccData({...accData, sector: e.target.value})} />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <Label className="text-[10px] font-bold text-gray-400 uppercase">Travel Date</Label>
+                                            <Input type="date" className="h-8 rounded-lg text-sm" value={accData.travelDate} onChange={e => setAccData({...accData, travelDate: e.target.value})} />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <Label className="text-[10px] font-bold text-gray-400 uppercase">Given Name</Label>
+                                            <Input className="h-8 rounded-lg text-sm" value={accData.givenName} onChange={e => setAccData({...accData, givenName: e.target.value})} />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <Label className="text-[10px] font-bold text-gray-400 uppercase">Surname</Label>
+                                            <Input className="h-8 rounded-lg text-sm" value={accData.surname} onChange={e => setAccData({...accData, surname: e.target.value})} />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <Label className="text-[10px] font-bold text-gray-400 uppercase">Payment Method</Label>
+                                            <Input className="h-8 rounded-lg text-sm" placeholder="Cash / Bank Transfer" value={accData.paymentMethod} onChange={e => setAccData({...accData, paymentMethod: e.target.value})} />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <Label className="text-[10px] font-bold text-gray-400 uppercase">Remarks</Label>
+                                            <Input className="h-8 rounded-lg text-sm" value={accData.remarks} onChange={e => setAccData({...accData, remarks: e.target.value})} />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <Label className="text-[10px] font-bold text-gray-400 uppercase">Supplier</Label>
+                                            <Input className="h-8 rounded-lg text-sm" value={accData.supplier} onChange={e => setAccData({...accData, supplier: e.target.value})} />
+                                        </div>
+                                        <div className="space-y-1.5 col-span-2">
+                                            <Label className="text-[10px] font-bold text-gray-400 uppercase">Request</Label>
+                                            <Input className="h-8 rounded-lg text-sm" value={accData.request} onChange={e => setAccData({...accData, request: e.target.value})} />
+                                        </div>
+                                    </div>
+
                                     <Button 
-                                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold h-9"
+                                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold h-9 mt-4"
                                         disabled={updateMutation.isPending}
                                         onClick={() => {
                                             updateMutation.mutate({
                                                 id: selected.id,
-                                                data: { ...accData, pnr: pnrInput }
+                                                data: { ...accData, pnr: pnrInput, travelDate: accData.travelDate ? new Date(accData.travelDate).toISOString() : undefined }
                                             });
                                         }}
                                     >

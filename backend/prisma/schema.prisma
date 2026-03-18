@@ -57,6 +57,17 @@ model Booking {
   refNo          String?
   agentDetails   String?
   isNew          Boolean   @default(false)
+  prefix         String?
+  givenName      String?
+  surname        String?
+  airline        String?
+  sector         String?
+  travelDate     DateTime?
+  supplier       String?
+  agencyEmail    String?
+  paymentMethod  String?   // e.g., Cash, Bank Transfer
+  remarks        String?
+  request        String?
   createdAt      DateTime  @default(now())
   
   route          Route     @relation(fields: [routeId], references: [id], onDelete: Cascade)

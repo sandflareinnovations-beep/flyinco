@@ -51,4 +51,47 @@ export class CreateBookingDto {
   @IsOptional()
   @IsString()
   ticketNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  prefix?: string;
+
+  @IsOptional()
+  @IsString()
+  givenName?: string;
+
+  @IsOptional()
+  @IsString()
+  surname?: string;
+
+  @IsOptional()
+  @IsString()
+  airline?: string;
+
+  @IsOptional()
+  @IsString()
+  sector?: string;
+
+  @IsOptional()
+  travelDate?: Date;
+
+  @IsOptional()
+  @IsString()
+  supplier?: string;
+
+  @IsOptional()
+  @IsString()
+  agencyEmail?: string;
+
+  @IsOptional()
+  @IsString()
+  paymentMethod?: string;
+
+  @IsOptional()
+  @IsString()
+  remarks?: string;
+
+  @IsOptional()
+  @IsString()
+  request?: string;
 }
