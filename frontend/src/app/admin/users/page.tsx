@@ -129,30 +129,40 @@ export default function UsersAdminPage() {
             });
 
             const dataToExport = agentBookings.map((b: any) => ({
-                "Booking ID": b.id,
-                "Date": new Date(b.createdAt).toLocaleDateString(),
+                "Travel Date": b.travelDate 
+                    ? new Date(b.travelDate).toLocaleDateString('en-GB') 
+                    : (b.route?.departureDate ? new Date(b.route.departureDate).toLocaleDateString('en-GB') : "N/A"),
+                "PNR": b.pnr || "PENDING",
+                "Sector": b.sector ? b.sector : (b.route ? `${b.route.origin} → ${b.route.destination}` : "N/A"),
+                "Airline": b.airline || b.route?.airline || "N/A",
                 "Passenger": b.passengerName,
-                "Passport": b.passportNumber,
-                "Route": b.route || "N/A",
-                "Sale Price": b.sellingPrice,
-                "Agent Cost": b.purchasePrice,
+                "Passport": b.passportNumber || "N/A",
+                "Booking Status": b.status,
                 "Payment Status": b.paymentStatus || 'UNPAID',
-                "Booking Status": b.status
+                "Sale Price": b.sellingPrice || 0,
+                "Agent Cost": b.purchasePrice || 0,
+                "Profit": (b.sellingPrice || 0) - (b.purchasePrice || 0),
+                "Supplier": b.supplier || "",
+                "Booking ID": b.id.substring(0,8)
             }));
 
             const paidAmt = agentBookings.filter((b: any) => b.paymentStatus === 'PAID').reduce((s: number, b: any) => s + (b.purchasePrice || 0), 0);
             const unpaidAmt = agentBookings.filter((b: any) => (b.paymentStatus || 'UNPAID') === 'UNPAID').reduce((s: number, b: any) => s + (b.purchasePrice || 0), 0);
             
             dataToExport.push({
-                "Booking ID": "TOTALS",
-                "Date": "",
+                "Travel Date": "TOTALS",
+                "PNR": "",
+                "Sector": "",
+                "Airline": "",
                 "Passenger": "",
                 "Passport": "",
-                "Route": "",
+                "Booking Status": "",
+                "Payment Status": `Unpaid: ${unpaidAmt} | Paid: ${paidAmt}`,
                 "Sale Price": agentBookings.reduce((s: number, b: any) => s + (b.sellingPrice || 0), 0),
                 "Agent Cost": agentBookings.reduce((s: number, b: any) => s + (b.purchasePrice || 0), 0),
-                "Payment Status": `Unpaid: ${unpaidAmt} | Paid: ${paidAmt}`,
-                "Booking Status": ""
+                "Profit": agentBookings.reduce((s: number, b: any) => s + ((b.sellingPrice || 0) - (b.purchasePrice || 0)), 0),
+                "Supplier": "",
+                "Booking ID": ""
             });
 
             const ws = XLSX.utils.json_to_sheet(dataToExport);
