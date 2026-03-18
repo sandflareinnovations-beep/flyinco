@@ -61,6 +61,7 @@ export default function SectorManagement() {
     const [selected, setSelected] = useState<FareSector | null>(null);
     const [form, setForm] = useState<any>({});
     const [targetStatus, setTargetStatus] = useState<"OPEN" | "CLOSED">("OPEN");
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
     const { data: sectors, isLoading } = useQuery({
         queryKey: ["sectors"],
@@ -83,6 +84,17 @@ export default function SectorManagement() {
         mutationFn: (id: string) => flyApi.sectors.delete(id),
         onSuccess: () => { qc.invalidateQueries({ queryKey: ["sectors"] }); toast({ title: "Route Deleted" }); closeModal(); },
         onError: (err: any) => toast({ title: "Delete Failed", description: err.message, variant: "destructive" }),
+    });
+
+    const bulkDeleteMutation = useMutation({
+        mutationFn: () => flyApi.sectors.bulkDelete(selectedIds),
+        onSuccess: () => { 
+            qc.invalidateQueries({ queryKey: ["sectors"] }); 
+            toast({ title: `${selectedIds.length} Routes Deleted` }); 
+            setSelectedIds([]); 
+            closeModal(); 
+        },
+        onError: (err: any) => toast({ title: "Bulk Delete Failed", description: err.message, variant: "destructive" }),
     });
 
     const openModal = (type: ModalType, sector?: FareSector) => {
@@ -168,6 +180,23 @@ export default function SectorManagement() {
         }
     };
 
+    const toggleSelectAll = (checked: boolean) => {
+        if (!sectors) return;
+        if (checked) {
+            setSelectedIds(sectors.map(s => s.id));
+        } else {
+            setSelectedIds([]);
+        }
+    };
+
+    const toggleSelect = (id: string, checked: boolean) => {
+        if (checked) {
+            setSelectedIds(prev => [...prev, id]);
+        } else {
+            setSelectedIds(prev => prev.filter(x => x !== id));
+        }
+    };
+
     if (isLoading) return (
         <div className="space-y-4">
             <Skeleton className="h-10 w-60 rounded-xl" />
@@ -182,13 +211,30 @@ export default function SectorManagement() {
                     <h1 className="text-2xl font-black text-gray-900">Sector Management</h1>
                     <p className="text-gray-400 text-sm mt-0.5">Manage special fares, inventory, and pricing.</p>
                 </div>
-                <Button
-                    className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl gap-2 font-semibold"
-                    onClick={() => openModal("create")}
-                >
-                    <Plus className="h-4 w-4" />
-                    Create Route
-                </Button>
+                <div className="flex items-center gap-3">
+                    {selectedIds.length > 0 && (
+                        <Button 
+                            variant="destructive" 
+                            className="rounded-xl font-semibold gap-2"
+                            onClick={() => {
+                                if(confirm(`Are you sure you want to delete ${selectedIds.length} routes?`)) {
+                                    bulkDeleteMutation.mutate();
+                                }
+                            }}
+                            disabled={bulkDeleteMutation.isPending}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                            Delete Selected ({selectedIds.length})
+                        </Button>
+                    )}
+                    <Button
+                        className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl gap-2 font-semibold"
+                        onClick={() => openModal("create")}
+                    >
+                        <Plus className="h-4 w-4" />
+                        Create Route
+                    </Button>
+                </div>
             </div>
 
             {/* Table */}
@@ -196,6 +242,14 @@ export default function SectorManagement() {
                 <Table>
                     <TableHeader>
                         <TableRow className="bg-gray-50 border-gray-100">
+                            <TableHead className="w-12 text-center">
+                                <input 
+                                    type="checkbox" 
+                                    className="cursor-pointer rounded border-gray-300 text-violet-600 focus:ring-violet-600 w-4 h-4"
+                                    checked={sectors ? sectors.length > 0 && selectedIds.length === sectors.length : false}
+                                    onChange={(e) => toggleSelectAll(e.target.checked)}
+                                />
+                            </TableHead>
                             <TableHead className="text-xs font-bold text-gray-500 uppercase tracking-wide">Route</TableHead>
                             <TableHead className="text-xs font-bold text-gray-500 uppercase tracking-wide">Flight</TableHead>
                             <TableHead className="text-xs font-bold text-gray-500 uppercase tracking-wide">Price</TableHead>
@@ -213,6 +267,14 @@ export default function SectorManagement() {
                                 transition={{ delay: i * 0.05 }}
                                 className="hover:bg-gray-50 border-gray-100 transition-colors"
                             >
+                                <TableCell className="text-center">
+                                    <input 
+                                        type="checkbox" 
+                                        className="cursor-pointer rounded border-gray-300 text-violet-600 focus:ring-violet-600 w-4 h-4"
+                                        checked={selectedIds.includes(sector.id)}
+                                        onChange={(e) => toggleSelect(sector.id, e.target.checked)}
+                                    />
+                                </TableCell>
                                 <TableCell className="font-bold text-gray-900">
                                     {sector.originCode}
                                     <span className="text-gray-300 mx-1.5">→</span>
@@ -303,7 +365,7 @@ export default function SectorManagement() {
                         ))}
                         {sectors?.length === 0 && (
                             <TableRow>
-                                <TableCell colSpan={6} className="h-32 text-center text-gray-400">
+                                <TableCell colSpan={7} className="h-32 text-center text-gray-400">
                                     No routes found. Create one to get started.
                                 </TableCell>
                             </TableRow>

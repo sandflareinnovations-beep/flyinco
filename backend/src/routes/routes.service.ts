@@ -88,4 +88,10 @@ export class RoutesService {
     await this.prisma.booking.deleteMany({ where: { routeId: id } });
     return this.prisma.route.delete({ where: { id } });
   }
+
+  async removeMany(ids: string[]) {
+    // Delete associated bookings first
+    await this.prisma.booking.deleteMany({ where: { routeId: { in: ids } } });
+    return this.prisma.route.deleteMany({ where: { id: { in: ids } } });
+  }
 }

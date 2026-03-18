@@ -56,6 +56,13 @@ export class RoutesController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
+  @Delete('bulk')
+  removeMany(@Body('ids') ids: string[]) {
+    return this.routesService.removeMany(ids);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.routesService.remove(id);

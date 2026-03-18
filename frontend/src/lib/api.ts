@@ -166,6 +166,12 @@ export const flyApi = {
                 method: 'DELETE',
             });
         },
+        bulkDelete: async (ids: string[]) => {
+            return await fetchWithCreds('/routes/bulk', {
+                method: 'DELETE',
+                body: JSON.stringify({ ids }),
+            });
+        },
         updateBookingStatus: async (id: string, bookingStatus: string) => {
             return await fetchWithCreds(`/routes/${id}/booking-status`, {
                 method: 'PATCH',
