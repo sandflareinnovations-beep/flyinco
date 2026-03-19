@@ -34,7 +34,8 @@ export class BookingsController {
     return this.bookingsService.create(createBookingDto, req.user);
   }
 
-  // ── Public endpoint: upload receipt ──
+  // ── Protected endpoint: upload receipt ──
+  @UseGuards(JwtAuthGuard)
   @Post('upload-receipt')
   @UseInterceptors(
     FileInterceptor('file', {
