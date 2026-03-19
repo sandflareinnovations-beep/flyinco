@@ -35,6 +35,57 @@ export class UsersService {
     }));
   }
 
+  async findAllPaginated(params: { page: number; limit: number; search?: string }) {
+    const { page, limit, search } = params;
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { agencyName: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const [total, users] = await Promise.all([
+      this.prisma.user.count({ where }),
+      this.prisma.user.findMany({
+        where,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          role: true,
+          agencyName: true,
+          creditLimit: true,
+          totalPaid: true,
+          outstanding: true,
+          pendingDues: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+    ]);
+
+    const usersWithFinances = await Promise.all(users.map(u => {
+      if (u.role === 'AGENT') {
+        return calculateAgentFinances(this.prisma, u);
+      }
+      return u;
+    }));
+
+    return {
+      users: usersWithFinances,
+      total,
+      page,
+      limit,
+    };
+  }
+
   async createUser(dto: CreateUserDto & { agencyName?: string; creditLimit?: number }) {
     const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (existing) throw new BadRequestException('Email already in use');

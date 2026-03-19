@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { format } from "date-fns";
-import { Users, Mail, Phone, Calendar, Plus, KeyRound, Trash2, ShieldCheck, User, AlertTriangle, Download } from "lucide-react";
+import { Users, Mail, Phone, Calendar, Plus, KeyRound, Trash2, ShieldCheck, User, AlertTriangle, Download, Search } from "lucide-react";
 import * as XLSX from "xlsx";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { flyApi } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { LoadingLogo } from "@/components/ui/loading-logo";
 import { motion } from "framer-motion";
 
 const B = { primary: "#2E0A57", accent: "#6C2BD9" };
@@ -29,17 +30,28 @@ export default function UsersAdminPage() {
     const [saving, setSaving] = useState(false);
     const { toast } = useToast();
 
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
+    const [total, setTotal] = useState(0);
+    const limit = 50;
+
     const fetchUsers = useCallback(async () => {
         setIsLoading(true);
         try {
-            const data = await flyApi.users.list();
-            setUsers(data);
+            const data = await flyApi.users.list({ page, limit, search });
+            if (data.users) {
+                setUsers(data.users);
+                setTotal(data.total);
+            } else {
+                setUsers(data);
+                setTotal(data.length);
+            }
         } catch (error: any) {
             toast({ title: "Error fetching users", description: error.message, variant: "destructive" });
         } finally {
             setIsLoading(false);
         }
-    }, [toast]);
+    }, [toast, page, search, limit]);
 
     useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
@@ -254,6 +266,42 @@ export default function UsersAdminPage() {
                 </Button>
             </div>
 
+            {/* Search & Actions Bar */}
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-4">
+                <div className="relative w-full md:max-w-md group">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-hover:text-[#6C2BD9] transition-colors" />
+                    <Input 
+                        placeholder="Search by name, email, or agency..." 
+                        value={search}
+                        onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                        className="pl-11 h-12 rounded-2xl border-gray-100 bg-white hover:border-violet-200 transition-all focus-visible:ring-violet-400 shadow-sm"
+                    />
+                </div>
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={page <= 1}
+                        onClick={() => setPage(p => p - 1)}
+                        className="rounded-xl h-10 border-gray-100 hover:bg-violet-50"
+                    >
+                        Previous
+                    </Button>
+                    <span className="text-sm font-black text-gray-900 mx-2">
+                        {page} / {Math.ceil(total / limit) || 1}
+                    </span>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={page >= Math.ceil(total / limit)}
+                        onClick={() => setPage(p => p + 1)}
+                        className="rounded-xl h-10 border-gray-100 hover:bg-violet-50"
+                    >
+                        Next
+                    </Button>
+                </div>
+            </div>
+
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {[
@@ -281,14 +329,12 @@ export default function UsersAdminPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {isLoading ? (
-                            [1, 2, 3].map(i => (
-                                <TableRow key={i}>
-                                    <TableCell colSpan={5}>
-                                        <div className="h-8 bg-gray-100 rounded-lg animate-pulse" />
-                                    </TableCell>
-                                </TableRow>
-                            ))
+                        {isLoading && users.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={5} className="py-20">
+                                    <LoadingLogo text="Fetching Users..." />
+                                </TableCell>
+                            </TableRow>
                         ) : users.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={5} className="h-32 text-center text-gray-400">

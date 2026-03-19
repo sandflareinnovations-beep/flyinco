@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -13,7 +13,14 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @Get()
-  findAll() {
+  findAll(@Query('page') page?: string, @Query('limit') limit?: string, @Query('search') search?: string) {
+    if (page || limit || search) {
+      return this.usersService.findAllPaginated({
+        page: page ? parseInt(page) : 1,
+        limit: limit ? parseInt(limit) : 50,
+        search
+      });
+    }
     return this.usersService.findAll();
   }
 

@@ -10,6 +10,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plane, Users, DollarSign, Activity, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
+import { LoadingLogo } from "@/components/ui/loading-logo";
 
 const statCards = (totalRevenue: number, totalProfit: number, totalBookings: number, seatsSold: number, remainingSeats: number) => [
     { label: "Total Revenue", value: `SAR ${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-50", sub: "From selling prices" },
@@ -34,8 +35,8 @@ export default function AdminDashboard() {
     const bookingList = Array.isArray(bookings) ? bookings : (bookings?.bookings || []);
     const totalBookings = bookingList.length;
     const activeBookings = bookingList.filter((b: any) => b.status !== "CANCELLED");
-    const totalRevenue = activeBookings.reduce((acc, b) => acc + (b.sellingPrice || b.farePrice || 0), 0);
-    const totalProfit = activeBookings.reduce((acc, b) => acc + (b.profit || 0), 0);
+    const totalRevenue = activeBookings.reduce((acc: number, b: any) => acc + (b.sellingPrice || b.farePrice || 0), 0);
+    const totalProfit = activeBookings.reduce((acc: number, b: any) => acc + (b.profit || 0), 0);
     const sectorList = Array.isArray(sectors) ? sectors : (sectors?.routes || []);
     const seatsSold = sectorList.reduce((acc: number, s: any) => acc + (s.soldSeats || 0) + (s.heldSeats || 0), 0);
     const remainingSeats = sectorList.reduce((acc: number, s: any) => acc + (s.remainingSeats || 0), 0);
@@ -52,6 +53,8 @@ export default function AdminDashboard() {
     ];
 
     const PIE_COLORS = ['#7c3aed', '#ede9fe'];
+
+    if (isLoading) return <LoadingLogo fullPage text="Updating Platform Stats..." />;
 
     return (
         <div className="space-y-8 max-w-6xl">

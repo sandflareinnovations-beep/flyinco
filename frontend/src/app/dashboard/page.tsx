@@ -6,6 +6,7 @@ import { LogOut, Map, Calendar, Settings, Plane, FileText, CheckCircle, Clock } 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { flyApi, API_BASE } from "@/lib/api";
+import { LoadingLogo } from "@/components/ui/loading-logo";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
@@ -28,28 +29,21 @@ export default function UserDashboard() {
     useEffect(() => {
         async function fetchData() {
             try {
+                // Fetch basic info first (fast)
                 const profile = await flyApi.auth.me();
                 setUserProfile(profile);
-                const data = await flyApi.bookings.listPaginated({ page: 1, limit: 100 });
-                setBookings(data.bookings || []);
-                
-                try {
-                    const anns = await flyApi.announcements.list();
-                    setAnnouncements(anns.filter((a: any) => a.active));
-                } catch (e) {
-                    // Ignore announcement errors
-                }
 
-                try {
-                    const data = await flyApi.sectors.listPaginated({ page: 1, limit: 20, availableOnly: true });
-                    setSectors(data.routes || []);
-                } catch (e) {
-                    // Ignore sector errors
-                }
+                // Now fetch remaining data in parallel
+                const [bookingData, annData, routeData] = await Promise.all([
+                    flyApi.bookings.listPaginated({ page: 1, limit: 100 }),
+                    flyApi.announcements.list().catch(() => []),
+                    flyApi.sectors.listPaginated({ page: 1, limit: 20, availableOnly: true }).catch(() => ({ routes: [] }))
+                ]);
 
-                if (profile?.role === 'AGENT') {
-                    // Removed fetching payments for agent dashboard for privacy explicitly requested by admin
-                }
+                setBookings(bookingData.bookings || []);
+                setAnnouncements(annData.filter((a: any) => a.active));
+                setSectors(routeData.routes || []);
+
             } catch (error: any) {
                 if (error.message?.includes("Unauthorized") || error.message?.includes("401")) {
                     router.push("/login");
@@ -80,9 +74,7 @@ export default function UserDashboard() {
         }
     };
 
-    if (isLoading) {
-        return <div className="p-8 text-center text-muted-foreground animate-pulse mt-20">Loading your profile...</div>;
-    }
+    if (isLoading) return <LoadingLogo fullPage text="Preparing Dashboard..." />;
 
     const userName = (typeof window !== "undefined" ? JSON.parse(localStorage.getItem("user") || "{}")?.name : "Passenger") || "Passenger";
 

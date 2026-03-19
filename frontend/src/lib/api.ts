@@ -359,8 +359,24 @@ export const flyApi = {
         }
     },
     users: {
-        list: async () => {
-            return await fetchWithCreds('/users');
+        list: async (params?: { page?: number; limit?: number; search?: string }): Promise<any> => {
+            const query = new URLSearchParams();
+            if (params?.page) query.append('page', params.page.toString());
+            if (params?.limit) query.append('limit', params.limit.toString());
+            if (params?.search) query.append('search', params.search);
+
+            const data = await fetchWithCreds(`/users?${query.toString()}`);
+            if (params?.page || params?.limit || params?.search) {
+                return data; // Returns { users, total, page, limit }
+            }
+            return data; // Returns just the array if no params? Wait, backend still returns array if no params.
+        },
+        listPaginated: async (params: { page: number; limit: number; search?: string }): Promise<any> => {
+            const query = new URLSearchParams();
+            query.append('page', params.page.toString());
+            query.append('limit', params.limit.toString());
+            if (params.search) query.append('search', params.search);
+            return await fetchWithCreds(`/users?${query.toString()}`);
         },
         create: async (data: any) => {
             return await fetchWithCreds('/users', {
