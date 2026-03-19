@@ -147,6 +147,11 @@ export class BookingsService {
 
         if (!routeId) throw new Error('Route ID is missing and no default route found');
         if (!passengerName || passengerName === 'Unknown' || passengerName === ' ') throw new Error('Passenger Name is missing');
+        if (!passportNumber || passportNumber === 'undefined' || passportNumber === '') throw new Error('Passport Number is missing');
+        if (!pnr || pnr === 'undefined' || pnr === '') throw new Error('PNR is missing');
+        if (!travelDate) throw new Error('Travel Date is missing or invalid format');
+        if (isNaN(sellingPrice) || sellingPrice <= 0) throw new Error('Selling Price is missing or invalid');
+        if (!agentDetails || agentDetails === 'undefined' || agentDetails === '') throw new Error('Agent details are missing (Required for Agent Dashboard)');
 
         const profit = sellingPrice - purchasePrice;
 
