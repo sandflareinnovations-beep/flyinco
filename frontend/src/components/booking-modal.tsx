@@ -131,7 +131,7 @@ export function BookingModal({ sector, isOpen, onClose }: BookingModalProps) {
                             </DialogTitle>
                             <DialogDescription className="text-lg">
                                 Holding seats for {sector.originCode} to {sector.destinationCode}.
-                                Total fare: <strong className="text-foreground text-xl">₹{sector.price.toLocaleString()}</strong>
+                                Total fare: <strong className="text-foreground text-xl">SAR {sector.price.toLocaleString()}</strong>
                             </DialogDescription>
                         </DialogHeader>
 

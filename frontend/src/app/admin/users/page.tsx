@@ -391,9 +391,9 @@ export default function UsersAdminPage() {
                                 <TableCell>
                                     {user.role === "AGENT" ? (
                                         <div className="flex flex-col gap-0.5 text-xs">
-                                            <span className="text-violet-600 font-black">Sales: ₹{user.totalSales?.toLocaleString() || 0}</span>
-                                            <span className="text-red-500 font-bold">Unpaid: ₹{user.pendingDues?.toLocaleString() || 0}</span>
-                                            <span className="text-emerald-600 font-bold">Paid: ₹{user.totalPaid?.toLocaleString() || 0}</span>
+                                            <span className="text-violet-600 font-black">Sales: SAR {user.totalSales?.toLocaleString() || 0}</span>
+                                            <span className="text-red-500 font-bold">Unpaid: SAR {user.pendingDues?.toLocaleString() || 0}</span>
+                                            <span className="text-emerald-600 font-bold">Paid: SAR {user.totalPaid?.toLocaleString() || 0}</span>
                                         </div>
                                     ) : (
                                         <span className="text-xs text-gray-400">N/A</span>
@@ -475,7 +475,7 @@ export default function UsersAdminPage() {
                                         <Input className="rounded-xl" placeholder="Agency XYZ" value={form.agencyName || ""} onChange={e => setForm({ ...form, agencyName: e.target.value })} />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <Label className="text-xs font-semibold text-gray-600">Credit Limit (₹)</Label>
+                                        <Label className="text-xs font-semibold text-gray-600">Credit Limit (SAR )</Label>
                                         <Input className="rounded-xl" type="number" placeholder="50000" value={form.creditLimit || ""} onChange={e => setForm({ ...form, creditLimit: e.target.value })} />
                                     </div>
                                 </>
@@ -529,7 +529,7 @@ export default function UsersAdminPage() {
                                         <Input className="rounded-xl" value={form.agencyName || ""} onChange={e => setForm({ ...form, agencyName: e.target.value })} />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <Label className="text-xs font-semibold text-gray-600">Credit Limit (₹)</Label>
+                                        <Label className="text-xs font-semibold text-gray-600">Credit Limit (SAR )</Label>
                                         <Input className="rounded-xl" type="number" value={form.creditLimit || ""} onChange={e => setForm({ ...form, creditLimit: e.target.value })} />
                                     </div>
                                 </>
@@ -625,11 +625,11 @@ export default function UsersAdminPage() {
                             <div className="p-3 bg-gray-50 rounded-lg border border-gray-100 mb-2 flex justify-between text-sm">
                                 <div>
                                     <p className="text-gray-500 text-xs uppercase font-bold">Total Sales</p>
-                                    <p className="font-black text-gray-900">₹{selected?.totalSales || 0}</p>
+                                    <p className="font-black text-gray-900">SAR {selected?.totalSales || 0}</p>
                                 </div>
                                 <div>
                                     <p className="text-gray-500 text-xs uppercase font-bold text-right">Unpaid Dues</p>
-                                    <p className="font-black text-red-500 text-right">₹{selected?.pendingDues || 0}</p>
+                                    <p className="font-black text-red-500 text-right">SAR {selected?.pendingDues || 0}</p>
                                 </div>
                             </div>
                             <div className="space-y-1.5">
@@ -641,7 +641,7 @@ export default function UsersAdminPage() {
                                 </select>
                             </div>
                             <div className="space-y-1.5">
-                                <Label className="text-xs font-semibold text-gray-600">Amount (₹) *</Label>
+                                <Label className="text-xs font-semibold text-gray-600">Amount (SAR ) *</Label>
                                 <Input className="rounded-xl" type="number" required placeholder="10000" value={form.amount || ""} onChange={e => setForm({ ...form, amount: e.target.value })} />
                             </div>
                             <div className="space-y-1.5">

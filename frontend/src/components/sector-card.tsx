@@ -86,7 +86,7 @@ export function SectorCard({ sector, onBook }: SectorCardProps) {
                     <div>
                         <p className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">Special Fare</p>
                         <div className="flex items-baseline gap-1">
-                            <span className="text-sm font-medium">₹</span>
+                            <span className="text-sm font-medium">SAR </span>
                             <span className="text-3xl font-extrabold text-primary">{sector.price.toLocaleString()}</span>
                         </div>
                     </div>

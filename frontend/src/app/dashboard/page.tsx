@@ -106,7 +106,7 @@ export default function UserDashboard() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-primary">₹{userProfile.totalSales?.toLocaleString() || 0}</div>
+                            <div className="text-2xl font-bold text-primary">SAR {userProfile.totalSales?.toLocaleString() || 0}</div>
                         </CardContent>
                     </Card>
                     <Card className="shadow-md">
@@ -116,7 +116,7 @@ export default function UserDashboard() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-red-500">₹{userProfile.pendingDues?.toLocaleString() || 0}</div>
+                            <div className="text-2xl font-bold text-red-500">SAR {userProfile.pendingDues?.toLocaleString() || 0}</div>
                         </CardContent>
                     </Card>
                     <Card className="shadow-md">
@@ -126,7 +126,7 @@ export default function UserDashboard() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-emerald-600">₹{userProfile.totalPaid?.toLocaleString() || 0}</div>
+                            <div className="text-2xl font-bold text-emerald-600">SAR {userProfile.totalPaid?.toLocaleString() || 0}</div>
                         </CardContent>
                     </Card>
                 </div>
@@ -203,7 +203,7 @@ export default function UserDashboard() {
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="font-black text-emerald-700 text-base">
-                                                ₹{s.price?.toLocaleString()}
+                                                SAR {s.price?.toLocaleString()}
                                             </TableCell>
                                             <TableCell className="text-right">
                                                 <Button 
@@ -273,7 +273,7 @@ export default function UserDashboard() {
                                             </TableCell>
                                             <TableCell className="font-bold text-primary">
                                                 <div className="flex flex-col gap-1 items-start">
-                                                    <span>₹{booking.sellingPrice?.toLocaleString() || "0"}</span>
+                                                    <span>SAR {booking.sellingPrice?.toLocaleString() || "0"}</span>
                                                     <Badge variant="outline" className={`text-[9px] py-0 h-4 ${booking.paymentStatus === 'PAID' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-600 border-red-200'}`}>
                                                         {booking.paymentStatus || 'UNPAID'}
                                                     </Badge>
