@@ -31,8 +31,7 @@ export class BookingsController {
   @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createBookingDto: CreateBookingDto, @Req() req: any) {
-    const userId = req?.user?.id || null;
-    return this.bookingsService.create(createBookingDto, userId);
+    return this.bookingsService.create(createBookingDto, req.user);
   }
 
   // ── Public endpoint: upload receipt ──

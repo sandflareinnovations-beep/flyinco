@@ -213,7 +213,7 @@ export class BookingsService {
     return results;
   }
 
-  async create(dto: CreateBookingDto, userId: string | null) {
+  async create(dto: CreateBookingDto, user: any) {
     const route = await this.prisma.route.findUnique({
       where: { id: dto.routeId },
     });
@@ -226,9 +226,16 @@ export class BookingsService {
       throw new BadRequestException('No remaining seats');
     }
 
+    // SECURITY AUDIT FIX: Only admin can set custom prices or purchase costs.
+    // Regular users MUST use the route's current price.
+    const isAdmin = user?.role === 'ADMIN';
+    const sellingPrice = isAdmin ? (dto.sellingPrice || route.price) : route.price;
+    const purchasePrice = isAdmin ? (dto.purchasePrice || 0) : 0;
+    const profit = sellingPrice - purchasePrice;
+
     const booking = await this.prisma.booking.create({
       data: {
-        userId: userId || undefined,
+        userId: user?.id || undefined,
         routeId: dto.routeId,
         passengerName: dto.passengerName,
         passportNumber: dto.passportNumber,
@@ -237,9 +244,9 @@ export class BookingsService {
         transactionId: dto.transactionId,
         paymentReceipt: dto.paymentReceipt,
         status: dto.transactionId || dto.paymentReceipt ? 'PENDING' : 'HELD',
-        purchasePrice: dto.purchasePrice || 0,
-        sellingPrice: dto.sellingPrice || route.price,
-        profit: (dto.sellingPrice || route.price) - (dto.purchasePrice || 0),
+        purchasePrice,
+        sellingPrice,
+        profit,
         baseFare: dto.baseFare || 0,
         taxes: dto.taxes || 0,
         serviceFee: dto.serviceFee || 0,
@@ -256,13 +263,13 @@ export class BookingsService {
       },
     });
 
-    if (userId) {
-      const user = await this.prisma.user.findUnique({ where: { id: userId } });
-      if (user && user.role === 'AGENT') {
-        const owedAmount = dto.sellingPrice || route.price || 0;
+    if (user?.id) {
+      const dbUser = await this.prisma.user.findUnique({ where: { id: user.id } });
+      if (dbUser && dbUser.role === 'AGENT') {
+        const owedAmount = sellingPrice || 0;
         if (owedAmount > 0) {
           await this.prisma.user.update({
-            where: { id: userId },
+            where: { id: user.id },
             data: {
               pendingDues: { increment: owedAmount },
               outstanding: { increment: owedAmount }

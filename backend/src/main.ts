@@ -2,8 +2,10 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { PrismaClientExceptionFilter } from './common/filters/prisma-client-exception.filter';
 import cookieParser from 'cookie-parser';
 import { join } from 'path';
+import { HttpAdapterHost } from '@nestjs/core';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -28,6 +30,10 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  // Global Prisma Exception Filter
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
 
   const port = process.env.PORT || 3001;
   await app.listen(port, '0.0.0.0');

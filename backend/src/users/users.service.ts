@@ -108,24 +108,28 @@ export class UsersService {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
     
-    // If updating email, check for duplicates
+    // Only allowed fields
+    const allowedFields: any = {};
+    const updates = ['name', 'phone', 'agencyName', 'creditLimit', 'role'];
+    updates.forEach(field => {
+      if (data[field] !== undefined) allowedFields[field] = data[field];
+    });
+
     if (data.email && data.email !== user.email) {
       const existing = await this.prisma.user.findUnique({ where: { email: data.email } });
       if (existing) throw new BadRequestException('Email already in use');
+      allowedFields.email = data.email;
     }
 
-    // Password reset if provided
     if (data.password && data.password.trim().length >= 6) {
-      data.password = await bcrypt.hash(data.password, 10);
-    } else {
-      delete data.password;
+      allowedFields.password = await bcrypt.hash(data.password, 10);
     }
 
     return this.prisma.user.update({
       where: { id },
       data: {
-        ...data,
-        creditLimit: data.creditLimit !== undefined ? Number(data.creditLimit) : undefined
+        ...allowedFields,
+        creditLimit: allowedFields.creditLimit !== undefined ? Number(allowedFields.creditLimit) : undefined
       },
       select: { id: true, name: true, email: true, phone: true, role: true, agencyName: true, createdAt: true },
     });
