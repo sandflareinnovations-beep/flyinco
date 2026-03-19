@@ -107,7 +107,7 @@ export class BookingsService {
         
         const supplier = String(nr['SUPPLYER'] || nr['SUPPLIER'] || nr['SOURCE'] || '');
         const agencyEmail = String(nr['AGENCY EMAIL ID'] || nr['AGENCY EMAIL'] || nr['EMAIL'] || nr['EMAIL ID'] || '');
-        const paymentStatus = String(nr['PAYMENT STATUS'] || nr['STATUS'] || 'UNPAID');
+        const paymentStatus = String(nr['PAYMENT STATUS'] || 'UNPAID');
         const paymentMethod = String(nr['PAYMENT METHOD'] || nr['CASH OR BANK TRANSFER'] || '');
         const requestField = String(nr['REQUEST'] || '');
         const remarksField = String(nr['REMARKS'] || nr['REMARK'] || '');
@@ -371,7 +371,17 @@ export class BookingsService {
   }
 
   async remove(id: string) {
-    // Optionally restore seats here
+    const booking = await this.prisma.booking.findUnique({ where: { id } });
+    if (!booking) throw new NotFoundException('Booking not found');
+
+    // Restore seat count if booking was confirmed/pending
+    if (booking.status === 'CONFIRMED' || booking.status === 'PENDING') {
+      await this.prisma.route.update({
+        where: { id: booking.routeId },
+        data: { remainingSeats: { increment: 1 } },
+      }).catch(() => {}); // Ignore if route was deleted
+    }
+
     return this.prisma.booking.delete({ where: { id } });
   }
 
@@ -463,7 +473,7 @@ export class BookingsService {
 
         <div style="background-color: #f8fafc; padding: 16px; text-align: center; border-top: 1px solid #e2e8f0;">
           <p style="margin: 0; font-size: 11px; color: #64748b;">Need help? Contact us at <b>info@flyinco.com</b></p>
-          <p style="margin: 4px 0 0; font-size: 10px; color: #94a3b8;">&copy; 2024 Flyinco Travel Management Company. All rights reserved.</p>
+          <p style="margin: 4px 0 0; font-size: 10px; color: #94a3b8;">&copy; ${new Date().getFullYear()} Flyinco Travel Management Company. All rights reserved.</p>
         </div>
       </div>
     `;

@@ -1171,13 +1171,14 @@ export default function AdminBookings() {
                             <div className="bg-violet-50 border border-violet-100 rounded-xl p-4 text-xs space-y-2">
                                 <p className="font-bold text-violet-700 uppercase tracking-wider">Required Excel Columns:</p>
                                 <ul className="list-disc list-inside text-violet-600 space-y-1">
-                                    <li>Passenger Name</li>
-                                    <li>Route ID (Find in Sectors)</li>
-                                    <li>Passport Number (Optional)</li>
-                                    <li>Email / Phone</li>
-                                    <li>Purchase Price / Selling Price</li>
-                                    <li>PNR / Ticket Number</li>
+                                    <li><strong>PREFIX / GIVEN NAME / SURNAME</strong> — Passenger Name</li>
+                                    <li><strong>PASSPORT</strong> — Passport Number</li>
+                                    <li><strong>PNR</strong> — Reservation Code</li>
+                                    <li><strong>TRAVEL DATE</strong> — Flight Date</li>
+                                    <li><strong>NET PRICE / SELLING PRICE</strong> — Pricing</li>
+                                    <li><strong>AGENT</strong> — Agent Name (for Agent Dashboard)</li>
                                 </ul>
+                                <p className="text-violet-500 mt-1 italic">Optional: Gender, Nationality, D.O.B, Passport Expiry, Sector, Airline, Remarks</p>
                             </div>
                             
                             <div className="space-y-2">

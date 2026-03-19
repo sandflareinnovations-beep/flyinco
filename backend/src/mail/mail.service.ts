@@ -29,27 +29,37 @@ export class MailService {
     }
 
     async sendTicketEmail(email: string, pdf: Buffer) {
-        await this.resend.emails.send({
-            from: "Flyinco <booking@flyincobooking.com>",
-            to: email,
-            subject: "Your Flyinco Flight Ticket",
-            html: `       <h2>Your Ticket is Confirmed</h2>       <p>Your airline ticket is attached to this email.</p>       <p>Have a pleasant journey.</p>       <b>Flyinco Travel Management Company</b>
+        try {
+            await this.resend.emails.send({
+                from: "Flyinco <booking@flyincobooking.com>",
+                to: email,
+                subject: "Your Flyinco Flight Ticket",
+                html: `       <h2>Your Ticket is Confirmed</h2>       <p>Your airline ticket is attached to this email.</p>       <p>Have a pleasant journey.</p>       <b>Flyinco Travel Management Company</b>
     `,
-            attachments: [
-                {
-                    filename: "ticket.pdf",
-                    content: pdf
-                }
-            ]
-        });
+                attachments: [
+                    {
+                        filename: "ticket.pdf",
+                        content: pdf
+                    }
+                ]
+            });
+        } catch (error) {
+            console.error("Resend ticket email error:", error);
+            throw new Error("Failed to send ticket email. Please check the email address.");
+        }
     }
 
     async sendItineraryEmail(email: string, passengerName: string, itineraryHtml: string) {
-        await this.resend.emails.send({
-            from: "Flyinco <booking@flyincobooking.com>",
-            to: email,
-            subject: `Flight Itinerary - ${passengerName}`,
-            html: itineraryHtml
-        });
+        try {
+            await this.resend.emails.send({
+                from: "Flyinco <booking@flyincobooking.com>",
+                to: email,
+                subject: `Flight Itinerary - ${passengerName}`,
+                html: itineraryHtml
+            });
+        } catch (error) {
+            console.error("Resend itinerary email error:", error);
+            throw new Error("Failed to send itinerary email. Please check the email address.");
+        }
     }
-}
+}

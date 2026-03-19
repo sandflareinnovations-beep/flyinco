@@ -19,7 +19,9 @@ const getApiBase = () => {
         finalUrl = finalUrl.slice(0, -1);
     }
 
-    console.log("[Flyinco API] Using Base URL:", finalUrl);
+    if (process.env.NODE_ENV === 'development') {
+        console.log("[Flyinco API] Using Base URL:", finalUrl);
+    }
     return finalUrl;
 };
 
@@ -187,7 +189,7 @@ export const flyApi = {
                 sectorId: d.routeId,
                 passengerName: d.passengerName,
                 passportNumber: d.passportNumber,
-                nationality: "Unknown",
+                nationality: d.nationality || "Unknown",
                 phone: d.phone,
                 email: d.email,
                 status: d.status,

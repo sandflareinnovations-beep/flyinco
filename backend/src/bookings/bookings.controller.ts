@@ -26,7 +26,8 @@ import { Roles } from '../auth/roles.decorator';
 export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) { }
 
-  // ── Public endpoint: anyone can create a booking (guest or logged-in) ──
+  // ── Authenticated endpoint: user or agent can create a booking ──
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createBookingDto: CreateBookingDto, @Req() req: any) {
     const userId = req?.user?.id || null;
@@ -98,7 +99,7 @@ export class BookingsController {
 
   // ── User/Admin: view one booking ──
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('USER', 'ADMIN')
+  @Roles('USER', 'ADMIN', 'AGENT')
   @Get(':id')
   findOne(@Param('id') id: string, @Req() req: any) {
     return this.bookingsService.findOne(id, req.user);
