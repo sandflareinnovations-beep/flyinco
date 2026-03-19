@@ -14,29 +14,42 @@ export async function calculateAgentFinances(prisma: PrismaService, user: any) {
     orConditions.push({ agentDetails: { contains: agencyName.trim(), mode: 'insensitive' } });
   }
 
-  const bookings = await prisma.booking.findMany({
-    where: { 
-      OR: orConditions,
-      status: { notIn: ['CANCELLED', 'HELD'] } // Usually held flights shouldn't count towards dues until confirmed, but we'll include everything but cancelled for safety or just confirmed ones. Let's include everything but cancelled as they might owe for HELD if there's cancellation fees, wait, HELD means not yet ticketed. Let's exclude CANCELLED.
-    }
-  });
-  
-  const confirmedBookings = bookings.filter(b => b.status === "CONFIRMED" || b.status === "PENDING" || b.status === "COMPLETED");
+  // Use a targeted aggregate to avoid fetching thousands of records
+  const [totalAgg, paidAgg, unpaidAgg] = await Promise.all([
+    prisma.booking.aggregate({
+      where: { 
+        OR: orConditions,
+        status: { in: ['CONFIRMED', 'PENDING', 'COMPLETED'] }
+      },
+      _sum: { sellingPrice: true, purchasePrice: true }
+    }),
+    prisma.booking.aggregate({
+      where: { 
+        OR: orConditions,
+        status: { in: ['CONFIRMED', 'PENDING', 'COMPLETED'] },
+        paymentStatus: 'PAID'
+      },
+      _sum: { sellingPrice: true, purchasePrice: true }
+    }),
+    prisma.booking.aggregate({
+      where: { 
+        OR: orConditions,
+        status: { in: ['CONFIRMED', 'PENDING', 'COMPLETED'] },
+        paymentStatus: 'UNPAID'
+      },
+      _sum: { sellingPrice: true, purchasePrice: true }
+    })
+  ]);
 
-  const unpaidBookings = confirmedBookings.filter(b => (b as any).paymentStatus === "UNPAID");
-  const paidBookings = confirmedBookings.filter(b => (b as any).paymentStatus === "PAID");
-
-  const unpaidAmount = unpaidBookings.reduce((sum, b) => sum + (b.sellingPrice || b.purchasePrice || 0), 0);
-  const paidAmount = paidBookings.reduce((sum, b) => sum + (b.sellingPrice || b.purchasePrice || 0), 0);
-
-  // Total Gross Sales (Agent selling to customer)
-  const totalSales = confirmedBookings.reduce((sum, b) => sum + (b.sellingPrice || b.purchasePrice || 0), 0);
+  const totalSales = totalAgg._sum.sellingPrice || totalAgg._sum.purchasePrice || 0;
+  const paidAmount = paidAgg._sum.sellingPrice || paidAgg._sum.purchasePrice || 0;
+  const unpaidAmount = unpaidAgg._sum.sellingPrice || unpaidAgg._sum.purchasePrice || 0;
 
   return {
     ...user,
-    totalPaid: paidAmount, // Only Bookings marked PAID
-    outstanding: totalSales, // The user wants outstanding to be 1900 (Sales)
-    pendingDues: unpaidAmount, // The user wants pending dues to be 1225 (Purchase Price)
+    totalPaid: paidAmount,
+    outstanding: totalSales,
+    pendingDues: unpaidAmount,
     totalSales: totalSales,
   };
 }

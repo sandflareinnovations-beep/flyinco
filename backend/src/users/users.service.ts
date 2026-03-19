@@ -27,16 +27,12 @@ export class UsersService {
       orderBy: { createdAt: 'desc' },
     });
 
-    const results = [];
-    for (const u of users) {
+    return Promise.all(users.map(u => {
       if (u.role === 'AGENT') {
-        const calculated = await calculateAgentFinances(this.prisma, u);
-        results.push(calculated);
-      } else {
-        results.push(u);
+        return calculateAgentFinances(this.prisma, u);
       }
-    }
-    return results;
+      return u;
+    }));
   }
 
   async createUser(dto: CreateUserDto & { agencyName?: string; creditLimit?: number }) {

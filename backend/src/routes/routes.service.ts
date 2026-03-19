@@ -39,10 +39,38 @@ export class RoutesService {
     return this.prisma.route.create({ data });
   }
 
-  async findAll() {
-    return this.prisma.route.findMany({
-      orderBy: { departureDate: 'asc' },
-    });
+  async findAll(query: { page?: number; limit?: number; search?: string; availableOnly?: boolean } = {}) {
+    const { page = 1, limit = 50, search = '', availableOnly = false } = query;
+    const skip = (page - 1) * limit;
+    const take = Number(limit);
+
+    const where: any = {};
+
+    if (availableOnly) {
+      where.bookingStatus = 'OPEN';
+      where.remainingSeats = { gt: 0 };
+    }
+
+    if (search) {
+      where.OR = [
+        { origin: { contains: search, mode: 'insensitive' } },
+        { destination: { contains: search, mode: 'insensitive' } },
+        { airline: { contains: search, mode: 'insensitive' } },
+        { flightNumber: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const [routes, total] = await Promise.all([
+      this.prisma.route.findMany({
+        where,
+        skip,
+        take: limit === -1 ? undefined : take, // Support fetching all if limit is -1
+        orderBy: { departureDate: 'asc' },
+      }),
+      this.prisma.route.count({ where }),
+    ]);
+
+    return { routes, total, page, limit };
   }
 
   async findOne(id: string) {

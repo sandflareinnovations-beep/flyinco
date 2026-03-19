@@ -62,11 +62,18 @@ export default function SectorManagement() {
     const [form, setForm] = useState<any>({});
     const [targetStatus, setTargetStatus] = useState<"OPEN" | "CLOSED">("OPEN");
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
+    const limit = 50;
 
-    const { data: sectors, isLoading } = useQuery({
-        queryKey: ["sectors"],
-        queryFn: flyApi.sectors.list,
+    const { data: sectorData, isLoading } = useQuery({
+        queryKey: ["sectors", page, search],
+        queryFn: () => flyApi.sectors.list({ page, limit, search }),
     });
+
+    const sectors = sectorData?.routes || [];
+    const totalItems = sectorData?.total || 0;
+    const totalPages = Math.ceil(totalItems / limit);
 
     const createMutation = useMutation({
         mutationFn: (data: any) => flyApi.sectors.create(data),
@@ -212,6 +219,14 @@ export default function SectorManagement() {
                     <p className="text-gray-400 text-sm mt-0.5">Manage special fares, inventory, and pricing.</p>
                 </div>
                 <div className="flex items-center gap-3">
+                    <div className="relative flex-1 min-w-[200px]">
+                        <Input
+                            placeholder="Search route, airline..."
+                            className="pl-4 rounded-xl border-gray-200 focus-visible:ring-violet-400 text-sm h-10"
+                            value={search}
+                            onChange={e => { setSearch(e.target.value); setPage(1); }}
+                        />
+                    </div>
                     {selectedIds.length > 0 && (
                         <Button 
                             variant="destructive" 
@@ -371,8 +386,37 @@ export default function SectorManagement() {
                             </TableRow>
                         )}
                     </TableBody>
-                </Table>
-            </div>
+                    </Table>
+
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-between px-6 py-4 bg-gray-50 border-t border-gray-100">
+                            <div className="text-xs text-gray-500 font-medium whitespace-nowrap">
+                                Showing <span className="text-gray-900 font-bold">{(page - 1) * limit + 1}</span> to{" "}
+                                <span className="text-gray-900 font-bold">{Math.min(page * limit, totalItems)}</span> of{" "}
+                                <span className="text-gray-900 font-bold">{totalItems}</span> routes
+                            </div>
+                            <div className="flex gap-2">
+                                <Button
+                                    variant="outline" size="sm"
+                                    disabled={page === 1}
+                                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                                    className="rounded-xl h-9 px-4 border-gray-200 text-xs font-bold"
+                                >
+                                    Previous
+                                </Button>
+                                <Button
+                                    variant="outline" size="sm"
+                                    disabled={page === totalPages}
+                                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                                    className="rounded-xl h-9 px-4 border-gray-200 text-xs font-bold"
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </div>
 
             {/* ─── CREATE MODAL ─── */}
             <Dialog open={modal === "create"} onOpenChange={() => closeModal()}>

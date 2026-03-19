@@ -21,6 +21,7 @@ import { UpdateBookingDto } from './dto/update-booking.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
+import { Query } from '@nestjs/common';
 
 @Controller('bookings')
 export class BookingsController {
@@ -89,12 +90,25 @@ export class BookingsController {
     return this.bookingsService.bulkImport(file);
   }
 
+  // ── Metrics: Total numbers for dashboard ──
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'AGENT', 'USER')
+  @Get('metrics')
+  getMetrics(@Req() req: any) {
+    return this.bookingsService.getMetrics(req.user);
+  }
+
   // ── Admin/Agent/User: view their bookings ──
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN', 'AGENT', 'USER')
   @Get()
-  findAll(@Req() req: any) {
-    return this.bookingsService.findAll(req.user);
+  findAll(
+    @Req() req: any,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('search') search?: string,
+  ) {
+    return this.bookingsService.findAll(req.user, { page, limit, search });
   }
 
   // ── User/Admin: view one booking ──

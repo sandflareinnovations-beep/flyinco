@@ -280,46 +280,168 @@ export class BookingsService {
     return booking;
   }
 
-  async findAll(user: any) {
+  async findAll(user: any, query: { page?: number; limit?: number; search?: string } = {}) {
+    const { page = 1, limit = 50, search = '' } = query;
+    const skip = (page - 1) * limit;
+    const take = Number(limit);
+
+    const where: any = {};
+
     if (user.role === 'ADMIN') {
-      return this.prisma.booking.findMany({
-        orderBy: { createdAt: 'desc' },
-        include: {
-          route: true,
-          user: { select: { id: true, name: true, email: true, phone: true } },
-        },
-      });
+      if (search) {
+        where.OR = [
+          { passengerName: { contains: search, mode: 'insensitive' } },
+          { email: { contains: search, mode: 'insensitive' } },
+          { phone: { contains: search, mode: 'insensitive' } },
+          { pnr: { contains: search, mode: 'insensitive' } },
+          { agentDetails: { contains: search, mode: 'insensitive' } },
+          { route: { origin: { contains: search, mode: 'insensitive' } } },
+          { route: { destination: { contains: search, mode: 'insensitive' } } },
+        ];
+      }
+
+      const [bookings, total] = await Promise.all([
+        this.prisma.booking.findMany({
+          where,
+          skip,
+          take,
+          orderBy: { createdAt: 'desc' },
+          include: {
+            route: true,
+            user: { select: { id: true, name: true, email: true, phone: true } },
+          },
+        }),
+        this.prisma.booking.count({ where }),
+      ]);
+
+      return { bookings, total, page, limit };
     } else if (user.role === 'AGENT') {
       const fullUser = await this.prisma.user.findUnique({ where: { id: user.id } });
       const agentName = (fullUser?.name || '').trim();
       const agencyName = (fullUser?.agencyName || '').trim();
       const agentEmail = (fullUser?.email || '').trim();
 
-      const orConditions: any[] = [{ userId: user.id }];
+      const agentConditions: any[] = [{ userId: user.id }];
       
       if (agentName) {
-        orConditions.push({ agentDetails: { contains: agentName, mode: 'insensitive' } });
+        agentConditions.push({ agentDetails: { contains: agentName, mode: 'insensitive' } });
       }
       if (agencyName) {
-        orConditions.push({ agentDetails: { contains: agencyName, mode: 'insensitive' } });
+        agentConditions.push({ agentDetails: { contains: agencyName, mode: 'insensitive' } });
       }
       if (agentEmail) {
-        orConditions.push({ agencyEmail: { contains: agentEmail, mode: 'insensitive' } });
-        orConditions.push({ agentDetails: { contains: agentEmail, mode: 'insensitive' } });
+        agentConditions.push({ agencyEmail: { contains: agentEmail, mode: 'insensitive' } });
+        agentConditions.push({ agentDetails: { contains: agentEmail, mode: 'insensitive' } });
       }
 
-      return this.prisma.booking.findMany({
-        where: { OR: orConditions },
-        orderBy: { createdAt: 'desc' },
-        include: { route: true },
-      });
+      where.AND = [
+        { OR: agentConditions }
+      ];
+
+      if (search) {
+        where.AND.push({
+          OR: [
+            { passengerName: { contains: search, mode: 'insensitive' } },
+            { email: { contains: search, mode: 'insensitive' } },
+            { phone: { contains: search, mode: 'insensitive' } },
+            { pnr: { contains: search, mode: 'insensitive' } },
+            { route: { origin: { contains: search, mode: 'insensitive' } } },
+            { route: { destination: { contains: search, mode: 'insensitive' } } },
+          ]
+        });
+      }
+
+      const [bookings, total] = await Promise.all([
+        this.prisma.booking.findMany({
+          where,
+          skip,
+          take,
+          orderBy: { createdAt: 'desc' },
+          include: { route: true },
+        }),
+        this.prisma.booking.count({ where }),
+      ]);
+
+      return { bookings, total, page, limit };
     } else {
-      return this.prisma.booking.findMany({
-        where: { userId: user.id },
-        orderBy: { createdAt: 'desc' },
-        include: { route: true },
-      });
+      where.userId = user.id;
+      if (search) {
+        where.OR = [
+          { passengerName: { contains: search, mode: 'insensitive' } },
+          { pnr: { contains: search, mode: 'insensitive' } },
+        ];
+      }
+
+      const [bookings, total] = await Promise.all([
+        this.prisma.booking.findMany({
+          where,
+          skip,
+          take,
+          orderBy: { createdAt: 'desc' },
+          include: { route: true },
+        }),
+        this.prisma.booking.count({ where }),
+      ]);
+
+      return { bookings, total, page, limit };
     }
+  }
+
+  async getMetrics(user: any) {
+    const where: any = {};
+    if (user.role === 'AGENT') {
+      const fullUser = await this.prisma.user.findUnique({ where: { id: user.id } });
+      const agentName = (fullUser?.name || '').trim();
+      const agencyName = (fullUser?.agencyName || '').trim();
+      const agentEmail = (fullUser?.email || '').trim();
+
+      const agentConditions: any[] = [{ userId: user.id }];
+      if (agentName) agentConditions.push({ agentDetails: { contains: agentName, mode: 'insensitive' } });
+      if (agencyName) agentConditions.push({ agentDetails: { contains: agencyName, mode: 'insensitive' } });
+      if (agentEmail) {
+        agentConditions.push({ agencyEmail: { contains: agentEmail, mode: 'insensitive' } });
+        agentConditions.push({ agentDetails: { contains: agentEmail, mode: 'insensitive' } });
+      }
+      where.OR = agentConditions;
+    } else if (user.role === 'USER') {
+      where.userId = user.id;
+    }
+
+    const [allBookings, counts] = await Promise.all([
+      this.prisma.booking.findMany({
+        where: { ...where, status: { not: 'CANCELLED' } },
+        select: {
+          sellingPrice: true,
+          purchasePrice: true,
+          profit: true,
+          route: { select: { price: true } }
+        }
+      }),
+      this.prisma.booking.groupBy({
+        by: ['status'],
+        where,
+        _count: { _all: true }
+      })
+    ]);
+
+    const totalRevenue = allBookings.reduce((acc, b) => acc + (b.sellingPrice || b.route?.price || 0), 0);
+    const totalProfit = allBookings.reduce((acc, b) => acc + (b.profit || 0), 0);
+    const totalBookings = counts.reduce((acc, s) => acc + s._count._all, 0);
+    
+    const statusCounts = counts.reduce((acc, s) => {
+      acc[s.status] = s._count._all;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return {
+      totalRevenue,
+      totalProfit,
+      totalBookings,
+      heldCount: statusCounts['HELD'] || 0,
+      confirmedCount: statusCounts['CONFIRMED'] || 0,
+      pendingCount: statusCounts['PENDING'] || 0,
+      cancelledCount: statusCounts['CANCELLED'] || 0,
+    };
   }
 
   async findOne(id: string, user: any) {

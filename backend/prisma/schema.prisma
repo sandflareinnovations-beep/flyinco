@@ -76,6 +76,11 @@ model Booking {
   
   route          Route     @relation(fields: [routeId], references: [id], onDelete: Cascade)
   user           User?     @relation(fields: [userId], references: [id])
+
+  @@index([passengerName])
+  @@index([pnr])
+  @@index([agentDetails])
+  @@index([createdAt])
 }
 
 model User {

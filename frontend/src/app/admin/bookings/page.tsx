@@ -31,8 +31,17 @@ const STATUS_STYLES: Record<string, string> = {
     PENDING: "bg-amber-50 text-amber-700 border-amber-200",
 };
 
-async function fetchBookings() {
-    return await fetchWithCreds('/bookings');
+async function fetchBookings({ page = 1, limit = 50, search = '' }) {
+    const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+        search,
+    });
+    return await fetchWithCreds(`/bookings?${params.toString()}`);
+}
+
+async function fetchMetrics() {
+    return await fetchWithCreds('/bookings/metrics');
 }
 
 async function updateBookingStatus(id: string, status: string) {
@@ -46,6 +55,8 @@ export default function AdminBookings() {
     const { toast } = useToast();
     const qc = useQueryClient();
     const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
+    const limit = 50;
     const [selected, setSelected] = useState<any>(null);
     const [pnrInput, setPnrInput] = useState("");
     const [showDetail, setShowDetail] = useState(false);
@@ -106,10 +117,19 @@ export default function AdminBookings() {
         agentDetails: "",
     });
 
-    const { data: bookings = [], isLoading, refetch, isError } = useQuery({
-        queryKey: ["admin-bookings"],
-        queryFn: fetchBookings,
-        refetchInterval: 30000,
+    const { data: bookingData, isLoading, refetch, isError } = useQuery({
+        queryKey: ["admin-bookings", page, search],
+        queryFn: () => fetchBookings({ page, limit, search }),
+    });
+
+    const bookings = bookingData?.bookings || [];
+    const totalItems = bookingData?.total || 0;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    const { data: metrics } = useQuery({
+        queryKey: ["admin-metrics"],
+        queryFn: fetchMetrics,
+        refetchInterval: 60000,
     });
 
     const updateMutation = useMutation({
@@ -258,26 +278,13 @@ export default function AdminBookings() {
         }),
     });
 
-    const filtered = bookings.filter((b: any) => {
-        const q = search.toLowerCase();
-        return (
-            b.passengerName?.toLowerCase().includes(q) ||
-            b.email?.toLowerCase().includes(q) ||
-            b.phone?.toLowerCase().includes(q) ||
-            b.route?.origin?.toLowerCase().includes(q) ||
-            b.id?.toLowerCase().includes(q) ||
-            b.agentDetails?.toLowerCase().includes(q)
-        );
-    });
+    const filtered = bookings; // Server-side filtered already
 
-    // Metrics
-    const activeBookings = bookings.filter((b: any) => b.status !== "CANCELLED");
-    const totalRevenue = activeBookings.reduce((acc: number, b: any) => acc + (b.sellingPrice || b.route?.price || 0), 0);
-    const totalPurchase = activeBookings.reduce((acc: number, b: any) => acc + (b.purchasePrice || 0), 0);
-    const totalProfit = activeBookings.reduce((acc: number, b: any) => acc + (b.profit || 0), 0);
-    
-    const heldCount = bookings.filter((b: any) => b.status === "HELD").length;
-    const confirmedCount = bookings.filter((b: any) => b.status === "CONFIRMED").length;
+    // Metrics from server
+    const totalRevenue = metrics?.totalRevenue || 0;
+    const totalProfit = metrics?.totalProfit || 0;
+    const heldCount = metrics?.heldCount || 0;
+    const confirmedCount = metrics?.confirmedCount || 0;
 
     return (
         <div className="space-y-6 max-w-7xl">
@@ -286,7 +293,7 @@ export default function AdminBookings() {
                 <div>
                     <h1 className="text-2xl font-black text-gray-900">Bookings</h1>
                     <p className="text-gray-400 text-sm mt-0.5">
-                        {bookings.length} total bookings · {heldCount} held · {confirmedCount} confirmed
+                        {totalItems} total bookings · {heldCount} held · {confirmedCount} confirmed
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -317,7 +324,10 @@ export default function AdminBookings() {
                             placeholder="Search name, email, phone..."
                             className="pl-9 rounded-xl border-gray-200 focus-visible:ring-violet-400 text-sm"
                             value={search}
-                            onChange={e => setSearch(e.target.value)}
+                        onChange={e => {
+                            setSearch(e.target.value);
+                            setPage(1);
+                        }}
                         />
                     </div>
                     <Button variant="outline" size="sm" className="rounded-xl gap-1.5" onClick={() => refetch()}>
@@ -567,6 +577,72 @@ export default function AdminBookings() {
                             )}
                         </TableBody>
                     </Table>
+                    
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-between px-6 py-4 bg-gray-50 border-t border-gray-100">
+                            <div className="text-xs text-gray-500 font-medium whitespace-nowrap">
+                                Showing <span className="text-gray-900 font-bold">{(page - 1) * limit + 1}</span> to{" "}
+                                <span className="text-gray-900 font-bold">{Math.min(page * limit, totalItems)}</span> of{" "}
+                                <span className="text-gray-900 font-bold">{totalItems}</span> bookings
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={page === 1}
+                                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                                    className="rounded-xl h-9 px-4 border-gray-200 hover:bg-white hover:text-violet-600 transition-all text-xs font-bold"
+                                >
+                                    Previous
+                                </Button>
+                                <div className="hidden sm:flex items-center gap-1">
+                                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                        const pageNum = i + 1;
+                                        return (
+                                            <Button
+                                                key={pageNum}
+                                                variant={page === pageNum ? "default" : "outline"}
+                                                size="sm"
+                                                onClick={() => setPage(pageNum)}
+                                                className={`h-9 w-9 p-0 rounded-xl text-xs font-bold transition-all ${
+                                                    page === pageNum 
+                                                        ? 'bg-violet-600 hover:bg-violet-700 text-white shadow-sm' 
+                                                        : 'border-gray-200 text-gray-600 hover:bg-white hover:text-violet-600'
+                                                }`}
+                                            >
+                                                {pageNum}
+                                            </Button>
+                                        );
+                                    })}
+                                    {totalPages > 5 && <span className="text-gray-300 mx-1">...</span>}
+                                    {totalPages > 5 && page <= totalPages && (
+                                        <Button
+                                            variant={page === totalPages ? "default" : "outline"}
+                                            size="sm"
+                                            onClick={() => setPage(totalPages)}
+                                            className={`h-9 w-9 p-0 rounded-xl text-xs font-bold transition-all ${
+                                                page === totalPages 
+                                                    ? 'bg-violet-600 hover:bg-violet-700 text-white shadow-sm' 
+                                                    : 'border-gray-200 text-gray-600 hover:bg-white hover:text-violet-600'
+                                            }`}
+                                        >
+                                            {totalPages}
+                                        </Button>
+                                    )}
+                                </div>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={page === totalPages}
+                                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                                    className="rounded-xl h-9 px-4 border-gray-200 hover:bg-white hover:text-violet-600 transition-all text-xs font-bold"
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 

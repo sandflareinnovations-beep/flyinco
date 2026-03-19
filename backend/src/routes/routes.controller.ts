@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { RoutesService } from './routes.service';
 import { CreateRouteDto } from './dto/create-route.dto';
 import { UpdateRouteDto } from './dto/update-route.dto';
@@ -28,8 +19,18 @@ export class RoutesController {
 
   // Allow anyone (authenticated or not, or maybe just authenticated. Let's say anyone)
   @Get()
-  findAll() {
-    return this.routesService.findAll();
+  findAll(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('search') search?: string,
+    @Query('availableOnly') availableOnly?: string,
+  ) {
+    return this.routesService.findAll({
+      page,
+      limit,
+      search,
+      availableOnly: availableOnly === 'true',
+    });
   }
 
   @Get(':id')

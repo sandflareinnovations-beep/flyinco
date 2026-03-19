@@ -95,9 +95,20 @@ const isBackendUp = async (): Promise<boolean> => {
 
 export const flyApi = {
     sectors: {
-        list: async (): Promise<FareSector[]> => {
-            const data = await fetchWithCreds(`/routes?t=${Date.now()}`);
-            return data.map((d: any) => ({
+        list: async (params?: { page?: number; limit?: number; search?: string; availableOnly?: boolean }): Promise<any> => {
+            const query = new URLSearchParams();
+            if (params?.page) query.append('page', params.page.toString());
+            if (params?.limit) query.append('limit', params.limit.toString());
+            if (params?.search) query.append('search', params.search);
+            if (params?.availableOnly) query.append('availableOnly', 'true');
+            if (!params) query.append('t', Date.now().toString());
+
+            const data = await fetchWithCreds(`/routes?${query.toString()}`);
+            
+            // Handle both legacy array response and new paginated response
+            const routesArray = Array.isArray(data) ? data : (data.routes || []);
+            
+            const mapped = routesArray.map((d: any) => ({
                 id: d.id,
                 originCode: d.origin,
                 originCity: d.originCity || "Origin City",
@@ -122,6 +133,9 @@ export const flyApi = {
                 flightDetails: d.flightDetails || "",
                 bookingStatus: d.bookingStatus || "OPEN",
             }));
+
+            if (Array.isArray(data)) return mapped;
+            return { ...data, routes: mapped };
         },
         get: async (id: string): Promise<FareSector | undefined> => {
             const d = await fetchWithCreds(`/routes/${id}?t=${Date.now()}`);
@@ -182,9 +196,18 @@ export const flyApi = {
         }
     },
     bookings: {
-        list: async (): Promise<Booking[]> => {
-            const data = await fetchWithCreds('/bookings');
-            return data.map((d: any) => ({
+        list: async (params?: { page?: number; limit?: number; search?: string }): Promise<any> => {
+            const query = new URLSearchParams();
+            if (params?.page) query.append('page', params.page.toString());
+            if (params?.limit) query.append('limit', params.limit.toString());
+            if (params?.search) query.append('search', params.search);
+            
+            const data = await fetchWithCreds(`/bookings?${query.toString()}`);
+            
+            // Handle both legacy array response and new paginated response
+            const bookingsArray = Array.isArray(data) ? data : (data.bookings || []);
+            
+            const mapped = bookingsArray.map((d: any) => ({
                 id: d.id,
                 sectorId: d.routeId,
                 passengerName: d.passengerName,
@@ -219,8 +242,11 @@ export const flyApi = {
                 remarks: d.remarks || "",
                 agentDetails: d.agentDetails || "",
                 createdAt: d.createdAt,
-                route: d.route, // Keep as object for components
+                route: d.route,
             }));
+
+            if (Array.isArray(data)) return mapped;
+            return { ...data, bookings: mapped };
         },
         create: async (data: { sectorId: string; passengerName: string; passportNumber: string; nationality: string; phone: string; email: string }) => {
             return await fetchWithCreds('/bookings', {
