@@ -134,8 +134,10 @@ export const flyApi = {
                 bookingStatus: d.bookingStatus || "OPEN",
             }));
 
-            if (Array.isArray(data)) return mapped;
-            return { ...data, routes: mapped };
+            if (params?.page || params?.limit || params?.search || params?.availableOnly) {
+                return { ...data, routes: mapped };
+            }
+            return mapped;
         },
         get: async (id: string): Promise<FareSector | undefined> => {
             const d = await fetchWithCreds(`/routes/${id}?t=${Date.now()}`);
@@ -245,8 +247,10 @@ export const flyApi = {
                 route: d.route,
             }));
 
-            if (Array.isArray(data)) return mapped;
-            return { ...data, bookings: mapped };
+            if (params?.page || params?.limit || params?.search) {
+                return { ...data, bookings: mapped };
+            }
+            return mapped;
         },
         create: async (data: { sectorId: string; passengerName: string; passportNumber: string; nationality: string; phone: string; email: string }) => {
             return await fetchWithCreds('/bookings', {
