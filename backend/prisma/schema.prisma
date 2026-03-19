@@ -68,6 +68,10 @@ model Booking {
   paymentMethod  String?   // e.g., Cash, Bank Transfer
   remarks        String?
   request        String?
+  gender         String?
+  nationality    String?
+  dateOfBirth    DateTime?
+  passportExpiry DateTime?
   createdAt      DateTime  @default(now())
   
   route          Route     @relation(fields: [routeId], references: [id], onDelete: Cascade)

@@ -109,22 +109,43 @@ export function BookingReceipt({ booking, onClose, autoPrint = false }: BookingR
                     </div>
 
                     {/* Passenger Details */}
-                    <div className="mb-6 border border-gray-100 rounded-xl overflow-hidden">
+                    <div className="mb-6 border border-gray-100 rounded-xl overflow-hidden shadow-sm">
                         <div className="bg-gray-50 px-6 py-2 border-b border-gray-100 text-[10px] font-black text-[#1e1a4b] uppercase tracking-wider">
                             Passenger Details
                         </div>
-                        <div className="p-4 grid grid-cols-3 gap-4">
-                            <div>
-                                <p className="text-[9px] text-gray-400 uppercase font-black mb-1">Passenger Name</p>
-                                <p className="text-[13px] font-black text-gray-900 uppercase">{booking.passengerName}</p>
+                        <div className="p-5 grid grid-cols-2 md:grid-cols-4 gap-y-4 gap-x-6">
+                            <div className="col-span-1 md:col-span-2">
+                                <p className="text-[9px] text-gray-400 uppercase font-black mb-1.5 tracking-wider">Passenger Name</p>
+                                <p className="text-[14px] font-black text-gray-900 uppercase leading-none">{booking.passengerName}</p>
                             </div>
                             <div>
-                                <p className="text-[9px] text-gray-400 uppercase font-black mb-1">Passport Number</p>
-                                <p className="text-[13px] font-black text-gray-900">{booking.passportNumber || "---"}</p>
+                                <p className="text-[9px] text-gray-400 uppercase font-black mb-1.5 tracking-wider">Passport Number</p>
+                                <p className="text-[14px] font-black text-gray-900 leading-none">{booking.passportNumber || "---"}</p>
                             </div>
                             <div>
-                                <p className="text-[9px] text-gray-400 uppercase font-black mb-1">Contact</p>
-                                <p className="text-[13px] font-black text-gray-900">{booking.phone || booking.email || "---"}</p>
+                                <p className="text-[9px] text-gray-400 uppercase font-black mb-1.5 tracking-wider">Nationality</p>
+                                <p className="text-[14px] font-black text-gray-900 uppercase leading-none">{booking.nationality || "---"}</p>
+                            </div>
+                            
+                            <div className="pt-2 border-t border-gray-50">
+                                <p className="text-[9px] text-gray-400 uppercase font-black mb-1.5 tracking-wider">Gender</p>
+                                <p className="text-[13px] font-bold text-gray-700 uppercase">{booking.gender || "---"}</p>
+                            </div>
+                            <div className="pt-2 border-t border-gray-50">
+                                <p className="text-[9px] text-gray-400 uppercase font-black mb-1.5 tracking-wider">Date of Birth</p>
+                                <p className="text-[13px] font-bold text-gray-700">
+                                    {booking.dateOfBirth ? format(new Date(booking.dateOfBirth), 'dd MMM yyyy') : "---"}
+                                </p>
+                            </div>
+                            <div className="pt-2 border-t border-gray-50">
+                                <p className="text-[9px] text-gray-400 uppercase font-black mb-1.5 tracking-wider">Passport Expiry</p>
+                                <p className="text-[13px] font-bold text-gray-700">
+                                    {booking.passportExpiry ? format(new Date(booking.passportExpiry), 'dd MMM yyyy') : "---"}
+                                </p>
+                            </div>
+                            <div className="pt-2 border-t border-gray-50">
+                                <p className="text-[9px] text-gray-400 uppercase font-black mb-1.5 tracking-wider">Contact</p>
+                                <p className="text-[13px] font-bold text-gray-700">{booking.phone || booking.email || "---"}</p>
                             </div>
                         </div>
                     </div>

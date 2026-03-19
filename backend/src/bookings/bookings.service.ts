@@ -55,28 +55,44 @@ export class BookingsService {
       errors: [],
     };
 
+    const parseExcelDate = (val: any): Date | null => {
+      if (!val) return null;
+      if (!isNaN(Number(val))) {
+        // Excel numbers are days since Dec 30, 1899
+        const excelEpoch = new Date(1899, 11, 30);
+        return new Date(excelEpoch.getTime() + Number(val) * 86400000);
+      }
+      const d = new Date(val);
+      return isNaN(d.getTime()) ? null : d;
+    };
+
+    let rowIndex = headerRowIndex + 2; 
     for (const row of data as any[]) {
+      let passengerName = 'Unknown';
+      let pnr = '';
       try {
-        // Normalize keys for the current row to handle spaces/case in headers
         const nr: any = {};
         for (const k in row) {
           nr[k.trim().toUpperCase()] = row[k];
         }
 
-        // Handle variations in column names from the provided file
         const prefix = nr['PREFIX'] || '';
         const givenName = nr['GIVEN NAME'] || nr['PASSENGER NAME'] || nr['PASSENGERNAME'] || nr['NAME'] || '';
         const surname = nr['SURNAME'] || '';
         
-        const passengerName = `${prefix} ${givenName} ${surname}`.trim().replace(/\s+/g, ' ');
+        passengerName = `${prefix} ${givenName} ${surname}`.trim().replace(/\s+/g, ' ');
+        if (!passengerName || passengerName === 'Unknown') passengerName = 'Unknown';
 
+        const gender = String(nr['GENDER'] || '');
+        const nationality = String(nr['NATIONALITY'] || '');
+        const dob = parseExcelDate(nr['D.O.B PAX'] || nr['DOB'] || nr['DATE OF BIRTH']);
+        const passportExpiry = parseExcelDate(nr['PP EXPAIRY'] || nr['PASSPORT EXPIRY'] || nr['EXPIRY']);
         const passportNumber = String(nr['PASSPORT'] || nr['PASSPORT NUMBER'] || nr['PASSPORT NO'] || nr['PP NO'] || '');
         
-        let pnr = String(nr['PNR'] || nr['PNR NO'] || nr['PNR '] || nr['CONFIRMATION'] || '');
+        pnr = String(nr['PNR'] || nr['PNR NO'] || nr['PNR '] || nr['CONFIRMATION'] || '');
         let refNo = String(nr['REF NO'] || nr['REFERENCE NUMBER'] || nr['REFERENCE'] || '');
         let agentDetails = String(nr['AGENT'] || nr['AGENT DETAILS'] || nr['AGENT NAME'] || nr['AGENTS'] || nr['AGENCY'] || '');
 
-        // Overrides for the specific charter file
         if (isCharterFormat) {
           pnr = '7EAMRW';
           refNo = 'FLRUHCOKMAR18SV';
@@ -85,20 +101,9 @@ export class BookingsService {
         const purchasePrice = parseFloat(nr['NET PRICE'] || nr['PURCHASE PRICE'] || nr['NETPRICE'] || 0);
         const sellingPrice = parseFloat(nr['SELLING PRICE'] || nr['SALE PRICE'] || nr['SELLINGPRICE'] || 0);
         
-        // New columns
         const airline = String(nr['AIRLINES'] || nr['AIRLINE'] || nr['CARRIER'] || '');
         const sector = String(nr['SECTOR'] || nr['ROUTE'] || '');
-        let travelDate: Date | null = null;
-        const travelDateStr = nr['TRAVEL DATE'] || nr['FLIGHT DATE'] || nr['DATE'] || nr['DEPARTURE DATE'];
-        if (travelDateStr) {
-          if (!isNaN(Number(travelDateStr))) {
-            const excelEpoch = new Date(1899, 11, 30);
-            travelDate = new Date(excelEpoch.getTime() + Number(travelDateStr) * 86400000);
-          } else {
-            const d = new Date(travelDateStr);
-            if (!isNaN(d.getTime())) travelDate = d;
-          }
-        }
+        const travelDate = parseExcelDate(nr['TRAVEL DATE'] || nr['FLIGHT DATE'] || nr['DATE'] || nr['DEPARTURE DATE']);
         
         const supplier = String(nr['SUPPLYER'] || nr['SUPPLIER'] || nr['SOURCE'] || '');
         const agencyEmail = String(nr['AGENCY EMAIL ID'] || nr['AGENCY EMAIL'] || nr['EMAIL'] || nr['EMAIL ID'] || '');
@@ -107,22 +112,16 @@ export class BookingsService {
         const requestField = String(nr['REQUEST'] || '');
         const remarksField = String(nr['REMARKS'] || nr['REMARK'] || '');
         
-        // Status mapping
         let status = nr['STATUS'] || 'CONFIRMED';
         if (typeof status === 'string' && status.includes('TICKET COPY GIVEN')) status = 'CONFIRMED';
 
-        // Route ID handling
         let routeId = row['Route ID'] || row['routeId'];
-        
         if (!routeId) {
-          // If no Route ID, try to find a route
           let route = await this.prisma.route.findFirst({ 
             where: isCharterFormat ? { flightNumber: { contains: '3650' } } : {},
             orderBy: { createdAt: 'desc' }
           });
-
           if (!route && isCharterFormat) {
-            // Create the charter route if it doesn't exist
             route = await this.prisma.route.create({
               data: {
                 origin: 'RUH',
@@ -139,28 +138,29 @@ export class BookingsService {
                 remainingSeats: 42,
                 price: 0,
                 isCharter: true,
-                bookingStatus: 'CLOSED' // Hide from home screen
+                bookingStatus: 'CLOSED'
               }
             });
           }
-
-          if (route) {
-            routeId = route.id;
-          }
+          if (route) routeId = route.id;
         }
 
         if (!routeId) throw new Error('Route ID is missing and no default route found');
-        if (!passengerName || passengerName === 'undefined' || passengerName === ' ') throw new Error('Passenger Name is missing');
+        if (!passengerName || passengerName === 'Unknown' || passengerName === ' ') throw new Error('Passenger Name is missing');
 
         const profit = sellingPrice - purchasePrice;
 
-        await this.prisma.booking.create({
-            data: {
+        await (this.prisma.booking as any).create({
+          data: {
             routeId,
             passengerName,
             prefix,
             givenName,
             surname,
+            gender,
+            nationality,
+            dateOfBirth: dob,
+            passportExpiry,
             airline,
             sector,
             travelDate: travelDate || undefined,
@@ -181,11 +181,10 @@ export class BookingsService {
             sellingPrice,
             profit,
             agentDetails,
-            isNew: true, // Mark as NEW for admin panel
+            isNew: true,
           },
         });
 
-        // Update route capacity - skip for charter format as per user request
         if (!isCharterFormat && (status === 'CONFIRMED' || status === 'PENDING')) {
           await this.prisma.route.update({
             where: { id: routeId },
@@ -196,9 +195,15 @@ export class BookingsService {
         results.success++;
       } catch (error) {
         results.failed++;
-        results.errors.push({ row, error: error.message });
+        results.errors.push({ 
+          row: rowIndex, 
+          identifier: passengerName !== 'Unknown' ? passengerName : (pnr ? `PNR: ${pnr}` : 'Unnamed Row'),
+          error: error.message 
+        });
       }
+      rowIndex++;
     }
+
 
     return results;
   }

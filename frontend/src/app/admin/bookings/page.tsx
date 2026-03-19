@@ -603,7 +603,29 @@ export default function AdminBookings() {
                                     </div>
                                     <div className="flex items-center gap-2 text-sm">
                                         <Phone className="h-4 w-4 text-violet-500" />
-                                        <span className="text-gray-600">{selected.phone}</span>
+                                        <span className="text-gray-600">{selected.phone || "No Phone"}</span>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-x-2 gap-y-1 mt-2 pt-2 border-t border-gray-100 text-[11px]">
+                                        <div>
+                                            <span className="text-gray-400 font-bold uppercase mr-1">Gender:</span>
+                                            <span className="font-semibold text-gray-700">{selected.gender || "N/A"}</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-gray-400 font-bold uppercase mr-1">Nat:</span>
+                                            <span className="font-semibold text-gray-700">{selected.nationality || "N/A"}</span>
+                                        </div>
+                                        <div className="col-span-2">
+                                            <span className="text-gray-400 font-bold uppercase mr-1">DOB:</span>
+                                            <span className="font-semibold text-gray-700">
+                                                {selected.dateOfBirth ? new Date(selected.dateOfBirth).toLocaleDateString() : "N/A"}
+                                            </span>
+                                        </div>
+                                        <div className="col-span-2">
+                                            <span className="text-gray-400 font-bold uppercase mr-1">PP Exp:</span>
+                                            <span className="font-semibold text-gray-700">
+                                                {selected.passportExpiry ? new Date(selected.passportExpiry).toLocaleDateString() : "N/A"}
+                                            </span>
+                                        </div>
                                     </div>
                                     {selected.agentDetails && (
                                         <div className="flex items-center gap-2 text-sm mt-2 pt-2 border-t border-gray-200">
@@ -1194,11 +1216,15 @@ export default function AdminBookings() {
                             </div>
 
                             {importResults.errors.length > 0 && (
-                                <div className="max-h-40 overflow-y-auto space-y-2">
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase">Errors</p>
+                                <div className="max-h-48 overflow-y-auto space-y-2 mt-4">
+                                    <p className="text-[10px] font-black text-red-500 uppercase tracking-widest px-1">Import Failures ({importResults.failed})</p>
                                     {importResults.errors.map((err: any, idx: number) => (
-                                        <div key={idx} className="bg-red-50 p-2 rounded-lg border border-red-100 text-[10px] text-red-700 font-mono">
-                                            Row {idx + 1}: {err.error}
+                                        <div key={idx} className="bg-red-50 p-2.5 rounded-xl border border-red-100 text-[11px] text-red-700 flex flex-col gap-0.5 shadow-sm">
+                                            <div className="flex justify-between items-center">
+                                                <span className="font-black text-[10px] bg-red-100 px-1.5 py-0.5 rounded text-red-800 uppercase">Excel Row {err.row}</span>
+                                                <span className="font-bold text-red-900">{err.identifier}</span>
+                                            </div>
+                                            <p className="opacity-80 italic mt-0.5 border-t border-red-200/50 pt-1">Error: {err.error}</p>
                                         </div>
                                     ))}
                                 </div>
