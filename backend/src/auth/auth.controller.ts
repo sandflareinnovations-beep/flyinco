@@ -12,6 +12,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { Response, Request } from 'express';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { Throttle } from '@nestjs/throttler';
 import { PrismaService } from '../prisma/prisma.service';
 import { calculateAgentFinances } from '../common/finance.util';
 
@@ -22,6 +23,7 @@ export class AuthController {
     private readonly prisma: PrismaService,
   ) { }
 
+  @Throttle({ short: { limit: 1, ttl: 5000 }, long: { limit: 5, ttl: 60000 } })
   @Post('register')
   async register(
     @Body() registerDto: RegisterDto,
@@ -70,6 +72,7 @@ export class AuthController {
     return user || req.user;
   }
 
+  @Throttle({ short: { limit: 1, ttl: 5000 }, long: { limit: 5, ttl: 60000 } })
   @Post('request-password-reset')
   async requestReset(@Body('email') email: string) {
     return this.authService.requestPasswordReset(email);
