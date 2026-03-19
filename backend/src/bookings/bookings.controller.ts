@@ -47,8 +47,12 @@ export class BookingsController {
           cb(null, `receipt-${uniqueSuffix}${extname(file.originalname)}`);
         },
       }),
-      fileFilter: (req, file, cb) => {
-        if (!file.originalname.match(/\.(jpg|jpeg|png|pdf)$/)) {
+    fileFilter: (req, file, cb) => {
+        const allowedMimes = ['image/jpeg', 'image/png', 'application/pdf'];
+        const isMimeOk = allowedMimes.includes(file.mimetype);
+        const isExtOk = file.originalname.match(/\.(jpg|jpeg|png|pdf)$/);
+        
+        if (!isMimeOk || !isExtOk) {
           return cb(new Error('Only image and PDF files are allowed!'), false);
         }
         cb(null, true);

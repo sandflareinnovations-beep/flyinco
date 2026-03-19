@@ -4,6 +4,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -13,11 +14,15 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @Get()
-  findAll(@Query('page') page?: string, @Query('limit') limit?: string, @Query('search') search?: string) {
+  findAll(
+    @Query('page') page?: number, 
+    @Query('limit') limit?: number, 
+    @Query('search') search?: string
+  ) {
     if (page || limit || search) {
       return this.usersService.findAllPaginated({
-        page: page ? parseInt(page) : 1,
-        limit: limit ? parseInt(limit) : 50,
+        page: page ? Number(page) : 1,
+        limit: limit ? Number(limit) : 50,
         search
       });
     }
@@ -35,7 +40,7 @@ export class UsersController {
   }
 
   @Patch(':id')
-  updateUser(@Param('id') id: string, @Body() data: any) {
+  updateUser(@Param('id') id: string, @Body() data: UpdateUserDto) {
     return this.usersService.updateUser(id, data);
   }
 
