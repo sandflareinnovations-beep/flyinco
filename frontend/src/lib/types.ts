@@ -31,16 +31,37 @@ export type Booking = {
     sectorId: string;
     passengerName: string;
     passportNumber: string;
+    gender?: string;
     nationality: string;
+    dateOfBirth?: string;
+    passportExpiry?: string;
     phone: string;
     email: string;
     status: 'HELD' | 'CONFIRMED' | 'CANCELLED' | 'PENDING';
+    paymentStatus?: string;
     farePrice: number;
     purchasePrice?: number;
     sellingPrice?: number;
+    baseFare?: number;
+    taxes?: number;
+    serviceFee?: number;
     profit?: number;
+    ticketNumber?: string;
+    pnr?: string;
+    travelDate?: string;
+    airline?: string;
+    sector?: string;
+    prefix?: string;
+    givenName?: string;
+    surname?: string;
+    supplier?: string;
+    agencyEmail?: string;
+    paymentMethod?: string;
+    request?: string;
+    remarks?: string;
+    agentDetails?: string;
     createdAt: string;
-    route: string;
+    route: any; // Nested route object
 };
 
 // ─── New Flight Booking Types ───────────────────────────────────────────────
