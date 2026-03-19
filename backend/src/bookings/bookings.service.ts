@@ -422,6 +422,8 @@ export class BookingsService {
           purchasePrice: true,
           profit: true,
           status: true,
+          agentDetails: true,
+          paymentStatus: true,
           route: { select: { price: true } }
         }
       }),
@@ -448,10 +450,37 @@ export class BookingsService {
       return acc;
     }, {} as Record<string, number>);
 
+    const totalUnpaidDues = activeFinancials
+      .filter(b => b.paymentStatus === 'UNPAID')
+      .reduce((acc, b) => acc + (b.sellingPrice || b.route?.price || 0), 0);
+
+    const agentMap: Record<string, { totalSales: number; profit: number; count: number; unpaid: number }> = {};
+    activeFinancials.forEach(b => {
+      const agent = b.agentDetails || 'Direct / Unknown';
+      if (!agentMap[agent]) agentMap[agent] = { totalSales: 0, profit: 0, count: 0, unpaid: 0 };
+      
+      const sale = (b.sellingPrice || b.route?.price || 0);
+      const p = (b.profit !== 0 && b.profit !== null && b.profit !== undefined) 
+                ? b.profit 
+                : (sale - (b.purchasePrice || 0));
+                
+      agentMap[agent].totalSales += sale;
+      agentMap[agent].profit += p;
+      agentMap[agent].count += 1;
+      if (b.paymentStatus === 'UNPAID') agentMap[agent].unpaid += sale;
+    });
+
+    const agentPerformance = Object.entries(agentMap)
+      .map(([name, stats]) => ({ name, ...stats }))
+      .sort((a, b) => b.totalSales - a.totalSales)
+      .slice(0, 10);
+
     return {
       totalRevenue,
       totalProfit,
       totalBookings,
+      totalUnpaidDues,
+      agentPerformance,
       heldCount: statusCounts['HELD'] || 0,
       confirmedCount: statusCounts['CONFIRMED'] || 0,
       pendingCount: statusCounts['PENDING'] || 0,

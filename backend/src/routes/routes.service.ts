@@ -66,11 +66,23 @@ export class RoutesService {
         skip,
         take: limit === -1 ? undefined : take, // Support fetching all if limit is -1
         orderBy: { departureDate: 'asc' },
+        include: {
+          bookings: {
+            select: { status: true }
+          }
+        }
       }),
       this.prisma.route.count({ where }),
     ]);
 
-    return { routes, total, page, limit };
+    const mappedRoutes = routes.map((r: any) => ({
+      ...r,
+      soldSeats: r.bookings.filter((b: any) => b.status === 'CONFIRMED' || b.status === 'COMPLETED').length,
+      heldSeats: r.bookings.filter((b: any) => b.status === 'HELD' || b.status === 'PENDING').length,
+      bookings: undefined // Remove detailed bookings if not needed to keep response clean
+    }));
+    
+    return { routes: mappedRoutes, total, page, limit };
   }
 
   async findOne(id: string) {
