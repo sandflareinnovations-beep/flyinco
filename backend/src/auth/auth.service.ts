@@ -10,9 +10,12 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { MailService } from '../mail/mail.service';
 import * as crypto from 'crypto';
+import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class AuthService {
+  private logger = new Logger('AuthSecurity');
+
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
@@ -71,6 +74,8 @@ export class AuthService {
       where: { id: user.id },
       data: { lastLogin: new Date() }
     });
+
+    this.logger.log(`Successful login for user: ${user.email}`);
 
     return this.generateToken(user);
   }

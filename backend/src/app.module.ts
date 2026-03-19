@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -11,6 +11,7 @@ import { MailService } from './mail/mail.service';
 import { AnnouncementsModule } from './announcements/announcements.module';
 import { PaymentsModule } from './payments/payments.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { SecurityLoggerMiddleware } from './common/middleware/security-logger.middleware';
 
 @Module({
   imports: [
@@ -36,4 +37,8 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
     },
   ],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(SecurityLoggerMiddleware).forRoutes('*');
+  }
+}
