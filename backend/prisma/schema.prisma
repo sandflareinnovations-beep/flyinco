@@ -95,6 +95,14 @@ model User {
   totalPaid   Float   @default(0)
   outstanding Float   @default(0) // computed or updated based on bookings
   pendingDues Float   @default(0)
+  
+  // Security Fields
+  isVerified         Boolean   @default(false)
+  verificationToken  String?
+  resetToken         String?
+  resetTokenExpires  DateTime?
+  lastLogin          DateTime?
+  
   createdAt DateTime  @default(now())
   
   bookings  Booking[]

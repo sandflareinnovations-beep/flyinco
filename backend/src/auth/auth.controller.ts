@@ -70,6 +70,21 @@ export class AuthController {
     return user || req.user;
   }
 
+  @Post('request-password-reset')
+  async requestReset(@Body('email') email: string) {
+    return this.authService.requestPasswordReset(email);
+  }
+
+  @Post('reset-password')
+  async reset(@Body('token') token: string, @Body('password') password: string) {
+    return this.authService.resetPassword(token, password);
+  }
+
+  @Post('verify-email')
+  async verify(@Body('token') token: string) {
+    return this.authService.verifyEmail(token);
+  }
+
   private setCookie(res: any, token: string) {
     res.cookie('token', token, {
       httpOnly: true,

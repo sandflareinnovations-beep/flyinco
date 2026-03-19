@@ -62,4 +62,43 @@ export class MailService {
             throw new Error("Failed to send itinerary email. Please check the email address.");
         }
     }
-}
+
+    async sendVerificationEmail(email: string, token: string) {
+        const url = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${token}`;
+        try {
+            await this.resend.emails.send({
+                from: "Flyinco Auth <auth@flyincobooking.com>",
+                to: email,
+                subject: "Verify your Flyinco Account",
+                html: `
+                    <h2>Welcome to Flyinco!</h2>
+                    <p>Please verify your email address by clicking the link below:</p>
+                    <a href="${url}">${url}</a>
+                    <p>This link will expire in 24 hours.</p>
+                `
+            });
+        } catch (error) {
+            console.error("Verification email error:", error);
+        }
+    }
+
+    async sendPasswordResetEmail(email: string, token: string) {
+        const url = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
+        try {
+            await this.resend.emails.send({
+                from: "Flyinco Auth <auth@flyincobooking.com>",
+                to: email,
+                subject: "Reset your Flyinco Password",
+                html: `
+                    <h2>Forgot your password?</h2>
+                    <p>Click the link below to reset your password:</p>
+                    <a href="${url}">${url}</a>
+                    <p>This link will expire in 1 hour.</p>
+                    <p>If you didn't request this, you can safely ignore this email.</p>
+                `
+            });
+        } catch (error) {
+            console.error("Password reset email error:", error);
+        }
+    }
+}
