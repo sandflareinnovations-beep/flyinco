@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "prebuild": "npx prisma generate",
+    "prebuild": "export PRISMA_SKIP_POSTINSTALL_GENERATE=true && npx prisma generate && mkdir -p uploads",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "node dist/main.js",
