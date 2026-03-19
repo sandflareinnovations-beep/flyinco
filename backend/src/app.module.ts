@@ -7,6 +7,7 @@ import { RoutesModule } from './routes/routes.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { MailModule } from './mail/mail.module';
 import { MailService } from './mail/mail.service';
 import { AnnouncementsModule } from './announcements/announcements.module';
 import { PaymentsModule } from './payments/payments.module';
@@ -20,6 +21,7 @@ import { SecurityLoggerMiddleware } from './common/middleware/security-logger.mi
     BookingsModule,
     UsersModule,
     AuthModule,
+    MailModule,
     AnnouncementsModule,
     PaymentsModule,
     ThrottlerModule.forRoot([
@@ -43,7 +45,6 @@ import { SecurityLoggerMiddleware } from './common/middleware/security-logger.mi
   controllers: [AppController],
   providers: [
     AppService, 
-    MailService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
