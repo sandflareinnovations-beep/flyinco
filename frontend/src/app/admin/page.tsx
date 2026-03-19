@@ -20,9 +20,10 @@ const statCards = (totalRevenue: number, totalProfit: number, totalBookings: num
 ];
 
 export default function AdminDashboard() {
-    const { data: bookings, isLoading: loadingBookings } = useQuery({
-        queryKey: ["bookings"],
-        queryFn: () => flyApi.bookings.list(),
+    const { data: metricsData, isLoading: loadingMetrics } = useQuery({
+        queryKey: ["admin-metrics"],
+        queryFn: () => flyApi.bookings.getMetrics(),
+        refetchInterval: 30000,
     });
 
     const { data: sectors, isLoading: loadingSectors } = useQuery({
@@ -30,13 +31,12 @@ export default function AdminDashboard() {
         queryFn: () => flyApi.sectors.list(),
     });
 
-    const isLoading = loadingBookings || loadingSectors;
+    const isLoading = loadingMetrics;
 
-    const bookingList = Array.isArray(bookings) ? bookings : (bookings?.bookings || []);
-    const totalBookings = bookingList.length;
-    const activeBookings = bookingList.filter((b: any) => b.status !== "CANCELLED");
-    const totalRevenue = activeBookings.reduce((acc: number, b: any) => acc + (b.sellingPrice || b.farePrice || 0), 0);
-    const totalProfit = activeBookings.reduce((acc: number, b: any) => acc + (b.profit || 0), 0);
+    const totalRevenue = metricsData?.totalRevenue ?? 0;
+    const totalProfit = metricsData?.totalProfit ?? 0;
+    const totalBookings = metricsData?.totalBookings ?? 0;
+
     const sectorList = Array.isArray(sectors) ? sectors : (sectors?.routes || []);
     const seatsSold = sectorList.reduce((acc: number, s: any) => acc + (s.soldSeats || 0) + (s.heldSeats || 0), 0);
     const remainingSeats = sectorList.reduce((acc: number, s: any) => acc + (s.remainingSeats || 0), 0);

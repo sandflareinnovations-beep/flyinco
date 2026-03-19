@@ -421,6 +421,7 @@ export class BookingsService {
           sellingPrice: true,
           purchasePrice: true,
           profit: true,
+          status: true,
           route: { select: { price: true } }
         }
       }),
@@ -431,8 +432,15 @@ export class BookingsService {
       })
     ]);
 
-    const totalRevenue = allBookings.reduce((acc, b) => acc + (b.sellingPrice || b.route?.price || 0), 0);
-    const totalProfit = allBookings.reduce((acc, b) => acc + (b.profit || 0), 0);
+    const activeFinancials = allBookings.filter(b => b.status !== 'CANCELLED');
+    const totalRevenue = activeFinancials.reduce((acc, b) => acc + (b.sellingPrice || b.route?.price || 0), 0);
+    const totalProfit = activeFinancials.reduce((acc, b) => {
+      // If profit is specifically 0 but we have prices, the profit field might be out of date
+      const p = (b.profit !== 0 && b.profit !== null && b.profit !== undefined) 
+                ? b.profit 
+                : ( (b.sellingPrice || b.route?.price || 0) - (b.purchasePrice || 0) );
+      return acc + p;
+    }, 0);
     const totalBookings = counts.reduce((acc, s) => acc + s._count._all, 0);
     
     const statusCounts = counts.reduce((acc, s) => {
