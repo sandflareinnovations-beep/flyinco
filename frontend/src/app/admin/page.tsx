@@ -21,28 +21,30 @@ const statCards = (totalRevenue: number, totalProfit: number, totalBookings: num
 export default function AdminDashboard() {
     const { data: bookings, isLoading: loadingBookings } = useQuery({
         queryKey: ["bookings"],
-        queryFn: flyApi.bookings.list,
+        queryFn: () => flyApi.bookings.list(),
     });
 
     const { data: sectors, isLoading: loadingSectors } = useQuery({
         queryKey: ["sectors"],
-        queryFn: flyApi.sectors.list,
+        queryFn: () => flyApi.sectors.list(),
     });
 
     const isLoading = loadingBookings || loadingSectors;
 
-    const totalBookings = bookings?.length || 0;
-    const activeBookings = bookings?.filter(b => b.status !== "CANCELLED") || [];
+    const bookingList = Array.isArray(bookings) ? bookings : (bookings?.bookings || []);
+    const totalBookings = bookingList.length;
+    const activeBookings = bookingList.filter((b: any) => b.status !== "CANCELLED");
     const totalRevenue = activeBookings.reduce((acc, b) => acc + (b.sellingPrice || b.farePrice || 0), 0);
     const totalProfit = activeBookings.reduce((acc, b) => acc + (b.profit || 0), 0);
-    const seatsSold = sectors?.reduce((acc, s) => acc + s.soldSeats + s.heldSeats, 0) || 0;
-    const remainingSeats = sectors?.reduce((acc, s) => acc + s.remainingSeats, 0) || 0;
+    const sectorList = Array.isArray(sectors) ? sectors : (sectors?.routes || []);
+    const seatsSold = sectorList.reduce((acc: number, s: any) => acc + (s.soldSeats || 0) + (s.heldSeats || 0), 0);
+    const remainingSeats = sectorList.reduce((acc: number, s: any) => acc + (s.remainingSeats || 0), 0);
 
-    const seatData = sectors?.map(s => ({
+    const seatData = sectorList.map((s: any) => ({
         name: `${s.originCode}→${s.destinationCode}`,
-        Sold: s.soldSeats + s.heldSeats,
-        Remaining: s.remainingSeats,
-    })) || [];
+        Sold: (s.soldSeats || 0) + (s.heldSeats || 0),
+        Remaining: s.remainingSeats || 0,
+    }));
 
     const pieData = [
         { name: "Sold", value: seatsSold },

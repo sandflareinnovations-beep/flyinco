@@ -52,7 +52,7 @@ export default function Home() {
 
   const { data: sectors } = useQuery({
     queryKey: ["sectors"],
-    queryFn: flyApi.sectors.list,
+    queryFn: () => flyApi.sectors.list(),
     staleTime: 0,
     refetchOnMount: true,
   });

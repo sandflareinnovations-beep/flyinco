@@ -30,8 +30,8 @@ export default function UserDashboard() {
             try {
                 const profile = await flyApi.auth.me();
                 setUserProfile(profile);
-                const data = await flyApi.bookings.list({ limit: 50 });
-                setBookings(Array.isArray(data) ? data : (data.bookings || []));
+                const data = await flyApi.bookings.listPaginated({ page: 1, limit: 100 });
+                setBookings(data.bookings || []);
                 
                 try {
                     const anns = await flyApi.announcements.list();
@@ -41,8 +41,8 @@ export default function UserDashboard() {
                 }
 
                 try {
-                    const data = await flyApi.sectors.list({ availableOnly: true, limit: 20 });
-                    setSectors(Array.isArray(data) ? data : (data.routes || []));
+                    const data = await flyApi.sectors.listPaginated({ page: 1, limit: 20, availableOnly: true });
+                    setSectors(data.routes || []);
                 } catch (e) {
                     // Ignore sector errors
                 }

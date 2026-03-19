@@ -68,7 +68,7 @@ export default function SectorManagement() {
 
     const { data: sectorData, isLoading } = useQuery({
         queryKey: ["sectors", page, search],
-        queryFn: () => flyApi.sectors.list({ page, limit, search }),
+        queryFn: () => flyApi.sectors.listPaginated({ page, limit, search }),
     });
 
     const sectors = sectorData?.routes || [];
@@ -190,7 +190,7 @@ export default function SectorManagement() {
     const toggleSelectAll = (checked: boolean) => {
         if (!sectors) return;
         if (checked) {
-            setSelectedIds(sectors.map(s => s.id));
+            setSelectedIds(sectors.map((s: any) => s.id));
         } else {
             setSelectedIds([]);
         }
@@ -274,7 +274,7 @@ export default function SectorManagement() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {sectors?.map((sector, i) => (
+                        {sectors?.map((sector: any, i: number) => (
                             <motion.tr
                                 key={sector.id}
                                 initial={{ opacity: 0 }}

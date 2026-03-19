@@ -139,6 +139,43 @@ export const flyApi = {
             }
             return mapped;
         },
+        listPaginated: async (params: { page: number; limit: number; search?: string; availableOnly?: boolean }): Promise<any> => {
+            const query = new URLSearchParams();
+            query.append('page', params.page.toString());
+            query.append('limit', params.limit.toString());
+            if (params.search) query.append('search', params.search);
+            if (params.availableOnly) query.append('availableOnly', 'true');
+
+            const data = await fetchWithCreds(`/routes?${query.toString()}`);
+            const routesArray = data.routes || [];
+            
+            const mapped = routesArray.map((d: any) => ({
+                id: d.id,
+                originCode: d.origin,
+                originCity: d.originCity || "Origin City",
+                destinationCode: d.destination,
+                destinationCity: d.destinationCity || "Dest City",
+                price: d.price,
+                totalSeats: d.totalSeats,
+                remainingSeats: d.remainingSeats,
+                heldSeats: 0,
+                soldSeats: d.totalSeats - d.remainingSeats,
+                departureTime: d.departureTime || "",
+                arrivalTime: d.arrivalTime || "",
+                airline: d.airline || "",
+                flightNumber: d.flightNumber || "",
+                duration: d.duration || "",
+                departureDate: d.departureDate ? d.departureDate.split('T')[0] : "",
+                arrivalDate: d.arrivalDate ? d.arrivalDate.split('T')[0] : "",
+                baggage: d.baggage || "2PC BAGGAGE",
+                airlineLogo: d.airlineLogo || "",
+                layover: d.layover || "",
+                flightRules: d.flightRules || "",
+                flightDetails: d.flightDetails || "",
+                bookingStatus: d.bookingStatus || "OPEN",
+            }));
+            return { ...data, routes: mapped };
+        },
         get: async (id: string): Promise<FareSector | undefined> => {
             const d = await fetchWithCreds(`/routes/${id}?t=${Date.now()}`);
             return {
@@ -251,6 +288,57 @@ export const flyApi = {
                 return { ...data, bookings: mapped };
             }
             return mapped;
+        },
+        listPaginated: async (params: { page: number; limit: number; search?: string }): Promise<any> => {
+            const query = new URLSearchParams();
+            query.append('page', params.page.toString());
+            query.append('limit', params.limit.toString());
+            if (params.search) query.append('search', params.search);
+            
+            const data = await fetchWithCreds(`/bookings?${query.toString()}`);
+            const bookingsArray = data.bookings || [];
+            
+            const mapped = bookingsArray.map((d: any) => ({
+                id: d.id,
+                sectorId: d.routeId,
+                passengerName: d.passengerName,
+                passportNumber: d.passportNumber,
+                gender: d.gender,
+                nationality: d.nationality || "Unknown",
+                dateOfBirth: d.dateOfBirth,
+                passportExpiry: d.passportExpiry,
+                phone: d.phone,
+                email: d.email,
+                status: d.status,
+                paymentStatus: d.paymentStatus || 'UNPAID',
+                farePrice: d.route?.price || 0,
+                purchasePrice: d.purchasePrice || 0,
+                sellingPrice: d.sellingPrice || d.route?.price || 0,
+                baseFare: d.baseFare || 0,
+                taxes: d.taxes || 0,
+                serviceFee: d.serviceFee || 0,
+                profit: d.profit || 0,
+                ticketNumber: d.ticketNumber || "",
+                pnr: d.pnr || "",
+                travelDate: d.travelDate,
+                airline: d.airline || "",
+                sector: d.sector || "",
+                prefix: d.prefix || "",
+                givenName: d.givenName || "",
+                surname: d.surname || "",
+                supplier: d.supplier || "",
+                agencyEmail: d.agencyEmail || "",
+                paymentMethod: d.paymentMethod || "",
+                request: d.request || "",
+                remarks: d.remarks || "",
+                agentDetails: d.agentDetails || "",
+                createdAt: d.createdAt,
+                route: d.route,
+            }));
+            return { ...data, bookings: mapped };
+        },
+        getMetrics: async () => {
+            return await fetchWithCreds('/bookings/metrics');
         },
         create: async (data: { sectorId: string; passengerName: string; passportNumber: string; nationality: string; phone: string; email: string }) => {
             return await fetchWithCreds('/bookings', {

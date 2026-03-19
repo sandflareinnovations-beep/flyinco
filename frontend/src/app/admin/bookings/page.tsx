@@ -22,7 +22,7 @@ import { BookingReceipt } from "@/components/admin/booking-receipt";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 
-import { API_BASE, fetchWithCreds } from "@/lib/api";
+import { API_BASE, fetchWithCreds, flyApi } from "@/lib/api";
 
 const STATUS_STYLES: Record<string, string> = {
     CONFIRMED: "bg-emerald-50 text-emerald-700 border-emerald-200",
@@ -32,16 +32,11 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 async function fetchBookings({ page = 1, limit = 50, search = '' }) {
-    const params = new URLSearchParams({
-        page: page.toString(),
-        limit: limit.toString(),
-        search,
-    });
-    return await fetchWithCreds(`/bookings?${params.toString()}`);
+    return await flyApi.bookings.listPaginated({ page, limit, search });
 }
 
 async function fetchMetrics() {
-    return await fetchWithCreds('/bookings/metrics');
+    return await flyApi.bookings.getMetrics();
 }
 
 async function updateBookingStatus(id: string, status: string) {
@@ -89,10 +84,11 @@ export default function AdminBookings() {
         ticketNumber: "",
     });
 
-    const { data: routes = [] } = useQuery({
+    const { data: routeData } = useQuery({
         queryKey: ["admin-routes"],
-        queryFn: () => fetchWithCreds('/routes'),
+        queryFn: () => flyApi.sectors.list(),
     });
+    const routes = Array.isArray(routeData) ? routeData : (routeData?.routes || []);
 
     // Accounting states
     const [accData, setAccData] = useState({
