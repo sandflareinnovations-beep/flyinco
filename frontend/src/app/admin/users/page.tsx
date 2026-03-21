@@ -161,7 +161,9 @@ export default function UsersAdminPage() {
     const handleDownloadAgentReport = async (agent: any) => {
         setIsLoading(true);
         try {
-            const bookings = await flyApi.bookings.list();
+            const data = await flyApi.bookings.listPaginated({ page: 1, limit: 100000 });
+            const bookings = data.bookings || [];
+            
             const agentBookings = bookings.filter((b: any) => {
                 const bDetails = (b.agentDetails || '').toLowerCase();
                 const bAgencyEmail = (b.agencyEmail || '').toLowerCase();
@@ -170,21 +172,13 @@ export default function UsersAdminPage() {
                 const aAgencyName = (agent.agencyName || '').toLowerCase().trim();
                 const aEmail = (agent.email || '').toLowerCase().trim();
 
-                // 1. Direct ID match
                 if (b.userId === agent.id) return true;
-                
-                // 2. Exact Email match (most reliable)
+                if (aName && bDetails.includes(aName)) return true;
+                if (aAgencyName && bDetails.includes(aAgencyName)) return true;
                 if (aEmail && bAgencyEmail.includes(aEmail)) return true;
                 if (aEmail && bDetails.includes(aEmail)) return true;
-
-                // 3. Robust Name matching (substrings)
-                if (aName && bDetails.includes(aName)) return true;
-                if (bDetails && aName.includes(bDetails)) return true;
                 
-                // 4. Agency Name matching
-                if (aAgencyName && bDetails.includes(aAgencyName)) return true;
-                
-                // 5. Hard Logic: Split and match significant words
+                // Fallback hard logic
                 const nameWords = aName.split(' ').filter((w: string) => w.length > 3);
                 for (const word of nameWords) {
                     if (bDetails.includes(word)) return true;
@@ -193,12 +187,20 @@ export default function UsersAdminPage() {
                 return false;
             });
 
+            const validStatus = ['CONFIRMED', 'PENDING', 'COMPLETED'];
+            const activeBookings = agentBookings.filter((b: any) => validStatus.includes(b.status));
+
             const dataToExport = agentBookings.map((b: any) => {
                 const travelDateObj = b.travelDate ? new Date(b.travelDate) : (b.route?.departureDate ? new Date(b.route.departureDate) : null);
                 let travelDateStr = "N/A";
                 if (travelDateObj && !isNaN(travelDateObj.getTime())) {
                     travelDateStr = travelDateObj.toLocaleDateString('en-GB');
                 }
+                
+                const salePrice = b.sellingPrice !== undefined && b.sellingPrice !== null ? b.sellingPrice : (b.purchasePrice || 0);
+                const costPrice = b.purchasePrice || 0;
+                let profit = b.profit;
+                if (profit === undefined || profit === null) profit = salePrice - costPrice;
 
                 return {
                     "Travel Date": travelDateStr,
@@ -209,17 +211,27 @@ export default function UsersAdminPage() {
                     "Passport": b.passportNumber || "N/A",
                     "Booking Status": b.status,
                     "Payment Status": b.paymentStatus || 'UNPAID',
-                    "Sale Price": b.sellingPrice || 0,
-                    "Agent Cost": b.purchasePrice || 0,
-                    "Profit": (b.sellingPrice || 0) - (b.purchasePrice || 0),
+                    "Sale Price": salePrice,
+                    "Agent Cost": costPrice,
+                    "Profit": profit,
                     "Supplier": b.supplier || "",
                     "Booking ID": b.id.substring(0,8)
                 };
             });
 
-            const paidAmt = agentBookings.filter((b: any) => b.paymentStatus === 'PAID').reduce((s: number, b: any) => s + (b.purchasePrice || 0), 0);
-            const unpaidAmt = agentBookings.filter((b: any) => (b.paymentStatus || 'UNPAID') === 'UNPAID').reduce((s: number, b: any) => s + (b.purchasePrice || 0), 0);
-            
+            const paidAmt = activeBookings.filter((b: any) => b.paymentStatus === 'PAID').reduce((s: number, b: any) => s + (b.sellingPrice !== undefined && b.sellingPrice !== null ? b.sellingPrice : (b.purchasePrice || 0)), 0);
+            const unpaidAmt = activeBookings.filter((b: any) => (b.paymentStatus || 'UNPAID') === 'UNPAID').reduce((s: number, b: any) => s + (b.sellingPrice !== undefined && b.sellingPrice !== null ? b.sellingPrice : (b.purchasePrice || 0)), 0);
+            const totalSales = activeBookings.reduce((s: number, b: any) => s + (b.sellingPrice !== undefined && b.sellingPrice !== null ? b.sellingPrice : (b.purchasePrice || 0)), 0);
+            const totalCost = activeBookings.reduce((s: number, b: any) => s + (b.purchasePrice || 0), 0);
+            const totalProfit = activeBookings.reduce((s: number, b: any) => {
+                let p = b.profit;
+                if (p === undefined || p === null) {
+                    const sale = b.sellingPrice !== undefined && b.sellingPrice !== null ? b.sellingPrice : (b.purchasePrice || 0);
+                    p = sale - (b.purchasePrice || 0);
+                }
+                return s + p;
+            }, 0);
+
             dataToExport.push({
                 "Travel Date": "TOTALS",
                 "PNR": "",
@@ -227,20 +239,22 @@ export default function UsersAdminPage() {
                 "Airline": "",
                 "Passenger": "",
                 "Passport": "",
-                "Booking Status": "",
+                "Booking Status": "Active Only",
                 "Payment Status": `Unpaid: ${unpaidAmt} | Paid: ${paidAmt}`,
-                "Sale Price": agentBookings.reduce((s: number, b: any) => s + (b.sellingPrice || 0), 0),
-                "Agent Cost": agentBookings.reduce((s: number, b: any) => s + (b.purchasePrice || 0), 0),
-                "Profit": agentBookings.reduce((s: number, b: any) => s + ((b.sellingPrice || 0) - (b.purchasePrice || 0)), 0),
+                "Sale Price": totalSales,
+                "Agent Cost": totalCost,
+                "Profit": totalProfit,
                 "Supplier": "",
                 "Booking ID": ""
             });
 
-            const ws = XLSX.utils.json_to_sheet(dataToExport);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Agent Accounts");
-            
-            XLSX.writeFile(wb, `${agent.name || 'Agent'}_Accounts_${new Date().toISOString().split('T')[0]}.xlsx`);
+            const ws = import("xlsx").then(XLSX => {
+                const sheet = XLSX.utils.json_to_sheet(dataToExport);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, sheet, "Agent Accounts");
+                XLSX.writeFile(wb, `${agent.name || 'Agent'}_Accounts_${new Date().toISOString().split('T')[0]}.xlsx`);
+            });
+
             toast({ title: "Export Complete", description: "The Excel file is downloading." });
         } catch(e) {
             toast({ title: "Export Failed", variant: "destructive" });

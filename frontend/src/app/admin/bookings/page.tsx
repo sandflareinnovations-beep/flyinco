@@ -933,6 +933,10 @@ export default function AdminBookings() {
                                             <Label className="text-[10px] font-bold text-gray-400 uppercase">Request</Label>
                                             <Input className="h-8 rounded-lg text-sm" value={accData.request} onChange={e => setAccData({...accData, request: e.target.value})} />
                                         </div>
+                                        <div className="space-y-1.5 col-span-2">
+                                            <Label className="text-[10px] font-bold text-gray-400 uppercase">Agent Name</Label>
+                                            <Input className="h-8 rounded-lg text-sm" placeholder="Assign or edit agent name" value={accData.agentDetails} onChange={e => setAccData({...accData, agentDetails: e.target.value})} />
+                                        </div>
                                     </div>
 
                                     <Button 
