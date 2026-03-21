@@ -22,6 +22,38 @@ export class PaymentsService {
           pendingDues: { decrement: payment.amount }
         }
       });
+
+      // --- AUTO-ALLOCATION: Mark UNPAID bookings as PAID (FIFO) ---
+      const agentUser = await this.prisma.user.findUnique({ where: { id: data.agentId } });
+      if (agentUser) {
+          const names = [agentUser.name, agentUser.agencyName].filter(Boolean);
+          const bookingConditions: any[] = [{ userId: agentUser.id }];
+          names.forEach(n => {
+              bookingConditions.push({ agentDetails: { contains: n, mode: 'insensitive' } });
+          });
+
+          const unpaidBookings = await this.prisma.booking.findMany({
+              where: {
+                  OR: bookingConditions,
+                  paymentStatus: 'UNPAID',
+                  status: { not: 'CANCELLED' }
+              },
+              orderBy: { createdAt: 'asc' }
+          });
+
+          let amountLeft = payment.amount;
+          for (const b of unpaidBookings) {
+              const price = b.sellingPrice || 0;
+              if (price > 0 && amountLeft >= price) {
+                  await this.prisma.booking.update({
+                      where: { id: b.id },
+                      data: { paymentStatus: 'PAID' }
+                  });
+                  amountLeft -= price;
+              }
+              if (amountLeft <= 0) break;
+          }
+      }
     } else if (data.type === 'DUES' && payment.status === 'COMPLETED') {
       await this.prisma.user.update({
         where: { id: data.agentId },
@@ -39,17 +71,25 @@ export class PaymentsService {
     if (!payment) return;
 
     if (payment.type === 'PAYMENT') {
-        // Find bookings that were marked PAID using this amount (FIFO or manual)
-        // Since we don't have a direct link table yet, we find recently paid bookings for this agent
-        const bookingsToRevert = await this.prisma.booking.findMany({
-            where: {
-                agentDetails: { contains: (await this.prisma.user.findUnique({where:{id: payment.agentId}}))?.name || '', mode: 'insensitive' },
-                paymentStatus: 'PAID',
-                status: { not: 'CANCELLED' }
-            },
-            orderBy: { createdAt: 'desc' },
-            take: 20
-        });
+        const agentUser = await this.prisma.user.findUnique({ where: { id: payment.agentId } });
+        const bookingsToRevert: any[] = [];
+        if (agentUser) {
+            const names = [agentUser.name, agentUser.agencyName].filter(Boolean);
+            const bookingConditions: any[] = [{ userId: agentUser.id }];
+            names.forEach(n => {
+                bookingConditions.push({ agentDetails: { contains: n, mode: 'insensitive' } });
+            });
+
+            const matchingPaidBookings = await this.prisma.booking.findMany({
+                where: {
+                    OR: bookingConditions,
+                    paymentStatus: 'PAID',
+                    status: { not: 'CANCELLED' }
+                },
+                orderBy: { createdAt: 'desc' }
+            });
+            bookingsToRevert.push(...matchingPaidBookings);
+        }
 
         // Revert up to the amount deleted
         let remainingToRevert = payment.amount;
