@@ -12,7 +12,7 @@ const links = [
     { href: "/admin", label: "Dashboard", icon: PiSquaresFour, exact: true },
     { href: "/admin/sectors", label: "Sector Management", icon: PiAirplaneTilt },
     { href: "/admin/bookings", label: "Bookings", icon: PiBookOpen },
-    { href: "/admin/users", label: "PiUsers", icon: PiUsers },
+    { href: "/admin/users", label: "Users", icon: PiUsers },
     { href: "/admin/announcements", label: "Announcements", icon: PiMegaphone },
 ];
 

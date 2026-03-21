@@ -93,7 +93,7 @@ export default function AdminDashboard() {
         <div className="space-y-8 max-w-6xl pb-10">
             <div>
                 <h1 className="text-2xl font-black text-gray-900 mb-1">Admin Dashboard</h1>
-                <p className="text-gray-400 text-sm">Real-time Performance Metrics & Agent PiPulse</p>
+                <p className="text-gray-400 text-sm">Real-time Performance Metrics & Agent Activity</p>
             </div>
 
             {/* Stat Cards - 6 Columns on large screens */}

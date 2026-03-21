@@ -56,7 +56,7 @@ function PassengersForm() {
         e.preventDefault();
 
         if (!phone || !email) {
-            toast({ title: "Missing Fields", description: "PiPhone and email are required.", variant: "destructive" });
+            toast({ title: "Missing Fields", description: "Phone and email are required.", variant: "destructive" });
             return;
         }
         if (!passenger.firstName || !passenger.lastName || !passenger.passportNumber) {
@@ -128,7 +128,7 @@ function PassengersForm() {
                                 </CardHeader>
                                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-1.5">
-                                        <Label className="text-xs font-semibold text-gray-600">PiPhone Number *</Label>
+                                        <Label className="text-xs font-semibold text-gray-600">Phone Number *</Label>
                                         <Input
                                             placeholder="+966 50 000 0000"
                                             className="rounded-xl border-gray-200 focus-visible:ring-[#6C2BD9]"

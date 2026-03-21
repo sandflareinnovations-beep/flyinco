@@ -848,7 +848,7 @@ export default function AdminBookings() {
                                             </div>
                                         </div>
                                         <div className="space-y-1.5">
-                                            <Label className="text-[10px] font-bold text-gray-400 uppercase">PiStar Number</Label>
+                                            <Label className="text-[10px] font-bold text-gray-400 uppercase">Rating Number</Label>
                                             <Input 
                                                 className="h-8 rounded-lg text-sm font-mono"
                                                 placeholder="Tkt No"
@@ -1088,7 +1088,7 @@ export default function AdminBookings() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-sm font-semibold">PiPhone</Label>
+                                    <Label className="text-sm font-semibold">Phone</Label>
                                     <Input 
                                         placeholder="+966..."
                                         className="rounded-xl"

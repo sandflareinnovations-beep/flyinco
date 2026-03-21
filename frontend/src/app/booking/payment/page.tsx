@@ -251,7 +251,7 @@ function PaymentForm() {
 
                                     {/* File PiUploadSimple */}
                                     <div className="space-y-2">
-                                        <Label className="text-sm font-semibold text-gray-700">PiUploadSimple PiReceipt Screenshot (Optional)</Label>
+                                        <Label className="text-sm font-semibold text-gray-700">Upload Receipt Screenshot (Optional)</Label>
                                         <label
                                             htmlFor="receipt-upload"
                                             className="border-2 border-dashed border-gray-200 rounded-xl p-6 flex flex-col items-center justify-center text-center hover:bg-gray-50 transition-colors cursor-pointer group block"
@@ -260,7 +260,7 @@ function PaymentForm() {
                                                 <div className="w-full flex flex-col items-center gap-2">
                                                     <img
                                                         src={receiptPreview}
-                                                        alt="PiReceipt preview"
+                                                        alt="Receipt preview"
                                                         className="max-h-48 rounded-lg object-contain border border-gray-200 shadow-sm"
                                                     />
                                                     <p className="text-xs font-semibold mt-2" style={{ color: '#2E0A57' }}>{receiptFile?.name}</p>

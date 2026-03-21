@@ -305,7 +305,7 @@ export default function UsersAdminPage() {
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {[
-                    { label: "Total PiUsers", value: users.length, color: B.primary },
+                    { label: "Total Users", value: users.length, color: B.primary },
                     { label: "Agents", value: users.filter(u => u.role === "AGENT").length, color: "#10B981" },
                     { label: "Customers", value: users.filter(u => u.role === "USER").length, color: "#64748B" },
                 ].map(stat => (
@@ -332,7 +332,7 @@ export default function UsersAdminPage() {
                         {isLoading && users.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={5} className="py-20">
-                                    <LoadingLogo text="Fetching PiUsers..." />
+                                    <LoadingLogo text="Fetching Users..." />
                                 </TableCell>
                             </TableRow>
                         ) : users.length === 0 ? (
@@ -452,7 +452,7 @@ export default function UsersAdminPage() {
                                 <Input className="rounded-xl" type="email" placeholder="john@example.com" required value={form.email || ""} onChange={e => setForm({ ...form, email: e.target.value })} />
                             </div>
                             <div className="space-y-1.5">
-                                <Label className="text-xs font-semibold text-gray-600">PiPhone</Label>
+                                <Label className="text-xs font-semibold text-gray-600">Phone</Label>
                                 <Input className="rounded-xl" placeholder="+966 5xx xxx xxxx" value={form.phone || ""} onChange={e => setForm({ ...form, phone: e.target.value })} />
                             </div>
                             <div className="space-y-1.5">
@@ -510,7 +510,7 @@ export default function UsersAdminPage() {
                                 <Input className="rounded-xl" type="email" value={form.email || ""} onChange={e => setForm({ ...form, email: e.target.value })} />
                             </div>
                             <div className="space-y-1.5">
-                                <Label className="text-xs font-semibold text-gray-600">PiPhone</Label>
+                                <Label className="text-xs font-semibold text-gray-600">Phone</Label>
                                 <Input className="rounded-xl" value={form.phone || ""} onChange={e => setForm({ ...form, phone: e.target.value })} />
                             </div>
                             <div className="space-y-1.5">
