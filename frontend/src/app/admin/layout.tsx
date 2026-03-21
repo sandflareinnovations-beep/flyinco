@@ -1,5 +1,18 @@
 "use client";
-import { PiShieldCheck, PiBookOpen, PiAirplaneTilt, PiSquaresFour, PiUsers, PiSignOut, PiMegaphone, PiCurrencyDollar, PiTruck } from "react-icons/pi";
+import { 
+    PiShieldCheck, 
+    PiBookOpen, 
+    PiAirplaneTilt, 
+    PiSquaresFour, 
+    PiUsers, 
+    PiSignOut, 
+    PiMegaphone, 
+    PiCurrencyDollar, 
+    PiTruck, 
+    PiIdentificationCard, 
+    PiUserList, 
+    PiGearSix
+} from "react-icons/pi";
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -7,14 +20,34 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-const links = [
-    { href: "/admin", label: "Dashboard", icon: PiSquaresFour, exact: true },
-    { href: "/admin/sectors", label: "Sector Management", icon: PiAirplaneTilt },
-    { href: "/admin/bookings", label: "Bookings", icon: PiBookOpen },
-    { href: "/admin/users", label: "Users", icon: PiUsers },
-    { href: "/admin/accounts", label: "Accounts", icon: PiCurrencyDollar },
-    { href: "/admin/suppliers", label: "Suppliers", icon: PiTruck },
-    { href: "/admin/announcements", label: "Announcements", icon: PiMegaphone },
+const navigation = [
+    {
+        group: "Overview",
+        links: [
+            { href: "/admin", label: "Dashboard", icon: PiSquaresFour, exact: true },
+        ]
+    },
+    {
+        group: "Logistics",
+        links: [
+            { href: "/admin/sectors", label: "Sector Setup", icon: PiAirplaneTilt, exact: false },
+            { href: "/admin/bookings", label: "Operational Bookings", icon: PiBookOpen, exact: false },
+        ]
+    },
+    {
+        group: "Accounting",
+        links: [
+            { href: "/admin/accounts", label: "Agent Accounting", icon: PiCurrencyDollar, exact: false },
+            { href: "/admin/suppliers", label: "Supplier Records", icon: PiTruck, exact: false },
+        ]
+    },
+    {
+        group: "Platform",
+        links: [
+            { href: "/admin/users", label: "User Management", icon: PiUsers, exact: false },
+            { href: "/admin/announcements", label: "Bulletins", icon: PiMegaphone, exact: false },
+        ]
+    }
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -36,61 +69,73 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     };
 
     return (
-        <div className="flex h-screen bg-gray-50 overflow-hidden">
+        <div className="flex h-screen bg-gray-50 overflow-hidden font-sans">
             {/* Sidebar */}
             <aside className="w-64 bg-white border-r border-gray-100 flex flex-col flex-shrink-0 hidden md:flex">
                 {/* Sidebar Header */}
-                <div className="h-[72px] flex items-center px-4 border-b border-gray-100 bg-white">
+                <div className="h-[72px] flex items-center px-6 border-b border-gray-100 bg-white">
                     <Link href="/admin">
                         <Image
                             src="/logo.png"
                             alt="Flyinco"
-                            width={150}
-                            height={50}
-                            className="h-11 w-auto object-contain"
+                            width={130}
+                            height={40}
+                            className="h-9 w-auto object-contain"
                             priority
                         />
                     </Link>
                 </div>
 
                 {/* Nav links */}
-                <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-                    {links.map(({ href, label, icon: Icon, exact }) => {
-                        const active = exact ? pathname === href : pathname.startsWith(href);
-                        return (
-                            <Link
-                                key={href}
-                                href={href}
-                                className={cn(
-                                    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
-                                    active
-                                        ? "text-white shadow-sm"
-                                        : "text-gray-600 hover:bg-purple-50 hover:text-gray-900"
-                                )}
-                                style={active ? { backgroundColor: "#2E0A57" } : {}}
-                            >
-                                <Icon className="h-4 w-4 flex-shrink-0" />
-                                {label}
-                            </Link>
-                        );
-                    })}
+                <nav className="flex-1 p-4 space-y-6 overflow-y-auto custom-scrollbar">
+                    {navigation.map((group) => (
+                        <div key={group.group}>
+                            <p className="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                {group.group}
+                            </p>
+                            <div className="space-y-1">
+                                {group.links.map(({ href, label, icon: Icon, exact }) => {
+                                    const active = exact ? pathname === href : pathname.startsWith(href);
+                                    return (
+                                        <Link
+                                            key={href}
+                                            href={href}
+                                            className={cn(
+                                                "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-200",
+                                                active
+                                                    ? "text-white shadow-md shadow-purple-100"
+                                                    : "text-gray-500 hover:bg-purple-50/50 hover:text-gray-900"
+                                            )}
+                                            style={active ? { backgroundColor: "#2E0A57" } : {}}
+                                        >
+                                            <Icon className={cn(
+                                                "h-[18px] w-[18px] flex-shrink-0 transition-colors",
+                                                active ? "text-white" : "text-gray-400 group-hover:text-purple-600"
+                                            )} />
+                                            {label}
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    ))}
                 </nav>
 
                 {/* Sidebar footer */}
-                <div className="p-3 border-t border-gray-100">
-                    <div className="flex items-center gap-3 px-3 py-2 mb-2">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center font-black text-[10px] text-white" style={{ backgroundColor: "#2E0A57" }}>
+                <div className="p-4 border-t border-gray-100 bg-gray-50/30">
+                    <div className="flex items-center gap-3 px-3 py-2.5 mb-3 bg-white border border-gray-100 rounded-2xl">
+                        <div className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-xs text-white shadow-inner" style={{ backgroundColor: "#2E0A57" }}>
                             {user?.name?.charAt(0) || "A"}
                         </div>
                         <div className="overflow-hidden">
-                            <p className="text-xs font-bold text-gray-800 truncate">{user?.name || "Admin"}</p>
-                            <p className="text-[10px] text-gray-400 truncate">{user?.email || "sabith@flyinco.com"}</p>
+                            <p className="text-xs font-bold text-gray-900 truncate leading-tight">{user?.name || "Sabith Fly"}</p>
+                            <p className="text-[10px] text-gray-400 truncate mt-0.5">{user?.email || "sabith@flyinco.com"}</p>
                         </div>
                     </div>
                     <Button
                         variant="ghost"
                         size="sm"
-                        className="w-full justify-start gap-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-xl"
+                        className="w-full justify-start gap-3 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-xl px-3 py-2 h-10 font-semibold"
                         onClick={handleLogout}
                     >
                         <PiSignOut className="h-4 w-4" />
@@ -100,7 +145,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </aside>
 
             {/* Main content */}
-            <main className="flex-1 overflow-y-auto p-6 md:p-10">
+            <main className="flex-1 overflow-y-auto p-6 md:p-10 lg:p-12">
                 {children}
             </main>
         </div>

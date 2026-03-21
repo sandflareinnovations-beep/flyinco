@@ -48,9 +48,13 @@ export default function AdminAccounts() {
         setIsLoading(true);
         try {
             const data = await flyApi.users.list({ limit: 1000 });
+            console.log("FETCHED AGENTS RAW:", data);
             const list = Array.isArray(data) ? data : (data.users || []);
-            setAgents(list.filter((u: any) => u.role === 'AGENT'));
+            const agentList = list.filter((u: any) => u.role === 'AGENT');
+            console.log("FILTERED AGENTS:", agentList);
+            setAgents(agentList);
         } catch (error: any) {
+            console.error("FETCH AGENTS ERROR:", error);
             toast({ title: "Error", description: error.message, variant: "destructive" });
         } finally { setIsLoading(false); }
     }, [toast]);
@@ -175,22 +179,28 @@ export default function AdminAccounts() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {filteredAgents.map((agent) => (
-                                <TableRow key={agent.id} className={selectedAgent?.id === agent.id ? "bg-purple-50" : ""}>
+                            {filteredAgents.length > 0 ? filteredAgents.map((agent) => (
+                                <TableRow key={agent.id} className={selectedAgent?.id === agent.id ? "bg-purple-50" : "hover:bg-gray-50 transition-colors"}>
                                     <TableCell>
-                                        <p className="font-bold text-gray-800">{agent.name}</p>
-                                        <p className="text-[10px] text-gray-400">{agent.agencyName || 'No Agency'}</p>
+                                        <p className="font-bold text-gray-800 tracking-tight">{agent.name}</p>
+                                        <p className="text-[10px] text-gray-400 font-medium uppercase">{agent.agencyName || 'INDIVIDUAL AGENT'}</p>
                                     </TableCell>
                                     <TableCell className="text-right font-black text-red-600">
-                                        SAR {agent.pendingDues?.toLocaleString() || 0}
+                                        SAR {(agent.pendingDues || 0).toLocaleString()}
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <Button variant="ghost" size="sm" onClick={() => fetchLedger(agent)}>
+                                        <Button variant="ghost" size="sm" className="rounded-md hover:bg-white hover:shadow-sm" onClick={() => fetchLedger(agent)}>
                                             <PiCaretRight className="h-4 w-4" />
                                         </Button>
                                     </TableCell>
                                 </TableRow>
-                            ))}
+                            )) : (
+                                <TableRow>
+                                    <TableCell colSpan={3} className="h-32 text-center text-gray-400 font-medium italic">
+                                        No agents found in results.
+                                    </TableCell>
+                                </TableRow>
+                            )}
                         </TableBody>
                     </Table>
                 </Card>
