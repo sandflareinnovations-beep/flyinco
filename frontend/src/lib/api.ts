@@ -235,11 +235,13 @@ export const flyApi = {
         }
     },
     bookings: {
-        list: async (params?: { page?: number; limit?: number; search?: string }): Promise<any> => {
+        list: async (params?: { page?: number; limit?: number; search?: string; agent?: string; phone?: string }): Promise<any> => {
             const query = new URLSearchParams();
             if (params?.page) query.append('page', params.page.toString());
             if (params?.limit) query.append('limit', params.limit.toString());
             if (params?.search) query.append('search', params.search);
+            if (params?.agent) query.append('agent', params.agent);
+            if (params?.phone) query.append('phone', params.phone);
             
             const data = await fetchWithCreds(`/bookings?${query.toString()}`);
             
@@ -284,16 +286,18 @@ export const flyApi = {
                 route: d.route,
             }));
 
-            if (params?.page || params?.limit || params?.search) {
+            if (params?.page || params?.limit || params?.search || params?.agent || params?.phone) {
                 return { ...data, bookings: mapped };
             }
             return mapped;
         },
-        listPaginated: async (params: { page: number; limit: number; search?: string }): Promise<any> => {
+        listPaginated: async (params: { page: number; limit: number; search?: string; agent?: string; phone?: string }): Promise<any> => {
             const query = new URLSearchParams();
             query.append('page', params.page.toString());
             query.append('limit', params.limit.toString());
             if (params.search) query.append('search', params.search);
+            if (params.agent) query.append('agent', params.agent);
+            if (params.phone) query.append('phone', params.phone);
             
             const data = await fetchWithCreds(`/bookings?${query.toString()}`);
             const bookingsArray = data.bookings || [];

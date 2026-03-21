@@ -287,8 +287,8 @@ export class BookingsService {
     return booking;
   }
 
-  async findAll(user: any, query: { page?: number; limit?: number; search?: string } = {}) {
-    const { page = 1, limit = 50, search = '' } = query;
+  async findAll(user: any, query: { page?: number; limit?: number; search?: string; agent?: string; phone?: string } = {}) {
+    const { page = 1, limit = 50, search = '', agent = '', phone = '' } = query;
     const skip = (page - 1) * limit;
     const take = Number(limit);
 
@@ -305,6 +305,14 @@ export class BookingsService {
           { route: { origin: { contains: search, mode: 'insensitive' } } },
           { route: { destination: { contains: search, mode: 'insensitive' } } },
         ];
+      }
+
+      if (agent) {
+        where.agentDetails = { contains: agent, mode: 'insensitive' };
+      }
+
+      if (phone) {
+        where.phone = { contains: phone, mode: 'insensitive' };
       }
 
       const [bookings, total] = await Promise.all([

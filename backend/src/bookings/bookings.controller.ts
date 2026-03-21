@@ -111,8 +111,10 @@ export class BookingsController {
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('search') search?: string,
+    @Query('agent') agent?: string,
+    @Query('phone') phone?: string,
   ) {
-    return this.bookingsService.findAll(req.user, { page, limit, search });
+    return this.bookingsService.findAll(req.user, { page, limit, search, agent, phone });
   }
 
   // ── User/Admin: view one booking ──

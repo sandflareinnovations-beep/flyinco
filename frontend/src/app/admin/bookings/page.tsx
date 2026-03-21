@@ -28,8 +28,8 @@ const STATUS_STYLES: Record<string, string> = {
     PENDING: "bg-amber-50 text-amber-700 border-amber-200",
 };
 
-async function fetchBookings({ page = 1, limit = 50, search = '' }) {
-    return await flyApi.bookings.listPaginated({ page, limit, search });
+async function fetchBookings({ page = 1, limit = 50, search = '', agent = '', phone = '' }) {
+    return await flyApi.bookings.listPaginated({ page, limit, search, agent, phone });
 }
 
 async function fetchMetrics() {
@@ -47,6 +47,7 @@ export default function AdminBookings() {
     const { toast } = useToast();
     const qc = useQueryClient();
     const [search, setSearch] = useState("");
+    const [searchType, setSearchType] = useState("all");
     const [page, setPage] = useState(1);
     const limit = 50;
     const [selected, setSelected] = useState<any>(null);
@@ -111,8 +112,14 @@ export default function AdminBookings() {
     });
 
     const { data: bookingData, isLoading, refetch, isError } = useQuery({
-        queryKey: ["admin-bookings", page, search],
-        queryFn: () => fetchBookings({ page, limit, search }),
+        queryKey: ["admin-bookings", page, search, searchType],
+        queryFn: () => fetchBookings({ 
+            page, 
+            limit, 
+            search: searchType === "all" ? search : "",
+            agent: searchType === "agent" ? search : "",
+            phone: searchType === "phone" ? search : ""
+        }),
     });
 
     const bookings = bookingData?.bookings || [];
@@ -311,17 +318,33 @@ export default function AdminBookings() {
                     >
                         <PiStar className="h-4 w-4" /> Bulk Import
                     </Button>
-                    <div className="relative flex-1 min-w-[220px]">
-                        <PiMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                        <Input
-                            placeholder="PiMagnifyingGlass name, email, phone..."
-                            className="pl-9 rounded-xl border-gray-200 focus-visible:ring-violet-400 text-sm"
-                            value={search}
-                        onChange={e => {
-                            setSearch(e.target.value);
-                            setPage(1);
-                        }}
-                        />
+                    <div className="flex items-center gap-2 flex-1 min-w-[300px]">
+                        <Select value={searchType} onValueChange={v => { setSearchType(v); setPage(1); }}>
+                            <SelectTrigger className="w-[120px] rounded-xl border-gray-200 focus:ring-violet-400 text-xs h-10">
+                                <SelectValue placeholder="Search By" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Fields</SelectItem>
+                                <SelectItem value="agent">Agent Name</SelectItem>
+                                <SelectItem value="phone">Phone Number</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <div className="relative flex-1">
+                            <PiMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <Input
+                                placeholder={
+                                    searchType === "agent" ? "Enter agent name..." :
+                                    searchType === "phone" ? "Enter phone number..." :
+                                    "Search name, email, PNR..."
+                                }
+                                className="pl-9 rounded-xl border-gray-200 focus-visible:ring-violet-400 text-sm h-10"
+                                value={search}
+                                onChange={e => {
+                                    setSearch(e.target.value);
+                                    setPage(1);
+                                }}
+                            />
+                        </div>
                     </div>
                     <Button variant="outline" size="sm" className="rounded-xl gap-1.5" onClick={() => refetch()}>
                         <PiStar className="h-3.5 w-3.5" /> Refresh
