@@ -44,15 +44,26 @@ export default function AdminAccounts() {
     const [formData, setFormData] = useState({ amount: "", type: "PAYMENT", reference: "", notes: "" });
     const { toast } = useToast();
 
+    const [metricsMap, setMetricsMap] = useState<Record<string, any>>({});
+
     const fetchAgents = useCallback(async () => {
         setIsLoading(true);
         try {
-            const data = await flyApi.users.list({ limit: 1000 });
-            console.log("FETCHED AGENTS RAW:", data);
+            const [data, metricsData] = await Promise.all([
+                flyApi.users.list({ limit: 1000 }),
+                flyApi.bookings.getMetrics()
+            ]);
             const list = Array.isArray(data) ? data : (data.users || []);
             const agentList = list.filter((u: any) => u.role === 'AGENT');
-            console.log("FILTERED AGENTS:", agentList);
             setAgents(agentList);
+
+            // Build a lookup map from metrics agentPerformance
+            const perfMap: Record<string, any> = {};
+            const agentPerf = metricsData?.agentPerformance || [];
+            for (const perf of agentPerf) {
+                perfMap[perf.name.trim().toUpperCase()] = perf;
+            }
+            setMetricsMap(perfMap);
         } catch (error: any) {
             console.error("FETCH AGENTS ERROR:", error);
             toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -72,15 +83,40 @@ export default function AdminAccounts() {
         setSelectedAgent(agent);
         setLoadingLedger(true);
         try {
-            const [bookingsRes, paymentsRes] = await Promise.all([
-                flyApi.bookings.list({ limit: 1000, agent: agent.name || agent.agencyName }),
-                flyApi.payments.byAgent(agent.id)
+            // Fetch bookings by BOTH name AND agencyName, then merge + deduplicate
+            const fetchPromises: Promise<any>[] = [];
+
+            // Primary: fetch by agent name
+            if (agent.name) {
+                fetchPromises.push(flyApi.bookings.list({ limit: 5000, agent: agent.name }));
+            }
+            // Secondary: fetch by agency name (if different from name)
+            if (agent.agencyName && agent.agencyName.toLowerCase() !== agent.name?.toLowerCase()) {
+                fetchPromises.push(flyApi.bookings.list({ limit: 5000, agent: agent.agencyName }));
+            }
+
+            const [paymentsRes, ...bookingResults] = await Promise.all([
+                flyApi.payments.byAgent(agent.id),
+                ...fetchPromises
             ]);
-            
-            const bookings = Array.isArray(bookingsRes) ? bookingsRes : (bookingsRes.bookings || []);
-            setAgentLedger(bookings);
-            setAgentPayments(paymentsRes);
+
+            // Merge and deduplicate bookings by ID
+            const allBookings: any[] = [];
+            const seenIds = new Set<string>();
+            for (const res of bookingResults) {
+                const bookings = Array.isArray(res) ? res : (res.bookings || []);
+                for (const b of bookings) {
+                    if (!seenIds.has(b.id)) {
+                        seenIds.add(b.id);
+                        allBookings.push(b);
+                    }
+                }
+            }
+
+            setAgentLedger(allBookings);
+            setAgentPayments(Array.isArray(paymentsRes) ? paymentsRes : []);
         } catch (error: any) {
+            console.error("Ledger fetch error:", error);
             toast({ title: "Error fetching ledger", description: error.message, variant: "destructive" });
         } finally { setLoadingLedger(false); }
     };
@@ -199,16 +235,27 @@ export default function AdminAccounts() {
                         </TableHeader>
                         <TableBody>
                             {filteredAgents.length > 0 ? filteredAgents.map((agent) => (
-                                <TableRow key={agent.id} className={selectedAgent?.id === agent.id ? "bg-purple-50" : "hover:bg-gray-50 transition-colors"}>
+                                <TableRow key={agent.id} className={selectedAgent?.id === agent.id ? "bg-purple-50" : "hover:bg-gray-50 transition-colors cursor-pointer"} onClick={() => fetchLedger(agent)}>
                                     <TableCell>
                                         <p className="font-bold text-gray-800 tracking-tight">{agent.name}</p>
                                         <p className="text-[10px] text-gray-400 font-medium uppercase">{agent.agencyName || 'INDIVIDUAL AGENT'}</p>
                                     </TableCell>
-                                    <TableCell className="text-right font-black text-red-600">
-                                        SAR {(agent.pendingDues || 0).toLocaleString()}
+                                    <TableCell className="text-right">
+                                        {(() => {
+                                            // Look up live metrics by BOTH name and agencyName
+                                            const nameKey = (agent.name || '').trim().toUpperCase();
+                                            const agencyKey = (agent.agencyName || '').trim().toUpperCase();
+                                            const perf = metricsMap[nameKey] || metricsMap[agencyKey];
+                                            const liveUnpaid = perf?.unpaid ?? agent.pendingDues ?? 0;
+                                            return (
+                                                <span className={`font-black ${liveUnpaid > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+                                                    SAR {liveUnpaid.toLocaleString()}
+                                                </span>
+                                            );
+                                        })()}
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <Button variant="ghost" size="sm" className="rounded-md hover:bg-white hover:shadow-sm" onClick={() => fetchLedger(agent)}>
+                                        <Button variant="ghost" size="sm" className="rounded-md hover:bg-white hover:shadow-sm" onClick={(e) => { e.stopPropagation(); fetchLedger(agent); }}>
                                             <PiCaretRight className="h-4 w-4" />
                                         </Button>
                                     </TableCell>
@@ -244,14 +291,21 @@ export default function AdminAccounts() {
                                     </div>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="grid grid-cols-2 gap-4 mb-6">
+                                    <div className="grid grid-cols-3 gap-3 mb-6">
                                         <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
                                             <p className="text-[10px] font-black text-gray-400 uppercase">Total Sales</p>
                                             <p className="text-lg font-black text-gray-800">SAR {totalSalesRec.toLocaleString()}</p>
+                                            <p className="text-[9px] text-gray-400">{agentLedger.length} bookings</p>
+                                        </div>
+                                        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-100">
+                                            <p className="text-[10px] font-black text-emerald-400 uppercase">Total Paid</p>
+                                            <p className="text-lg font-black text-emerald-600">SAR {totalPaymentsRec.toLocaleString()}</p>
+                                            <p className="text-[9px] text-emerald-400">{agentPayments.length} payments</p>
                                         </div>
                                         <div className="p-4 rounded-xl bg-red-50 border border-red-100">
-                                            <p className="text-[10px] font-black text-red-400 uppercase">Total Dues</p>
-                                            <p className="text-lg font-black text-red-600">SAR {dynamicDues.toLocaleString()}</p>
+                                            <p className="text-[10px] font-black text-red-400 uppercase">Balance Due</p>
+                                            <p className={`text-lg font-black ${dynamicDues > 0 ? 'text-red-600' : 'text-emerald-600'}`}>SAR {dynamicDues.toLocaleString()}</p>
+                                            <p className="text-[9px] text-red-400">{dynamicDues > 0 ? 'Outstanding' : 'Settled'}</p>
                                         </div>
                                     </div>
 

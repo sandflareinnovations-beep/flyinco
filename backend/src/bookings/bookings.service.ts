@@ -330,36 +330,60 @@ export class BookingsService {
     const where: any = {};
 
     if (user.role === 'ADMIN') {
+      // Use AND array to combine conditions without overwriting
+      const andConditions: any[] = [];
+
       if (search) {
-        where.OR = [
-          { passengerName: { contains: search, mode: 'insensitive' } },
-          { email: { contains: search, mode: 'insensitive' } },
-          { phone: { contains: search, mode: 'insensitive' } },
-          { pnr: { contains: search, mode: 'insensitive' } },
-          { agentDetails: { contains: search, mode: 'insensitive' } },
-          { route: { origin: { contains: search, mode: 'insensitive' } } },
-          { route: { destination: { contains: search, mode: 'insensitive' } } },
-        ];
+        andConditions.push({
+          OR: [
+            { passengerName: { contains: search, mode: 'insensitive' } },
+            { email: { contains: search, mode: 'insensitive' } },
+            { phone: { contains: search, mode: 'insensitive' } },
+            { pnr: { contains: search, mode: 'insensitive' } },
+            { agentDetails: { contains: search, mode: 'insensitive' } },
+            { route: { origin: { contains: search, mode: 'insensitive' } } },
+            { route: { destination: { contains: search, mode: 'insensitive' } } },
+          ]
+        });
       }
 
       if (agent) {
-        // Try to find if this agent name matches a user ID to be more inclusive
+        // Find the agent user record to get ALL possible identifiers
         const agentUser = await this.prisma.user.findFirst({
-          where: { OR: [{ name: agent }, { agencyName: agent }] }
+          where: { OR: [
+            { name: { contains: agent, mode: 'insensitive' } },
+            { agencyName: { contains: agent, mode: 'insensitive' } }
+          ]}
         });
-        
-        where.OR = [
+
+        const agentOrConditions: any[] = [
           { agentDetails: { contains: agent, mode: 'insensitive' } },
-          ...(agentUser ? [{ userId: agentUser.id }] : [])
         ];
+
+        // If we matched a user, also search by their other identifiers and userId
+        if (agentUser) {
+          agentOrConditions.push({ userId: agentUser.id });
+          if (agentUser.name && agentUser.name.toLowerCase() !== agent.toLowerCase()) {
+            agentOrConditions.push({ agentDetails: { contains: agentUser.name, mode: 'insensitive' } });
+          }
+          if (agentUser.agencyName && agentUser.agencyName.toLowerCase() !== agent.toLowerCase()) {
+            agentOrConditions.push({ agentDetails: { contains: agentUser.agencyName, mode: 'insensitive' } });
+          }
+        }
+
+        andConditions.push({ OR: agentOrConditions });
       }
 
       if (phone) {
-        where.phone = { contains: phone, mode: 'insensitive' };
+        andConditions.push({ phone: { contains: phone, mode: 'insensitive' } });
       }
 
       if (supplier) {
-        where.supplier = { contains: supplier, mode: 'insensitive' };
+        andConditions.push({ supplier: { contains: supplier, mode: 'insensitive' } });
+      }
+
+      if (andConditions.length > 0) {
+        where.AND = andConditions;
       }
 
       const [bookings, total] = await Promise.all([
