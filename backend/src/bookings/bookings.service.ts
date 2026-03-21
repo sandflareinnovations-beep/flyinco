@@ -308,7 +308,15 @@ export class BookingsService {
       }
 
       if (agent) {
-        where.agentDetails = { contains: agent, mode: 'insensitive' };
+        // Try to find if this agent name matches a user ID to be more inclusive
+        const agentUser = await this.prisma.user.findFirst({
+          where: { OR: [{ name: agent }, { agencyName: agent }] }
+        });
+        
+        where.OR = [
+          { agentDetails: { contains: agent, mode: 'insensitive' } },
+          ...(agentUser ? [{ userId: agentUser.id }] : [])
+        ];
       }
 
       if (phone) {

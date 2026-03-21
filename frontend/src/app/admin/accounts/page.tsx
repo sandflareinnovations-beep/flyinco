@@ -123,7 +123,14 @@ export default function AdminAccounts() {
             ...agentLedger.map(b => ({
                 Date: format(new Date(b.createdAt), 'dd-MM-yyyy'),
                 Type: 'BOOKING',
-                Description: `${b.passengerName} (${b.pnr})`,
+                Passenger: b.passengerName,
+                Airline: b.airline || 'N/A',
+                Sector: b.sector || 'N/A',
+                PNR: b.pnr || 'N/A',
+                Travel_Date: b.travelDate ? format(new Date(b.travelDate), 'dd-MM-yyyy') : 'N/A',
+                Passport: b.passportNumber || 'N/A',
+                Nationality: b.nationality || 'N/A',
+                Phone: b.phone || 'N/A',
                 Debit: b.sellingPrice || 0,
                 Credit: 0,
                 Status: b.paymentStatus
@@ -131,7 +138,14 @@ export default function AdminAccounts() {
             ...agentPayments.map(p => ({
                 Date: format(new Date(p.createdAt), 'dd-MM-yyyy'),
                 Type: p.type,
-                Description: p.reference || 'N/A',
+                Passenger: 'N/A',
+                Airline: 'N/A',
+                Sector: 'N/A',
+                PNR: 'N/A',
+                Travel_Date: 'N/A',
+                Passport: 'N/A',
+                Nationality: 'N/A',
+                Phone: 'N/A',
                 Debit: 0,
                 Credit: p.amount,
                 Status: 'PAID'
@@ -141,7 +155,7 @@ export default function AdminAccounts() {
         const ws = XLSX.utils.json_to_sheet(data);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Ledger");
-        XLSX.writeFile(wb, `${selectedAgent.name}_Ledger.xlsx`);
+        XLSX.writeFile(wb, `${selectedAgent.name}_Reports.xlsx`);
     };
 
     if (isLoading) return <LoadingLogo fullPage text="Loading Financial Records..." />;
@@ -254,10 +268,13 @@ export default function AdminAccounts() {
                                                             </div>
                                                             <div>
                                                                 <p className="text-sm font-bold text-gray-800">
-                                                                    {item.itemType === 'BOOKING' ? item.passengerName : (item.type === 'DUES' ? 'Credit Note / Manual Dues' : 'Payment Received')}
+                                                                    {item.itemType === 'BOOKING' ? `${item.passengerName} - ${item.airline || ''} (${item.sector || ''})` : (item.type === 'DUES' ? 'Credit Note / Manual Dues' : 'Payment Received')}
                                                                 </p>
                                                                 <p className="text-[10px] text-gray-400">
-                                                                    {format(new Date(item.createdAt), 'dd MMM yyyy')} | {item.itemType === 'BOOKING' ? (item.pnr || 'NO PNR') : (item.reference || 'No Ref')}
+                                                                    {format(new Date(item.createdAt), 'dd MMM yyyy')} | 
+                                                                    {item.itemType === 'BOOKING' 
+                                                                        ? `${item.pnr || 'NO PNR'} | Travel: ${item.travelDate ? format(new Date(item.travelDate), 'dd MMM') : 'N/A'}` 
+                                                                        : (item.reference || 'No Ref')}
                                                                 </p>
                                                             </div>
                                                         </div>
