@@ -8,8 +8,10 @@ import {
     PieChart, Pie, Cell, CartesianGrid
 } from 'recharts';
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plane, Users, DollarSign, Activity, TrendingUp, Calendar } from "lucide-react";
+import { Plane, Users, DollarSign, Activity, TrendingUp, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { useState } from "react";
+import { startOfMonth, endOfMonth, eachDayOfInterval, format, isSameMonth, isToday, startOfWeek, endOfWeek, addMonths, subMonths } from "date-fns";
 import { LoadingLogo } from "@/components/ui/loading-logo";
 
 const statCards = (totalRevenue: number, totalProfit: number, totalBookings: number, seatsSold: number, remainingSeats: number, totalUnpaidDues: number, topAgent: string) => [
@@ -22,6 +24,14 @@ const statCards = (totalRevenue: number, totalProfit: number, totalBookings: num
 ];
 
 export default function AdminDashboard() {
+    const [currentMonth, setCurrentMonth] = useState(new Date());
+
+    const monthStart = startOfMonth(currentMonth);
+    const monthEnd = endOfMonth(currentMonth);
+    const startDate = startOfWeek(monthStart, { weekStartsOn: 1 });
+    const endDate = endOfWeek(monthEnd, { weekStartsOn: 1 });
+    const calendarDays = eachDayOfInterval({ start: startDate, end: endDate });
+    const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     const { data: metricsData, isLoading: loadingMetrics } = useQuery({
         queryKey: ["admin-metrics"],
         queryFn: () => flyApi.bookings.getMetrics(),
@@ -42,7 +52,23 @@ export default function AdminDashboard() {
     const agentPerformance = metricsData?.agentPerformance || [];
     const topAgent = agentPerformance.length > 0 ? agentPerformance[0].name : "None";
 
+
     const sectorList = Array.isArray(sectors) ? sectors : (sectors?.routes || []);
+    
+    // Group flights by day for calendar
+    const flightsByDate = sectorList.reduce((acc: any, s: any) => {
+        if (!s.departureDate) return acc;
+        try {
+            const d = new Date(s.departureDate);
+            if (!isNaN(d.getTime())) {
+                const key = format(d, 'yyyy-MM-dd');
+                if (!acc[key]) acc[key] = [];
+                acc[key].push(s);
+            }
+        } catch (e) {}
+        return acc;
+    }, {});
+
     const seatsSold = sectorList.reduce((acc: number, s: any) => acc + (s.soldSeats || 0) + (s.heldSeats || 0), 0);
     const remainingSeats = sectorList.reduce((acc: number, s: any) => acc + (s.remainingSeats || 0), 0);
 
@@ -92,73 +118,60 @@ export default function AdminDashboard() {
                 )}
             </div>
 
-            {/* Charts Row 1: Seats & Inventory */}
-            <div className="grid gap-6 md:grid-cols-2">
-                <Card className="border-gray-100 shadow-sm overflow-hidden flex flex-col">
+            {/* Charts Row 1: Flights Calendar & Inventory */}
+            <div className="grid gap-6 md:grid-cols-3">
+                <Card className="border-gray-100 shadow-sm overflow-hidden flex flex-col md:col-span-2 h-full">
                     <CardHeader className="pb-3 border-b border-gray-50 bg-gray-50/30">
-                        <CardTitle className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-md bg-violet-100 flex items-center justify-center">
-                                <Calendar className="h-3.5 w-3.5 text-violet-600" />
+                        <div className="flex items-center justify-between">
+                            <CardTitle className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-md bg-violet-100 flex items-center justify-center">
+                                    <Calendar className="h-3.5 w-3.5 text-violet-600" />
+                                </div>
+                                Travel Calendar
+                            </CardTitle>
+                            <div className="flex items-center gap-2 bg-white rounded-lg p-1 border border-gray-100 shadow-sm">
+                                <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1 hover:bg-gray-100 rounded-md transition-colors"><ChevronLeft className="h-4 w-4 text-gray-500" /></button>
+                                <span className="text-xs font-black w-24 text-center text-gray-800 uppercase tracking-widest">{format(currentMonth, 'MMM yyyy')}</span>
+                                <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-1 hover:bg-gray-100 rounded-md transition-colors"><ChevronRight className="h-4 w-4 text-gray-500" /></button>
                             </div>
-                            Travel Calendar
-                        </CardTitle>
+                        </div>
                     </CardHeader>
-                    <CardContent className="flex-1 p-0 h-[280px] overflow-y-auto w-full custom-scrollbar">
-                        <div className="p-4 space-y-4">
-                            {Object.entries(sectorList.reduce((acc: any, s: any) => {
-                                const date = s.departureDate || 'Unscheduled';
-                                if (!acc[date]) acc[date] = [];
-                                acc[date].push(s);
-                                return acc;
-                            }, {})).sort((a: any, b: any) => {
-                                if (a[0] === 'Unscheduled') return 1;
-                                if (b[0] === 'Unscheduled') return -1;
-                                return new Date(a[0]).getTime() - new Date(b[0]).getTime();
-                            }).map(([date, flights]: any, i) => (
-                                <div key={i} className="flex flex-col gap-2.5">
-                                    <div className="text-[11px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2 sticky top-0 bg-white/95 backdrop-blur py-1 z-10 border-b border-gray-100 pr-2">
-                                        <Calendar className="h-3 w-3 text-violet-400" />
-                                        {date !== 'Unscheduled' ? new Date(date).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Unscheduled Fares'}
-                                    </div>
-                                    <div className="space-y-2">
-                                        {flights.map((s: any, idx: number) => (
-                                            <div key={idx} className="group flex flex-col sm:flex-row sm:items-center justify-between gap-y-3 gap-x-4 bg-white p-3.5 rounded-xl border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:border-violet-200 hover:shadow-md transition-all">
-                                                <div className="flex items-center gap-3 w-full sm:w-auto">
-                                                    <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0 border border-indigo-100/50">
-                                                        <Plane className="h-4 w-4 text-indigo-600 drop-shadow-sm" />
-                                                    </div>
-                                                    <div>
-                                                        <div className="font-black text-gray-900 text-[15px] flex items-center gap-2 tracking-tight">
-                                                            {s.originCode} <span className="text-gray-300 font-medium">→</span> {s.destinationCode}
-                                                        </div>
-                                                        <div className="text-[11px] text-gray-500 font-semibold mt-0.5 flex items-center gap-1.5 opacity-80">
-                                                            <span>{s.airline}</span>
-                                                            <span className="w-1 h-1 rounded-full bg-gray-300" />
-                                                            <span>{s.flightNumber}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-center gap-2 w-full sm:w-auto self-end sm:self-auto">
-                                                    <span className="text-[10px] font-bold text-gray-600 bg-gray-50 border border-gray-200 px-2 py-1.5 rounded uppercase">
-                                                        {s.departureTime || "--:--"}
-                                                    </span>
-                                                    <span className="text-[10px] font-black tracking-wider text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1.5 rounded uppercase shadow-sm">
-                                                        {s.remainingSeats} Left
-                                                    </span>
-                                                </div>
+                    <CardContent className="flex-1 p-0 custom-scrollbar">
+                        <div className="p-4 bg-gray-50/10 min-h-[300px]">
+                            <div className="grid grid-cols-7 gap-1 mb-2">
+                                {weekDays.map(day => (
+                                    <div key={day} className="text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">{day}</div>
+                                ))}
+                            </div>
+                            <div className="grid grid-cols-7 gap-1.5">
+                                {calendarDays.map((day, i) => {
+                                    const dayKey = format(day, 'yyyy-MM-dd');
+                                    const dayFlights = flightsByDate[dayKey] || [];
+                                    const isCurrentMonth = isSameMonth(day, currentMonth);
+                                    const isTodayDate = isToday(day);
+
+                                    return (
+                                        <div key={i} className={`min-h-[85px] p-2 rounded-xl border transition-all ${isCurrentMonth ? 'bg-white border-gray-100' : 'bg-gray-50/30 border-transparent opacity-50'} ${isTodayDate ? 'ring-2 ring-violet-500 ring-offset-1 border-transparent shadow-sm' : 'hover:border-violet-200'}`}>
+                                            <div className={`text-xs font-black mb-1.5 ${isTodayDate ? 'text-violet-600' : 'text-gray-700'}`}>
+                                                {format(day, 'd')}
                                             </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                            {sectorList.length === 0 && (
-                                <div className="text-center text-sm font-medium text-gray-400 py-16 flex flex-col items-center justify-center gap-3 bg-gray-50 rounded-2xl border border-gray-100 border-dashed">
-                                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
-                                        <Calendar className="h-5 w-5 text-gray-300" />
-                                    </div>
-                                    <p>No scheduled flights available</p>
-                                </div>
-                            )}
+                                            <div className="space-y-1.5 max-h-[140px] overflow-y-auto no-scrollbar">
+                                                {dayFlights.map((f: any, idx: number) => (
+                                                    <div key={idx} className="flex flex-col gap-0.5 bg-indigo-50/50 p-1.5 rounded-lg border border-indigo-100/30 hover:bg-indigo-50 transition-colors cursor-default" title={`${f.originCode} to ${f.destinationCode} | ${f.remainingSeats} Seats Left`}>
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="text-[10px] font-black text-indigo-900 tracking-tight">{f.originCode}<span className="text-indigo-300 font-normal mx-0.5">→</span>{f.destinationCode}</span>
+                                                        </div>
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="text-[9px] font-bold text-indigo-500">{f.departureTime || "--:--"}</span>
+                                                            <span className="text-[8px] font-black bg-indigo-100 text-indigo-700 px-1 rounded">{f.remainingSeats}L</span>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
