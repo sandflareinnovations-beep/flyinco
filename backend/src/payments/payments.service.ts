@@ -5,6 +5,13 @@ import { PrismaService } from '../prisma/prisma.service';
 export class PaymentsService {
   constructor(private prisma: PrismaService) {}
 
+  async findByAgent(agentId: string) {
+    return this.prisma.payment.findMany({
+      where: { agentId },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
   async create(data: any) {
     const payment = await this.prisma.payment.create({ data });
     if (data.type === 'PAYMENT' && payment.status === 'COMPLETED') {
