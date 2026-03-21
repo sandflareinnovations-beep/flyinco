@@ -255,21 +255,19 @@ export function BookingReceipt({ booking, onClose, autoPrint = false }: BookingR
                     )}
 
                     {/* Booking Reference */}
-                    <div className={`grid ${booking.isNew && (!booking.ticketNumber || booking.ticketNumber === 'NOT ISSUED') ? 'grid-cols-1' : 'grid-cols-2'} gap-4 mb-6`}>
+                    <div className="grid grid-cols-2 gap-4 mb-6">
                         <div className="bg-[#f0f4ff] p-4 rounded-xl border border-blue-100 flex flex-col items-center justify-center">
                             <p className="text-[9px] text-blue-500 uppercase font-black mb-1 text-center">PNR / Reservation Code</p>
                             <p className="text-xl font-black font-mono text-blue-900 tracking-wider">
                                 {booking.pnr || "PENDING"}
                             </p>
                         </div>
-                        {!(booking.isNew && (!booking.ticketNumber || booking.ticketNumber === 'NOT ISSUED')) && (
-                            <div className="bg-[#f0f4ff] p-4 rounded-xl border border-blue-100 flex flex-col items-center justify-center">
-                                <p className="text-[9px] text-blue-500 uppercase font-black mb-1 text-center">Ticket Number</p>
-                                <p className="text-xl font-black font-mono text-blue-900 tracking-wider">
-                                    {booking.ticketNumber || "NOT ISSUED"}
-                                </p>
-                            </div>
-                        )}
+                        <div className="bg-[#f0f4ff] p-4 rounded-xl border border-blue-100 flex flex-col items-center justify-center">
+                            <p className="text-[9px] text-blue-500 uppercase font-black mb-1 text-center">Ticket Number</p>
+                            <p className="text-xl font-black font-mono text-blue-900 tracking-wider">
+                                {booking.ticketNumber && booking.ticketNumber !== 'NOT ISSUED' ? booking.ticketNumber : "CNF"}
+                            </p>
+                        </div>
                     </div>
 
                     {booking.refNo && (
