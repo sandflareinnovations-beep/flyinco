@@ -13,6 +13,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { format } from "date-fns";
+import * as XLSX from "xlsx";
 
 import { useState } from "react";
 import { BookingReceipt } from "@/components/admin/booking-receipt";
@@ -189,7 +191,7 @@ export default function AdminBookings() {
             return res.json();
         },
         onSuccess: () => {
-            toast({ title: "PiStar sent successfully!" });
+            toast({ title: "Ticket sent successfully!" });
             setTicketFile(null);
         },
         onError: () => toast({ title: "Error", description: "Failed to send ticket.", variant: "destructive" }),
@@ -278,6 +280,33 @@ export default function AdminBookings() {
         }),
     });
 
+    const handleExportAll = () => {
+        const data = bookings.map((b: any) => ({
+            ID: b.id,
+            Date: b.createdAt ? format(new Date(b.createdAt), 'dd-MM-yyyy') : 'N/A',
+            Passenger: b.passengerName,
+            Passport: b.passportNumber || 'N/A',
+            Phone: b.phone || 'N/A',
+            Email: b.email || 'N/A',
+            PNR: b.pnr || 'N/A',
+            Ticket: b.ticketNumber || 'N/A',
+            Airline: b.airline || b.route?.airline || 'N/A',
+            Sector: b.sector || (b.route ? `${b.route.origin}-${b.route.destination}` : 'N/A'),
+            Travel_Date: b.travelDate ? format(new Date(b.travelDate), 'dd-MM-yyyy') : (b.route?.departureDate ? format(new Date(b.route.departureDate), 'dd-MM-yyyy') : 'N/A'),
+            Agent: b.agentDetails || 'N/A',
+            Status: b.status,
+            Payment: b.paymentStatus,
+            Sale_Price: b.sellingPrice || b.route?.price || 0,
+            Net_Price: b.purchasePrice || 0,
+            Profit: b.profit || 0
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "All_Bookings");
+        XLSX.writeFile(wb, `Flyinco_Bookings_Report.xlsx`);
+    };
+
     const filtered = bookings; // Server-side filtered already
 
     // Metrics from server
@@ -317,6 +346,13 @@ export default function AdminBookings() {
                         onClick={() => setShowBulkImport(true)}
                     >
                         <PiStar className="h-4 w-4" /> Bulk Import
+                    </Button>
+                    <Button 
+                        variant="outline"
+                        className="border-blue-200 text-blue-700 hover:bg-blue-50 rounded-xl gap-1.5"
+                        onClick={handleExportAll}
+                    >
+                        <PiStar className="h-4 w-4" /> Export Report
                     </Button>
                     <div className="flex items-center gap-2 flex-1 min-w-[300px]">
                         <Select value={searchType} onValueChange={v => { setSearchType(v); setPage(1); }}>
@@ -773,9 +809,8 @@ export default function AdminBookings() {
                                     </div>
                                 </div>
 
-                                {/* Send PDF PiStar */}
                                 <div className="space-y-2 bg-gray-50 p-4 rounded-xl border border-gray-100">
-                                    <Label className="text-xs font-bold text-gray-500">Upload PiStar & Send Email</Label>
+                                    <Label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Upload Ticket & Send Email</Label>
                                     <div className="flex flex-col gap-3">
                                         <Input
                                             type="file"
@@ -793,7 +828,7 @@ export default function AdminBookings() {
                                             }}
                                         >
                                             <PiStar className="w-4 h-4 mr-1.5" />
-                                            {sendTicketMutation.isPending ? "Sending..." : "Send PiStar"}
+                                            {sendTicketMutation.isPending ? "Sending..." : "Send Ticket"}
                                         </Button>
                                     </div>
                                 </div>
@@ -871,7 +906,7 @@ export default function AdminBookings() {
                                             </div>
                                         </div>
                                         <div className="space-y-1.5">
-                                            <Label className="text-[10px] font-bold text-gray-400 uppercase">Rating Number</Label>
+                                            <Label className="text-[10px] font-bold text-gray-400 uppercase">Ticket Number</Label>
                                             <Input 
                                                 className="h-8 rounded-lg text-sm font-mono"
                                                 placeholder="Tkt No"

@@ -91,7 +91,7 @@ export class BookingsService {
         
         pnr = String(nr['PNR'] || nr['PNR NO'] || nr['PNR '] || nr['CONFIRMATION'] || '');
         let refNo = String(nr['REF NO'] || nr['REFERENCE NUMBER'] || nr['REFERENCE'] || '');
-        let agentDetails = String(nr['AGENT'] || nr['AGENT DETAILS'] || nr['AGENT NAME'] || nr['AGENTS'] || nr['AGENCY'] || '');
+        let agentDetails = String(nr['AGENT'] || nr['AGENT DETAILS'] || nr['AGENT NAME'] || nr['AGENTS'] || nr['AGENCY'] || nr['AGENCY NAME'] || nr['BOOKED BY'] || '');
 
         if (isCharterFormat) {
           pnr = '7EAMRW';
@@ -117,13 +117,32 @@ export class BookingsService {
 
         let routeId = row['Route ID'] || row['routeId'];
         if (!routeId) {
-          let route = await this.prisma.route.findFirst({ 
-            where: isCharterFormat ? { flightNumber: { contains: '3650' } } : {},
+          // Robust Route Detection: Find by sector (contains origin-destination) and airline
+          const sectorStr = sector.toLowerCase();
+          const route = await this.prisma.route.findFirst({
+            where: {
+              AND: [
+                sectorStr ? {
+                  OR: [
+                    { origin: { contains: sectorStr.split('-')[0]?.trim(), mode: 'insensitive' } },
+                    { destination: { contains: sectorStr.split('-')[1]?.trim(), mode: 'insensitive' } },
+                  ]
+                } : {},
+                airline ? { airline: { contains: airline, mode: 'insensitive' } } : {},
+                isCharterFormat ? { flightNumber: { contains: '3650' } } : {}
+              ]
+            },
             orderBy: { createdAt: 'desc' }
           });
-          if (!route && isCharterFormat) {
-            route = await this.prisma.route.create({
-              data: {
+          if (route) {
+            routeId = route.id;
+          } else if (isCharterFormat) {
+            // Fallback for Charter as before
+            const charter = await this.prisma.route.upsert({
+              where: { id: 'default-charter' }, // Using a fixed ID for the default charter import if necessary
+              update: {},
+              create: {
+                id: 'default-charter',
                 origin: 'RUH',
                 originCity: 'Riyadh',
                 destination: 'COK',
@@ -136,13 +155,13 @@ export class BookingsService {
                 airline: 'Saudi Airlines',
                 totalSeats: 42,
                 remainingSeats: 42,
-                price: 0,
+                price: 750,
                 isCharter: true,
                 bookingStatus: 'CLOSED'
               }
             });
+            routeId = charter.id;
           }
-          if (route) routeId = route.id;
         }
 
         if (!routeId) throw new Error('Route ID is missing and no default route found');
