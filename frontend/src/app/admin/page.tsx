@@ -1,5 +1,5 @@
 "use client";
-import { PiAirplaneTiltLight, PiUsersLight, PiCurrencyDollarLight, PiActivityLight, PiTrendUpLight, PiCalendarBlankLight, PiCaretLeftLight, PiCaretRightLight } from "react-icons/pi";
+import { PiAirplaneTiltLight, PiUsersLight, PiCurrencyDollarLight, PiPulseLight, PiTrendUpLight, PiCalendarBlankLight, PiCaretLeftLight, PiCaretRightLight } from "react-icons/pi";
 import { useQuery } from "@tanstack/react-query";
 import { flyApi } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,9 +17,9 @@ import { LoadingLogo } from "@/components/ui/loading-logo";
 const statCards = (totalRevenue: number, totalProfit: number, totalBookings: number, seatsSold: number, remainingSeats: number, totalUnpaidDues: number, topAgent: string) => [
     { label: "Total Revenue", value: `SAR ${totalRevenue.toLocaleString()}`, icon: PiCurrencyDollarLight, color: "text-emerald-600", bg: "bg-emerald-50", sub: "From selling prices" },
     { label: "Total Profit", value: `SAR ${totalProfit.toLocaleString()}`, icon: PiTrendUpLight, color: "text-violet-600", bg: "bg-violet-50", sub: "Net margin" },
-    { label: "Payments Due", value: `SAR ${totalUnpaidDues.toLocaleString()}`, icon: PiActivityLight, color: "text-red-600", bg: "bg-red-50", sub: "Total unpaid dues" },
+    { label: "Payments Due", value: `SAR ${totalUnpaidDues.toLocaleString()}`, icon: PiPulseLight, color: "text-red-600", bg: "bg-red-50", sub: "Total unpaid dues" },
     { label: "Top Performer", value: topAgent || "None", icon: PiUsersLight, color: "text-indigo-600", bg: "bg-indigo-50", sub: "Highest selling agent" },
-    { label: "Seats Sold/Held", value: seatsSold, icon: PiActivityLight, color: "text-indigo-600", bg: "bg-indigo-50", sub: "Across all sectors" },
+    { label: "Seats Sold/Held", value: seatsSold, icon: PiPulseLight, color: "text-indigo-600", bg: "bg-indigo-50", sub: "Across all sectors" },
     { label: "Remaining", value: remainingSeats, icon: PiAirplaneTiltLight, color: "text-amber-600", bg: "bg-amber-50", sub: "Available seats" },
 ];
 
@@ -93,7 +93,7 @@ export default function AdminDashboard() {
         <div className="space-y-8 max-w-6xl pb-10">
             <div>
                 <h1 className="text-2xl font-black text-gray-900 mb-1">Admin Dashboard</h1>
-                <p className="text-gray-400 text-sm">Real-time Performance Metrics & Agent PiActivityLight</p>
+                <p className="text-gray-400 text-sm">Real-time Performance Metrics & Agent PiPulseLight</p>
             </div>
 
             {/* Stat Cards - 6 Columns on large screens */}
@@ -176,7 +176,7 @@ export default function AdminDashboard() {
                 <Card className="border-gray-100 shadow-sm">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                            <PiActivityLight className="h-4 w-4 text-emerald-600" />
+                            <PiPulseLight className="h-4 w-4 text-emerald-600" />
                             Global Inventory Status
                         </CardTitle>
                     </CardHeader>
