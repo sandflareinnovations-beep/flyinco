@@ -130,3 +130,12 @@ model Payment {
   
   agent     User     @relation(fields: [agentId], references: [id], onDelete: Cascade)
 }
+
+model SupplierPayment {
+  id           String   @id @default(uuid())
+  supplierName String
+  amount       Float
+  reference    String?
+  notes        String?
+  createdAt    DateTime @default(now())
+}

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Delete } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -15,13 +15,24 @@ export class PaymentsController {
     return this.paymentsService.create(createPaymentDto);
   }
 
-  @Get()
-  findAll() {
-    return this.paymentsService.findAll();
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.paymentsService.remove(id);
   }
 
-  @Get('agent/:id')
-  findByAgent(@Param('id') agentId: string) {
-    return this.paymentsService.findByAgent(agentId);
+  // Supplier Payments
+  @Post('supplier')
+  createSupplierPayment(@Body() data: any) {
+    return this.paymentsService.createSupplierPayment(data);
+  }
+
+  @Get('supplier/:name')
+  findBySupplier(@Param('name') name: string) {
+    return this.paymentsService.findBySupplier(name);
+  }
+
+  @Delete('supplier/:id')
+  removeSupplierPayment(@Param('id') id: string) {
+    return this.paymentsService.removeSupplierPayment(id);
   }
 }

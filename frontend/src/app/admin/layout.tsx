@@ -1,11 +1,10 @@
 "use client";
-import { PiShieldCheck, PiBookOpen, PiAirplaneTilt, PiSquaresFour, PiUsers, PiSignOut, PiMegaphone } from "react-icons/pi";
+import { PiShieldCheck, PiBookOpen, PiAirplaneTilt, PiSquaresFour, PiUsers, PiSignOut, PiMegaphone, PiCurrencyDollar, PiTruck } from "react-icons/pi";
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-
 import { Button } from "@/components/ui/button";
 
 const links = [
@@ -13,6 +12,8 @@ const links = [
     { href: "/admin/sectors", label: "Sector Management", icon: PiAirplaneTilt },
     { href: "/admin/bookings", label: "Bookings", icon: PiBookOpen },
     { href: "/admin/users", label: "Users", icon: PiUsers },
+    { href: "/admin/accounts", label: "Accounts", icon: PiCurrencyDollar },
+    { href: "/admin/suppliers", label: "Suppliers", icon: PiTruck },
     { href: "/admin/announcements", label: "Announcements", icon: PiMegaphone },
 ];
 
@@ -35,9 +36,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     };
 
     return (
-        <div className="flex min-h-[calc(100vh-4rem)] bg-gray-50">
+        <div className="flex h-screen bg-gray-50 overflow-hidden">
             {/* Sidebar */}
-            <aside className="w-64 bg-white border-r border-gray-100 flex flex-col min-h-screen flex-shrink-0 hidden md:flex">
+            <aside className="w-64 bg-white border-r border-gray-100 flex flex-col flex-shrink-0 hidden md:flex">
                 {/* Sidebar Header */}
                 <div className="h-[72px] flex items-center px-4 border-b border-gray-100 bg-white">
                     <Link href="/admin">
@@ -53,7 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </div>
 
                 {/* Nav links */}
-                <nav className="flex-1 p-3 space-y-1">
+                <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
                     {links.map(({ href, label, icon: Icon, exact }) => {
                         const active = exact ? pathname === href : pathname.startsWith(href);
                         return (
@@ -78,12 +79,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 {/* Sidebar footer */}
                 <div className="p-3 border-t border-gray-100">
                     <div className="flex items-center gap-3 px-3 py-2 mb-2">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F3F0FF" }}>
-                            <PiShieldCheck className="h-4 w-4" style={{ color: "#2E0A57" }} />
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center font-black text-[10px] text-white" style={{ backgroundColor: "#2E0A57" }}>
+                            {user?.name?.charAt(0) || "A"}
                         </div>
-                        <div>
-                            <p className="text-xs font-bold text-gray-800">{user?.name || "Admin"}</p>
-                            <p className="text-[10px] text-gray-400">{user?.email || "sabith@flyinco.com"}</p>
+                        <div className="overflow-hidden">
+                            <p className="text-xs font-bold text-gray-800 truncate">{user?.name || "Admin"}</p>
+                            <p className="text-[10px] text-gray-400 truncate">{user?.email || "sabith@flyinco.com"}</p>
                         </div>
                     </div>
                     <Button
@@ -99,7 +100,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </aside>
 
             {/* Main content */}
-            <main className="flex-1 overflow-y-auto p-6 md:p-8">
+            <main className="flex-1 overflow-y-auto p-6 md:p-10">
                 {children}
             </main>
         </div>

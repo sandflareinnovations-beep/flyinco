@@ -102,6 +102,13 @@ export class BookingsController {
     return this.bookingsService.getMetrics(req.user);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Get('suppliers')
+  getSuppliers() {
+    return this.bookingsService.getSuppliers();
+  }
+
   // ── Admin/Agent/User: view their bookings ──
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN', 'AGENT', 'USER')
@@ -113,8 +120,9 @@ export class BookingsController {
     @Query('search') search?: string,
     @Query('agent') agent?: string,
     @Query('phone') phone?: string,
+    @Query('supplier') supplier?: string,
   ) {
-    return this.bookingsService.findAll(req.user, { page, limit, search, agent, phone });
+    return this.bookingsService.findAll(req.user, { page, limit, search, agent, phone, supplier });
   }
 
   // ── User/Admin: view one booking ──

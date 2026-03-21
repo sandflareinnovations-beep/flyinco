@@ -50,7 +50,8 @@ export default function AdminDashboard() {
     const totalBookings = metricsData?.totalBookings ?? 0;
     const totalUnpaidDues = metricsData?.totalUnpaidDues ?? 0;
     const agentPerformance = metricsData?.agentPerformance || [];
-    const topAgent = agentPerformance.length > 0 ? agentPerformance[0].name : "None";
+    const validAgents = agentPerformance.filter((a: any) => a.name !== 'Direct');
+    const topAgent = validAgents.length > 0 ? validAgents[0].name : "None";
 
 
     const sectorList = Array.isArray(sectors) ? sectors : (sectors?.routes || []);
@@ -74,7 +75,7 @@ export default function AdminDashboard() {
 
 
     const agentSalesData = agentPerformance.map((a: any) => ({
-        name: a.name.split(' ').slice(0, 1).join(' '), // Short name
+        name: a.name.length > 12 ? a.name.split(' ').slice(0, 1).join(' ') : a.name, // Trim if too long
         fullName: a.name,
         Sales: a.totalSales,
         Unpaid: a.unpaid,

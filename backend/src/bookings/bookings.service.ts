@@ -287,8 +287,8 @@ export class BookingsService {
     return booking;
   }
 
-  async findAll(user: any, query: { page?: number; limit?: number; search?: string; agent?: string; phone?: string } = {}) {
-    const { page = 1, limit = 50, search = '', agent = '', phone = '' } = query;
+  async findAll(user: any, query: { page?: number; limit?: number; search?: string; agent?: string; phone?: string; supplier?: string } = {}) {
+    const { page = 1, limit = 50, search = '', agent = '', phone = '', supplier = '' } = query;
     const skip = (page - 1) * limit;
     const take = Number(limit);
 
@@ -313,6 +313,10 @@ export class BookingsService {
 
       if (phone) {
         where.phone = { contains: phone, mode: 'insensitive' };
+      }
+
+      if (supplier) {
+        where.supplier = { contains: supplier, mode: 'insensitive' };
       }
 
       const [bookings, total] = await Promise.all([
@@ -402,6 +406,19 @@ export class BookingsService {
     }
   }
 
+  async getSuppliers() {
+    const bookings = await this.prisma.booking.findMany({
+      select: { supplier: true },
+      where: { NOT: { supplier: null } },
+      distinct: ['supplier'],
+    });
+
+    return bookings
+      .map((b) => b.supplier)
+      .filter((s) => s && s.trim() !== '')
+      .sort();
+  }
+
   async getMetrics(user: any) {
     const where: any = {};
     if (user.role === 'AGENT') {
@@ -464,7 +481,7 @@ export class BookingsService {
 
     const agentMap: Record<string, { totalSales: number; profit: number; count: number; unpaid: number }> = {};
     activeFinancials.forEach(b => {
-      const agent = b.agentDetails || 'Direct / Unknown';
+      const agent = (b.agentDetails || 'Direct').trim();
       if (!agentMap[agent]) agentMap[agent] = { totalSales: 0, profit: 0, count: 0, unpaid: 0 };
       
       const sale = (b.sellingPrice || b.route?.price || 0);
@@ -481,6 +498,7 @@ export class BookingsService {
     const agentPerformance = Object.entries(agentMap)
       .map(([name, stats]) => ({ name, ...stats }))
       .sort((a, b) => b.totalSales - a.totalSales)
+      .filter(a => a.name !== 'Direct') // Only show actual agents if possible
       .slice(0, 10);
 
     return {

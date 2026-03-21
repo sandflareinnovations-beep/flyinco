@@ -235,13 +235,14 @@ export const flyApi = {
         }
     },
     bookings: {
-        list: async (params?: { page?: number; limit?: number; search?: string; agent?: string; phone?: string }): Promise<any> => {
+        list: async (params?: { page?: number; limit?: number; search?: string; agent?: string; phone?: string; supplier?: string }): Promise<any> => {
             const query = new URLSearchParams();
             if (params?.page) query.append('page', params.page.toString());
             if (params?.limit) query.append('limit', params.limit.toString());
             if (params?.search) query.append('search', params.search);
             if (params?.agent) query.append('agent', params.agent);
             if (params?.phone) query.append('phone', params.phone);
+            if (params?.supplier) query.append('supplier', params.supplier);
             
             const data = await fetchWithCreds(`/bookings?${query.toString()}`);
             
@@ -291,13 +292,14 @@ export const flyApi = {
             }
             return mapped;
         },
-        listPaginated: async (params: { page: number; limit: number; search?: string; agent?: string; phone?: string }): Promise<any> => {
+        listPaginated: async (params: { page: number; limit: number; search?: string; agent?: string; phone?: string; supplier?: string }): Promise<any> => {
             const query = new URLSearchParams();
             query.append('page', params.page.toString());
             query.append('limit', params.limit.toString());
             if (params.search) query.append('search', params.search);
             if (params.agent) query.append('agent', params.agent);
             if (params.phone) query.append('phone', params.phone);
+            if (params.supplier) query.append('supplier', params.supplier);
             
             const data = await fetchWithCreds(`/bookings?${query.toString()}`);
             const bookingsArray = data.bookings || [];
@@ -340,6 +342,9 @@ export const flyApi = {
                 route: d.route,
             }));
             return { ...data, bookings: mapped };
+        },
+        listSuppliers: async () => {
+            return await fetchWithCreds('/bookings/suppliers');
         },
         getMetrics: async () => {
             return await fetchWithCreds('/bookings/metrics');
@@ -435,8 +440,23 @@ export const flyApi = {
                 body: JSON.stringify(data),
             });
         },
+        delete: async (id: string) => {
+            return await fetchWithCreds(`/payments/${id}`, { method: 'DELETE' });
+        },
         byAgent: async (agentId: string) => {
             return await fetchWithCreds(`/payments/agent/${agentId}`);
+        },
+        createSupplier: async (data: any) => {
+            return await fetchWithCreds('/payments/supplier', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+        },
+        bySupplier: async (name: string) => {
+            return await fetchWithCreds(`/payments/supplier/${name}`);
+        },
+        deleteSupplier: async (id: string) => {
+            return await fetchWithCreds(`/payments/supplier/${id}`, { method: 'DELETE' });
         }
     }
 };
