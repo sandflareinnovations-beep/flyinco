@@ -118,32 +118,32 @@ export default function AdminDashboard() {
                 )}
             </div>
 
-            {/* Charts Row 1: Flights PiCalendarBlankLight & Inventory */}
-            <div className="grid gap-6 md:grid-cols-2">
-                <Card className="border-gray-100 shadow-sm overflow-hidden flex flex-col md:col-span-1 h-[280px]">
-                    <CardHeader className="pb-2 border-b border-gray-50 bg-gray-50/30">
+            {/* Charts Row 1: Flights Calendar & Inventory */}
+            <div className="grid gap-6 md:grid-cols-3">
+                <Card className="border-gray-100 shadow-sm overflow-hidden flex flex-col md:col-span-2 h-full">
+                    <CardHeader className="pb-3 border-b border-gray-50 bg-gray-50/30">
                         <div className="flex items-center justify-between">
                             <CardTitle className="text-sm font-bold text-gray-900 flex items-center gap-2">
                                 <div className="w-6 h-6 rounded-md bg-violet-100 flex items-center justify-center">
-                                    <PiCalendarBlankLight className="h-3.5 w-3.5 text-violet-600" />
+                                    <PiCalendarBlankLight className="h-4 w-4 text-violet-600" />
                                 </div>
-                                Travel PiCalendarBlankLight
+                                Travel Calendar
                             </CardTitle>
-                            <div className="flex items-center gap-1 bg-white rounded-md p-0.5 border border-gray-100 shadow-sm">
-                                <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-0.5 hover:bg-gray-100 rounded transition-colors"><PiCaretLeftLight className="h-3.5 w-3.5 text-gray-500" /></button>
-                                <span className="text-[10px] font-black w-20 text-center text-gray-800 uppercase tracking-widest">{format(currentMonth, 'MMM yyyy')}</span>
-                                <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-0.5 hover:bg-gray-100 rounded transition-colors"><PiCaretRightLight className="h-3.5 w-3.5 text-gray-500" /></button>
+                            <div className="flex items-center gap-2 bg-white rounded-lg p-1 border border-gray-100 shadow-sm">
+                                <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1 hover:bg-gray-100 rounded-md transition-colors"><PiCaretLeftLight className="h-4 w-4 text-gray-500" /></button>
+                                <span className="text-xs font-black w-24 text-center text-gray-800 uppercase tracking-widest">{format(currentMonth, 'MMM yyyy')}</span>
+                                <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-1 hover:bg-gray-100 rounded-md transition-colors"><PiCaretRightLight className="h-4 w-4 text-gray-500" /></button>
                             </div>
                         </div>
                     </CardHeader>
-                    <CardContent className="flex-1 p-2 custom-scrollbar">
+                    <CardContent className="flex-1 p-3 custom-scrollbar">
                         <div className="h-full">
-                            <div className="grid grid-cols-7 gap-1 mb-1">
+                            <div className="grid grid-cols-7 gap-1.5 mb-2">
                                 {weekDays.map(day => (
-                                    <div key={day} className="text-center text-[8px] font-black text-gray-400 uppercase tracking-widest">{day.substring(0, 3)}</div>
+                                    <div key={day} className="text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">{day.substring(0, 3)}</div>
                                 ))}
                             </div>
-                            <div className="grid grid-cols-7 gap-1">
+                            <div className="grid grid-cols-7 gap-1.5 min-h-[260px]">
                                 {calendarDays.map((day, i) => {
                                     const dayKey = format(day, 'yyyy-MM-dd');
                                     const dayFlights = flightsByDate[dayKey] || [];
@@ -151,18 +151,19 @@ export default function AdminDashboard() {
                                     const isTodayDate = isToday(day);
 
                                     return (
-                                        <div key={i} className={`flex flex-col min-h-[30px] p-0.5 rounded border transition-all ${isCurrentMonth ? 'bg-white border-gray-100' : 'bg-gray-50/30 border-transparent opacity-50'} ${isTodayDate ? 'ring-1 ring-violet-500 ring-offset-1 border-transparent shadow-sm' : 'hover:border-violet-200'}`}>
-                                            <div className={`text-[8px] font-black leading-none mb-0.5 ${isTodayDate ? 'text-violet-600' : 'text-gray-700'}`}>
+                                        <div key={i} className={`flex flex-col min-h-[50px] p-1.5 rounded-lg border transition-all ${isCurrentMonth ? 'bg-white border-gray-100 hover:border-violet-200 hover:shadow-sm' : 'bg-gray-50/40 border-transparent opacity-50'} ${isTodayDate ? 'ring-2 ring-violet-500 ring-offset-1 border-transparent shadow-sm' : ''}`}>
+                                            <div className={`text-[10px] font-black leading-none mb-1.5 ${isTodayDate ? 'text-violet-600' : 'text-gray-700'}`}>
                                                 {format(day, 'd')}
                                             </div>
-                                            <div className="space-y-0.5">
-                                                {dayFlights.slice(0, 2).map((f: any, idx: number) => (
-                                                    <div key={idx} className="text-[6px] leading-[8px] bg-indigo-50/80 text-indigo-700 px-0.5 py-px rounded font-black truncate border border-indigo-100/50" title={`${f.originCode}→${f.destinationCode} | ${f.remainingSeats}L`}>
-                                                        {f.originCode}
+                                            <div className="space-y-1">
+                                                {dayFlights.slice(0, 3).map((f: any, idx: number) => (
+                                                    <div key={idx} className="flex items-center justify-between text-[8px] leading-[10px] bg-indigo-50/80 text-indigo-800 px-1 py-0.5 rounded font-black border border-indigo-100/50" title={`${f.originCode}→${f.destinationCode} | ${f.remainingSeats} Seats Left`}>
+                                                        <span>{f.originCode}</span>
+                                                        <span className="text-[7px] text-indigo-500 font-bold ml-0.5">{f.departureTime || "--:--"}</span>
                                                     </div>
                                                 ))}
-                                                {dayFlights.length > 2 && (
-                                                    <div className="text-[6px] text-gray-500 font-bold ml-0.5">+{dayFlights.length - 2}</div>
+                                                {dayFlights.length > 3 && (
+                                                    <div className="text-[8px] text-center bg-gray-50 text-gray-500 font-bold px-1 py-0.5 rounded border border-gray-100">+{dayFlights.length - 3} more</div>
                                                 )}
                                             </div>
                                         </div>

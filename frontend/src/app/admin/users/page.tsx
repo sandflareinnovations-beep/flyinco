@@ -84,7 +84,7 @@ export default function UsersAdminPage() {
                 ...form,
                 creditLimit: form.creditLimit ? Number(form.creditLimit) : 0
             });
-            toast({ title: "PiUserLight Updated", description: `${form.name} profile has been updated.` });
+            toast({ title: "User Updated", description: `${form.name} profile has been updated.` });
             fetchUsers();
             closeModal();
         } catch (err: any) {
@@ -100,7 +100,7 @@ export default function UsersAdminPage() {
                 ...form,
                 creditLimit: form.creditLimit ? Number(form.creditLimit) : 0
             });
-            toast({ title: "PiUserLight Added", description: `${form.name} has been created.` });
+            toast({ title: "User Added", description: `${form.name} has been created.` });
             fetchUsers();
             closeModal();
         } catch (err: any) {
@@ -150,7 +150,7 @@ export default function UsersAdminPage() {
         setSaving(true);
         try {
             await flyApi.users.delete(selected.id);
-            toast({ title: "PiUserLight Deleted", description: `${selected.name} has been removed.` });
+            toast({ title: "User Deleted", description: `${selected.name} has been removed.` });
             fetchUsers();
             closeModal();
         } catch (err: any) {
@@ -254,7 +254,7 @@ export default function UsersAdminPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-black text-gray-900">PiUserLight Management</h1>
+                    <h1 className="text-2xl font-black text-gray-900">User Management</h1>
                     <p className="text-gray-400 text-sm mt-0.5">Manage users, roles, and credentials.</p>
                 </div>
                 <Button
@@ -262,7 +262,7 @@ export default function UsersAdminPage() {
                     style={{ background: `linear-gradient(135deg, ${B.primary}, ${B.accent})` }}
                     onClick={() => openModal("addUser")}
                 >
-                    <PiPlusLight className="h-4 w-4" /> Add PiUserLight
+                    <PiPlusLight className="h-4 w-4" /> Add User
                 </Button>
             </div>
 
@@ -321,7 +321,7 @@ export default function UsersAdminPage() {
                 <Table>
                     <TableHeader>
                         <TableRow className="bg-gray-50 border-gray-100">
-                            <TableHead className="text-xs font-bold text-gray-500 uppercase tracking-wide">PiUserLight</TableHead>
+                            <TableHead className="text-xs font-bold text-gray-500 uppercase tracking-wide">User</TableHead>
                             <TableHead className="text-xs font-bold text-gray-500 uppercase tracking-wide">Contact</TableHead>
                             <TableHead className="text-xs font-bold text-gray-500 uppercase tracking-wide">Role</TableHead>
                             <TableHead className="text-xs font-bold text-gray-500 uppercase tracking-wide">Finances</TableHead>
@@ -384,7 +384,7 @@ export default function UsersAdminPage() {
                                         </Badge>
                                     ) : (
                                         <Badge className="bg-gray-50 text-gray-600 border-gray-200 gap-1 font-semibold" variant="outline">
-                                            <PiUserLight className="h-3 w-3" /> PiUserLight
+                                            <PiUserLight className="h-3 w-3" /> User
                                         </Badge>
                                     )}
                                 </TableCell>
@@ -438,7 +438,7 @@ export default function UsersAdminPage() {
                 <DialogContent className="max-w-md rounded-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-black flex items-center gap-2">
-                            <PiPlusLight className="h-5 w-5 text-violet-600" /> Add New PiUserLight
+                            <PiPlusLight className="h-5 w-5 text-violet-600" /> Add New User
                         </DialogTitle>
                     </DialogHeader>
                     <form onSubmit={handleAddUser}>
@@ -463,7 +463,7 @@ export default function UsersAdminPage() {
                                 <Label className="text-xs font-semibold text-gray-600">Role</Label>
                                 <select className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
                                     value={form.role || "USER"} onChange={e => setForm({ ...form, role: e.target.value })}>
-                                    <option value="USER">Customer / PiUserLight</option>
+                                    <option value="USER">Customer / User</option>
                                     <option value="AGENT">Agent</option>
                                     <option value="ADMIN">Admin</option>
                                 </select>
@@ -484,7 +484,7 @@ export default function UsersAdminPage() {
                         <DialogFooter className="gap-2">
                             <Button type="button" variant="outline" className="rounded-xl" onClick={closeModal}>Cancel</Button>
                             <Button type="submit" disabled={saving} className="rounded-xl text-white" style={{ background: `linear-gradient(135deg, ${B.primary}, ${B.accent})` }}>
-                                {saving ? "Adding..." : "Add PiUserLight"}
+                                {saving ? "Adding..." : "Add User"}
                             </Button>
                         </DialogFooter>
                     </form>
@@ -496,7 +496,7 @@ export default function UsersAdminPage() {
                 <DialogContent className="max-w-md rounded-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-black flex items-center gap-2">
-                            Edit PiUserLight Profile
+                            Edit User Profile
                         </DialogTitle>
                     </DialogHeader>
                     <form onSubmit={handleUpdateUser}>
@@ -517,7 +517,7 @@ export default function UsersAdminPage() {
                                 <Label className="text-xs font-semibold text-gray-600">Role</Label>
                                 <select className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
                                     value={form.role || "USER"} onChange={e => setForm({ ...form, role: e.target.value })}>
-                                    <option value="USER">Customer / PiUserLight</option>
+                                    <option value="USER">Customer / User</option>
                                     <option value="AGENT">Agent</option>
                                     <option value="ADMIN">Admin</option>
                                 </select>
@@ -591,7 +591,7 @@ export default function UsersAdminPage() {
                 <DialogContent className="max-w-sm rounded-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-black text-red-600 flex items-center gap-2">
-                            <PiTrashLight className="h-5 w-5" /> Delete PiUserLight
+                            <PiTrashLight className="h-5 w-5" /> Delete User
                         </DialogTitle>
                     </DialogHeader>
                     <div className="py-4">
@@ -606,7 +606,7 @@ export default function UsersAdminPage() {
                     <DialogFooter className="gap-2">
                         <Button variant="outline" className="rounded-xl" onClick={closeModal}>Cancel</Button>
                         <Button variant="destructive" className="rounded-xl" onClick={handleDeleteUser} disabled={saving}>
-                            {saving ? "Deleting..." : "Delete PiUserLight"}
+                            {saving ? "Deleting..." : "Delete User"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

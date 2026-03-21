@@ -121,7 +121,7 @@ export default function ConfirmationPage() {
                                 onClick={() => router.push('/')}
                             >
                                 <PiHouseLight className="h-4 w-4" />
-                                Return PiHouseLight
+                                Return Home
                             </Button>
                         </div>
                     </div>
