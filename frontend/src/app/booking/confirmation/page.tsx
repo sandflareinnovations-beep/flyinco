@@ -1,9 +1,9 @@
 "use client";
-
+import { PiCheckCircleLight, PiAirplaneTiltLight, PiArrowRightLight, PiHouseLight, PiClipboardTextLight, PiCopyLight, PiCheckLight } from "react-icons/pi";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { CheckCircle, Plane, ArrowRight, Home, ClipboardList, Copy, Check } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
@@ -53,7 +53,7 @@ export default function ConfirmationPage() {
                             transition={{ delay: 0.2, type: "spring" }}
                             className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4"
                         >
-                            <CheckCircle className="h-9 w-9 text-white" />
+                            <PiCheckCircleLight className="h-9 w-9 text-white" />
                         </motion.div>
                         <h1 className="text-2xl font-black mb-1">
                             {booking.status === "PENDING" ? "Payment Submitted!" : "Booking Held!"}
@@ -70,7 +70,7 @@ export default function ConfirmationPage() {
                             <div className="flex items-center justify-center gap-2">
                                 <p className="text-2xl font-black font-mono tracking-widest" style={{ color: '#2E0A57' }}>{booking.bookingRef}</p>
                                 <button onClick={copyRef} className="text-gray-400 hover:text-[#6C2BD9] transition-colors">
-                                    {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                                    {copied ? <PiCheckLight className="h-4 w-4 text-emerald-500" /> : <PiCopyLight className="h-4 w-4" />}
                                 </button>
                             </div>
                         </div>
@@ -79,7 +79,7 @@ export default function ConfirmationPage() {
                         {flight && firstSeg && lastSeg && (
                             <div className="space-y-2.5">
                                 {[
-                                    { label: "Route", value: <span className="flex items-center gap-1 font-bold">{firstSeg.departureAirport} <ArrowRight className="h-3 w-3 text-gray-400" /> {lastSeg.arrivalAirport}</span> },
+                                    { label: "Route", value: <span className="flex items-center gap-1 font-bold">{firstSeg.departureAirport} <PiArrowRightLight className="h-3 w-3 text-gray-400" /> {lastSeg.arrivalAirport}</span> },
                                     { label: "Flight", value: <span className="font-mono font-semibold">{flight.segments.map((s: any) => s.flightNumber).join(' + ')}</span> },
                                     { label: "Date", value: new Date(flight.departureDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) },
                                     { label: "Email", value: booking.email },
@@ -99,7 +99,7 @@ export default function ConfirmationPage() {
 
                         {/* Info */}
                         <div className="rounded-xl p-3.5 text-sm flex gap-2.5 border border-[#EDE9FE] bg-[#F5F3FF]" style={{ color: '#2E0A57' }}>
-                            <Plane className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                            <PiAirplaneTiltLight className="h-4 w-4 flex-shrink-0 mt-0.5" />
                             <span>Our team provides instant approval and will finalize PNR and ticket issuance immediately.</span>
                         </div>
 
@@ -112,7 +112,7 @@ export default function ConfirmationPage() {
                                 onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#2E0A57')}
                                 onClick={() => router.push('/dashboard')}
                             >
-                                <ClipboardList className="h-4 w-4" />
+                                <PiClipboardTextLight className="h-4 w-4" />
                                 View My Bookings
                             </Button>
                             <Button
@@ -120,8 +120,8 @@ export default function ConfirmationPage() {
                                 className="w-full rounded-xl h-11 gap-2 border-gray-200 text-gray-600 hover:bg-gray-50"
                                 onClick={() => router.push('/')}
                             >
-                                <Home className="h-4 w-4" />
-                                Return Home
+                                <PiHouseLight className="h-4 w-4" />
+                                Return PiHouseLight
                             </Button>
                         </div>
                     </div>

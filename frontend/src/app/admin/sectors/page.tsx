@@ -1,5 +1,5 @@
 "use client";
-
+import { PiPlusLight, PiStarLight, PiTrashLight, PiLockKeyLight, PiWarningLight } from "react-icons/pi";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { flyApi } from "@/lib/api";
@@ -19,10 +19,7 @@ import {
     DropdownMenu, DropdownMenuContent, DropdownMenuItem,
     DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-    Plus, MoreHorizontal, Pencil, Sliders, Trash2,
-    Lock, Unlock, AlertTriangle
-} from "lucide-react";
+
 import { useToast } from "@/hooks/use-toast";
 import { API_BASE } from "@/lib/api";
 import { motion } from "framer-motion";
@@ -238,7 +235,7 @@ export default function SectorManagement() {
                             }}
                             disabled={bulkDeleteMutation.isPending}
                         >
-                            <Trash2 className="h-4 w-4" />
+                            <PiTrashLight className="h-4 w-4" />
                             Delete Selected ({selectedIds.length})
                         </Button>
                     )}
@@ -246,7 +243,7 @@ export default function SectorManagement() {
                         className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl gap-2 font-semibold"
                         onClick={() => openModal("create")}
                     >
-                        <Plus className="h-4 w-4" />
+                        <PiPlusLight className="h-4 w-4" />
                         Create Route
                     </Button>
                 </div>
@@ -351,27 +348,27 @@ export default function SectorManagement() {
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg">
-                                                <MoreHorizontal className="h-4 w-4" />
+                                                <PiStarLight className="h-4 w-4" />
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-lg border-gray-100">
                                             <DropdownMenuLabel className="text-xs text-gray-400">Actions</DropdownMenuLabel>
                                             <DropdownMenuSeparator />
                                             <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => openModal("edit", sector)}>
-                                                <Pencil className="h-3.5 w-3.5" /> Edit Fare
+                                                <PiStarLight className="h-3.5 w-3.5" /> Edit Fare
                                             </DropdownMenuItem>
                                             <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => openModal("seats", sector)}>
-                                                <Sliders className="h-3.5 w-3.5" /> Adjust Seats
+                                                <PiStarLight className="h-3.5 w-3.5" /> Adjust Seats
                                             </DropdownMenuItem>
                                             <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelected(sector); setTargetStatus("OPEN"); openModal("bookingStatus", sector); }}>
-                                                <Unlock className="h-3.5 w-3.5" /> Open Booking
+                                                <PiStarLight className="h-3.5 w-3.5" /> Open Booking
                                             </DropdownMenuItem>
                                             <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelected(sector); setTargetStatus("CLOSED"); openModal("bookingStatus", sector); }}>
-                                                <Lock className="h-3.5 w-3.5" /> Close Booking
+                                                <PiLockKeyLight className="h-3.5 w-3.5" /> Close Booking
                                             </DropdownMenuItem>
                                             <DropdownMenuSeparator />
                                             <DropdownMenuItem className="gap-2 text-red-600 font-semibold cursor-pointer" onClick={() => openModal("delete", sector)}>
-                                                <Trash2 className="h-3.5 w-3.5" /> Delete Route
+                                                <PiTrashLight className="h-3.5 w-3.5" /> Delete Route
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
@@ -569,7 +566,7 @@ export default function SectorManagement() {
                             <InputField label="Remaining Seats" name="remainingSeats" type="number" required min={0} value={form.remainingSeats || ""} onChange={e => setForm({ ...form, remainingSeats: e.target.value })} />
                             {parseInt(form.remainingSeats) > parseInt(form.totalSeats) && (
                                 <p className="text-xs text-red-500 flex items-center gap-1">
-                                    <AlertTriangle className="h-3 w-3" /> Remaining cannot exceed total seats
+                                    <PiWarningLight className="h-3 w-3" /> Remaining cannot exceed total seats
                                 </p>
                             )}
                         </div>
@@ -588,7 +585,7 @@ export default function SectorManagement() {
                 <DialogContent className="max-w-sm rounded-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-black flex items-center gap-2">
-                            {targetStatus === "OPEN" ? <Unlock className="h-5 w-5 text-emerald-600" /> : <Lock className="h-5 w-5 text-red-500" />}
+                            {targetStatus === "OPEN" ? <PiStarLight className="h-5 w-5 text-emerald-600" /> : <PiLockKeyLight className="h-5 w-5 text-red-500" />}
                             {targetStatus === "OPEN" ? "Open Booking" : "Close Booking"}
                         </DialogTitle>
                     </DialogHeader>
@@ -615,12 +612,12 @@ export default function SectorManagement() {
                 <DialogContent className="max-w-sm rounded-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-black text-red-600 flex items-center gap-2">
-                            <Trash2 className="h-5 w-5" /> Delete Route
+                            <PiTrashLight className="h-5 w-5" /> Delete Route
                         </DialogTitle>
                     </DialogHeader>
                     <div className="py-4">
                         <div className="bg-red-50 border border-red-100 rounded-xl p-3 flex gap-3 mb-3">
-                            <AlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+                            <PiWarningLight className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
                             <p className="text-sm text-red-700">
                                 This action cannot be undone. All bookings for this route will be affected.
                             </p>

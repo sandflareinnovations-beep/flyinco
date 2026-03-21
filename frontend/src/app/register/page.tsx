@@ -1,12 +1,12 @@
 "use client";
-
+import { PiEyeLight, PiEyeClosedLight, PiSpinnerLight } from "react-icons/pi";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Link from "next/link";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+
 
 import { Button } from "@/components/ui/button";
 import {
@@ -183,9 +183,9 @@ export default function RegisterPage() {
                                                         disabled={isLoading}
                                                     >
                                                         {showPassword ? (
-                                                            <EyeOff className="h-4 w-4" />
+                                                            <PiEyeClosedLight className="h-4 w-4" />
                                                         ) : (
-                                                            <Eye className="h-4 w-4" />
+                                                            <PiEyeLight className="h-4 w-4" />
                                                         )}
                                                     </button>
                                                 </div>
@@ -215,7 +215,7 @@ export default function RegisterPage() {
                                 />
                             </div>
                             <Button type="submit" className="w-full rounded-lg h-11 text-base font-semibold mt-6" disabled={isLoading}>
-                                {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                                {isLoading && <PiSpinnerLight className="h-4 w-4 mr-2 animate-spin" />}
                                 Register
                             </Button>
                         </form>

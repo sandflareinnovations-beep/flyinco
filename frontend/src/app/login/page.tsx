@@ -1,12 +1,12 @@
 "use client";
-
+import { PiEyeLight, PiEyeClosedLight, PiSpinnerLight, PiAirplaneTiltLight, PiShieldCheckLight } from "react-icons/pi";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Link from "next/link";
-import { Eye, EyeOff, Loader2, Plane, ShieldCheck } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
     Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
@@ -98,7 +98,7 @@ export default function LoginPage() {
 
     if (initializing) {
         return <div style={{ minHeight: "100vh", background: "#F7F7FB", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Loader2 className="animate-spin text-primary" stroke={B.primary} />
+            <PiSpinnerLight className="animate-spin text-primary" stroke={B.primary} />
         </div>;
     }
 
@@ -137,7 +137,7 @@ export default function LoginPage() {
                             borderRadius: "50%",
                             display: "flex", alignItems: "center", justifyContent: "center",
                         }}>
-                            <Plane size={22} color="#fff" />
+                            <PiAirplaneTiltLight size={22} color="#fff" />
                         </div>
                     </div>
                     <div style={{ textAlign: "center" }}>
@@ -171,7 +171,7 @@ export default function LoginPage() {
                         display: "inline-flex", alignItems: "center", justifyContent: "center",
                         marginBottom: 20, boxShadow: `0 10px 28px ${B.primary}40`
                     }}>
-                        <Plane size={28} color="#fff" />
+                        <PiAirplaneTiltLight size={28} color="#fff" />
                     </div>
                     <h1 style={{ fontSize: 30, fontWeight: 900, color: "#0F0A1A", letterSpacing: "-0.04em", marginBottom: 8 }}>
                         Welcome back
@@ -234,7 +234,7 @@ export default function LoginPage() {
                                                     }}
                                                     disabled={isLoading}
                                                 >
-                                                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                                    {showPassword ? <PiEyeClosedLight size={16} /> : <PiEyeLight size={16} />}
                                                 </button>
                                             </div>
                                         </FormControl>
@@ -257,7 +257,7 @@ export default function LoginPage() {
                                     transition: "all 0.2s ease",
                                 }}
                             >
-                                {isLoading && <Loader2 size={18} style={{ animation: "spin 0.8s linear infinite" }} />}
+                                {isLoading && <PiSpinnerLight size={18} style={{ animation: "spin 0.8s linear infinite" }} />}
                                 <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
                                 {isLoading ? "Signing in..." : "Sign In"}
                             </button>
@@ -279,7 +279,7 @@ export default function LoginPage() {
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 24, color: "#9CA3AF", fontSize: 13 }}>
-                    <ShieldCheck size={14} color="#10B981" />
+                    <PiShieldCheckLight size={14} color="#10B981" />
                     <span>Secured · Flyinco Travel Portal</span>
                 </div>
             </div>

@@ -1,8 +1,8 @@
 "use client";
-
+import { PiUploadSimpleLight, PiCheckCircleLight, PiArrowLeftLight, PiSpinnerLight, PiBuildingsLight, PiReceiptLight, PiImageLight } from "react-icons/pi";
 import { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
-import { Upload, CheckCircle, ArrowLeft, Loader2, Building, Receipt, Image as ImageIcon } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -58,7 +58,7 @@ function PaymentForm() {
         try {
             const { flight, passenger, phone, email, passengerCounts } = bookingData;
 
-            // 1) Upload receipt if provided
+            // 1) PiUploadSimpleLight receipt if provided
             let receiptUrl: string | undefined = undefined;
             if (receiptFile) {
                 const formData = new FormData();
@@ -153,7 +153,7 @@ function PaymentForm() {
     if (!bookingData) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin" style={{ color: '#2E0A57' }} />
+                <PiSpinnerLight className="h-8 w-8 animate-spin" style={{ color: '#2E0A57' }} />
             </div>
         );
     }
@@ -166,7 +166,7 @@ function PaymentForm() {
                 <div className="flex items-center justify-between mb-8">
                     <div>
                         <Link href="/booking/passengers" className="inline-flex items-center text-sm font-semibold text-gray-500 hover:text-[#6C2BD9] mb-2 transition-colors">
-                            <ArrowLeft className="h-4 w-4 mr-1" />
+                            <PiArrowLeftLight className="h-4 w-4 mr-1" />
                             Back to Details
                         </Link>
                         <h1 className="text-3xl font-black text-gray-900 tracking-tight">Payment Details</h1>
@@ -181,7 +181,7 @@ function PaymentForm() {
                         <Card className="rounded-2xl shadow-sm border-gray-100 overflow-hidden">
                             <CardHeader className="bg-white border-b border-gray-100 pb-4">
                                 <CardTitle className="text-xl font-bold flex items-center gap-2">
-                                    <Building className="h-5 w-5" style={{ color: '#2E0A57' }} />
+                                    <PiBuildingsLight className="h-5 w-5" style={{ color: '#2E0A57' }} />
                                     Bank Transfer Details
                                 </CardTitle>
                                 <CardDescription>
@@ -210,7 +210,7 @@ function PaymentForm() {
                                     </div>
 
                                     <div className="p-4 rounded-xl text-sm border border-[#EDE9FE] bg-[#F5F3FF] flex gap-3" style={{ color: '#2E0A57' }}>
-                                        <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" style={{ color: '#6C2BD9' }} />
+                                        <PiCheckCircleLight className="h-5 w-5 flex-shrink-0 mt-0.5" style={{ color: '#6C2BD9' }} />
                                         <p>
                                             <strong>Amount to transfer: </strong>
                                             <span className="font-black text-lg ml-1">SAR {bookingData.totalPrice.toLocaleString()}</span>
@@ -227,11 +227,11 @@ function PaymentForm() {
                             <Card className="rounded-2xl shadow-sm border-gray-100 overflow-hidden">
                                 <CardHeader className="bg-white border-b border-gray-100 pb-4">
                                     <CardTitle className="text-xl font-bold flex items-center gap-2">
-                                        <Receipt className="h-5 w-5" style={{ color: '#2E0A57' }} />
+                                        <PiReceiptLight className="h-5 w-5" style={{ color: '#2E0A57' }} />
                                         Confirm Payment
                                     </CardTitle>
                                     <CardDescription>
-                                        Upload your transfer receipt or provide the transaction ID below.
+                                        PiUploadSimpleLight your transfer receipt or provide the transaction ID below.
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="p-6 space-y-6">
@@ -249,9 +249,9 @@ function PaymentForm() {
                                         />
                                     </div>
 
-                                    {/* File Upload */}
+                                    {/* File PiUploadSimpleLight */}
                                     <div className="space-y-2">
-                                        <Label className="text-sm font-semibold text-gray-700">Upload Receipt Screenshot (Optional)</Label>
+                                        <Label className="text-sm font-semibold text-gray-700">PiUploadSimpleLight PiReceiptLight Screenshot (Optional)</Label>
                                         <label
                                             htmlFor="receipt-upload"
                                             className="border-2 border-dashed border-gray-200 rounded-xl p-6 flex flex-col items-center justify-center text-center hover:bg-gray-50 transition-colors cursor-pointer group block"
@@ -260,7 +260,7 @@ function PaymentForm() {
                                                 <div className="w-full flex flex-col items-center gap-2">
                                                     <img
                                                         src={receiptPreview}
-                                                        alt="Receipt preview"
+                                                        alt="PiReceiptLight preview"
                                                         className="max-h-48 rounded-lg object-contain border border-gray-200 shadow-sm"
                                                     />
                                                     <p className="text-xs font-semibold mt-2" style={{ color: '#2E0A57' }}>{receiptFile?.name}</p>
@@ -269,7 +269,7 @@ function PaymentForm() {
                                             ) : (
                                                 <>
                                                     <div className="p-3 rounded-full mb-3 transition-colors" style={{ backgroundColor: '#F5F3FF', color: '#2E0A57' }}>
-                                                        {receiptFile ? <ImageIcon className="h-6 w-6" /> : <Upload className="h-6 w-6" />}
+                                                        {receiptFile ? <PiImageLight className="h-6 w-6" /> : <PiUploadSimpleLight className="h-6 w-6" />}
                                                     </div>
                                                     <p className="text-sm font-medium text-gray-700">
                                                         {receiptFile ? receiptFile.name : "Click to upload or drag and drop"}
@@ -297,9 +297,9 @@ function PaymentForm() {
                                         disabled={isSubmitting}
                                     >
                                         {isSubmitting ? (
-                                            <><Loader2 className="h-5 w-5 animate-spin" /> Processing Payment...</>
+                                            <><PiSpinnerLight className="h-5 w-5 animate-spin" /> Processing Payment...</>
                                         ) : (
-                                            <><CheckCircle className="h-5 w-5" /> Submit Payment &amp; Confirm Booking</>
+                                            <><PiCheckCircleLight className="h-5 w-5" /> Submit Payment &amp; Confirm Booking</>
                                         )}
                                     </Button>
                                 </CardFooter>
@@ -323,7 +323,7 @@ function PaymentForm() {
 
 export default function PaymentPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" style={{ color: '#2E0A57' }} /></div>}>
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><PiSpinnerLight className="h-8 w-8 animate-spin" style={{ color: '#2E0A57' }} /></div>}>
             <PaymentForm />
         </Suspense>
     );

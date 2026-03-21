@@ -1,5 +1,5 @@
 "use client";
-
+import { PiAirplaneTiltLight, PiUsersLight, PiCurrencyDollarLight, PiActivityLight, PiTrendUpLight, PiCalendarBlankLight, PiCaretLeftLight, PiCaretRightLight } from "react-icons/pi";
 import { useQuery } from "@tanstack/react-query";
 import { flyApi } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,19 +8,19 @@ import {
     PieChart, Pie, Cell, CartesianGrid
 } from 'recharts';
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plane, Users, DollarSign, Activity, TrendingUp, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { startOfMonth, endOfMonth, eachDayOfInterval, format, isSameMonth, isToday, startOfWeek, endOfWeek, addMonths, subMonths } from "date-fns";
 import { LoadingLogo } from "@/components/ui/loading-logo";
 
 const statCards = (totalRevenue: number, totalProfit: number, totalBookings: number, seatsSold: number, remainingSeats: number, totalUnpaidDues: number, topAgent: string) => [
-    { label: "Total Revenue", value: `SAR ${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-50", sub: "From selling prices" },
-    { label: "Total Profit", value: `SAR ${totalProfit.toLocaleString()}`, icon: TrendingUp, color: "text-violet-600", bg: "bg-violet-50", sub: "Net margin" },
-    { label: "Payments Due", value: `SAR ${totalUnpaidDues.toLocaleString()}`, icon: Activity, color: "text-red-600", bg: "bg-red-50", sub: "Total unpaid dues" },
-    { label: "Top Performer", value: topAgent || "None", icon: Users, color: "text-indigo-600", bg: "bg-indigo-50", sub: "Highest selling agent" },
-    { label: "Seats Sold/Held", value: seatsSold, icon: Activity, color: "text-indigo-600", bg: "bg-indigo-50", sub: "Across all sectors" },
-    { label: "Remaining", value: remainingSeats, icon: Plane, color: "text-amber-600", bg: "bg-amber-50", sub: "Available seats" },
+    { label: "Total Revenue", value: `SAR ${totalRevenue.toLocaleString()}`, icon: PiCurrencyDollarLight, color: "text-emerald-600", bg: "bg-emerald-50", sub: "From selling prices" },
+    { label: "Total Profit", value: `SAR ${totalProfit.toLocaleString()}`, icon: PiTrendUpLight, color: "text-violet-600", bg: "bg-violet-50", sub: "Net margin" },
+    { label: "Payments Due", value: `SAR ${totalUnpaidDues.toLocaleString()}`, icon: PiActivityLight, color: "text-red-600", bg: "bg-red-50", sub: "Total unpaid dues" },
+    { label: "Top Performer", value: topAgent || "None", icon: PiUsersLight, color: "text-indigo-600", bg: "bg-indigo-50", sub: "Highest selling agent" },
+    { label: "Seats Sold/Held", value: seatsSold, icon: PiActivityLight, color: "text-indigo-600", bg: "bg-indigo-50", sub: "Across all sectors" },
+    { label: "Remaining", value: remainingSeats, icon: PiAirplaneTiltLight, color: "text-amber-600", bg: "bg-amber-50", sub: "Available seats" },
 ];
 
 export default function AdminDashboard() {
@@ -93,7 +93,7 @@ export default function AdminDashboard() {
         <div className="space-y-8 max-w-6xl pb-10">
             <div>
                 <h1 className="text-2xl font-black text-gray-900 mb-1">Admin Dashboard</h1>
-                <p className="text-gray-400 text-sm">Real-time Performance Metrics & Agent Activity</p>
+                <p className="text-gray-400 text-sm">Real-time Performance Metrics & Agent PiActivityLight</p>
             </div>
 
             {/* Stat Cards - 6 Columns on large screens */}
@@ -118,21 +118,21 @@ export default function AdminDashboard() {
                 )}
             </div>
 
-            {/* Charts Row 1: Flights Calendar & Inventory */}
+            {/* Charts Row 1: Flights PiCalendarBlankLight & Inventory */}
             <div className="grid gap-6 md:grid-cols-2">
                 <Card className="border-gray-100 shadow-sm overflow-hidden flex flex-col md:col-span-1 h-[280px]">
                     <CardHeader className="pb-2 border-b border-gray-50 bg-gray-50/30">
                         <div className="flex items-center justify-between">
                             <CardTitle className="text-sm font-bold text-gray-900 flex items-center gap-2">
                                 <div className="w-6 h-6 rounded-md bg-violet-100 flex items-center justify-center">
-                                    <Calendar strokeWidth={1.25} className="h-3.5 w-3.5 text-violet-600" />
+                                    <PiCalendarBlankLight className="h-3.5 w-3.5 text-violet-600" />
                                 </div>
-                                Travel Calendar
+                                Travel PiCalendarBlankLight
                             </CardTitle>
                             <div className="flex items-center gap-1 bg-white rounded-md p-0.5 border border-gray-100 shadow-sm">
-                                <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-0.5 hover:bg-gray-100 rounded transition-colors"><ChevronLeft strokeWidth={1.25} className="h-3.5 w-3.5 text-gray-500" /></button>
+                                <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-0.5 hover:bg-gray-100 rounded transition-colors"><PiCaretLeftLight className="h-3.5 w-3.5 text-gray-500" /></button>
                                 <span className="text-[10px] font-black w-20 text-center text-gray-800 uppercase tracking-widest">{format(currentMonth, 'MMM yyyy')}</span>
-                                <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-0.5 hover:bg-gray-100 rounded transition-colors"><ChevronRight strokeWidth={1.25} className="h-3.5 w-3.5 text-gray-500" /></button>
+                                <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-0.5 hover:bg-gray-100 rounded transition-colors"><PiCaretRightLight className="h-3.5 w-3.5 text-gray-500" /></button>
                             </div>
                         </div>
                     </CardHeader>
@@ -176,7 +176,7 @@ export default function AdminDashboard() {
                 <Card className="border-gray-100 shadow-sm">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                            <Activity className="h-4 w-4 text-emerald-600" />
+                            <PiActivityLight className="h-4 w-4 text-emerald-600" />
                             Global Inventory Status
                         </CardTitle>
                     </CardHeader>
@@ -209,7 +209,7 @@ export default function AdminDashboard() {
                 <Card className="md:col-span-2 border-gray-100 shadow-sm">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                            <Users className="h-4 w-4 text-indigo-600" />
+                            <PiUsersLight className="h-4 w-4 text-indigo-600" />
                             Sales by Agent (SAR)
                         </CardTitle>
                     </CardHeader>

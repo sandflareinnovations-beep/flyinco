@@ -1,9 +1,9 @@
 "use client";
-
+import { PiAirplaneTiltLight, PiSparkleLight } from "react-icons/pi";
 import { motion } from "framer-motion";
 import { mockRoutes } from "@/lib/mock";
 import { RouteCard } from "@/components/routes/route-card";
-import { Plane, Sparkles } from "lucide-react";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 
@@ -22,7 +22,7 @@ export default function RoutesPage() {
                     className="max-w-3xl mx-auto"
                 >
                     <div className="flex items-center justify-center gap-2 mb-4">
-                        <Sparkles className="h-5 w-5 text-yellow-300" />
+                        <PiSparkleLight className="h-5 w-5 text-yellow-300" />
                         <span className="text-yellow-300 text-sm font-semibold uppercase tracking-widest">Exclusive Fares</span>
                     </div>
                     <h1 className="text-4xl md:text-5xl font-black mb-4 tracking-tight">
@@ -41,7 +41,7 @@ export default function RoutesPage() {
                         <p className="text-gray-500 mt-1">{routes.length} special fares available</p>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-400">
-                        <Plane className="h-4 w-4" />
+                        <PiAirplaneTiltLight className="h-4 w-4" />
                         <span>Prices in SAR</span>
                     </div>
                 </div>

@@ -1,5 +1,5 @@
 "use client";
-
+import { PiArrowLeftLight, PiMinusLight, PiPlusLight, PiSuitcaseRollingLight, PiClockLight, PiArrowRightLight } from "react-icons/pi";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { mockFlights } from "@/lib/mock";
@@ -7,7 +7,7 @@ import { TimelineFlight } from "@/components/flights/timeline-flight";
 import { BookingSummaryCard } from "@/components/booking/booking-summary-card";
 import { PassengerCounts } from "@/lib/types";
 import { motion } from "framer-motion";
-import { ArrowLeft, Minus, Plus, Luggage, Clock, ArrowRight } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -62,13 +62,13 @@ export default function FlightDetailsPage() {
             <div className="bg-white dark:bg-zinc-900 border-b border-gray-100 dark:border-zinc-800 sticky top-16 z-40 shadow-sm">
                 <div className="container mx-auto px-4 md:px-8 max-w-6xl py-4 flex items-center gap-4">
                     <Button variant="ghost" size="sm" onClick={() => router.back()} className="gap-2 text-gray-500">
-                        <ArrowLeft className="h-4 w-4" />
+                        <PiArrowLeftLight className="h-4 w-4" />
                         Back to Flights
                     </Button>
                     <Separator orientation="vertical" className="h-5 hidden md:block" />
                     <div className="flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-gray-300">
                         <span>{firstSeg.departureAirport}</span>
-                        <ArrowRight className="h-3 w-3" />
+                        <PiArrowRightLight className="h-3 w-3" />
                         <span>{lastSeg.arrivalAirport}</span>
                     </div>
                     <Badge variant="secondary" className="ml-auto hidden md:flex">
@@ -89,11 +89,11 @@ export default function FlightDetailsPage() {
                             <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-1">Flight Details</h1>
                             <div className="flex items-center gap-4 text-sm text-gray-500">
                                 <div className="flex items-center gap-1.5">
-                                    <Clock className="h-4 w-4" />
+                                    <PiClockLight className="h-4 w-4" />
                                     <span>Total: {flight.totalDuration}</span>
                                 </div>
                                 <div className="flex items-center gap-1.5">
-                                    <Luggage className="h-4 w-4" />
+                                    <PiSuitcaseRollingLight className="h-4 w-4" />
                                     <span>Baggage: {flight.baggage}</span>
                                 </div>
                             </div>
@@ -129,7 +129,7 @@ export default function FlightDetailsPage() {
                                                 onClick={() => adjust(key, -1)}
                                                 disabled={key === 'adults' && passengerCounts[key] <= 1}
                                             >
-                                                <Minus className="h-4 w-4" />
+                                                <PiMinusLight className="h-4 w-4" />
                                             </Button>
                                             <span className="text-lg font-bold w-8 text-center">{passengerCounts[key]}</span>
                                             <Button
@@ -139,7 +139,7 @@ export default function FlightDetailsPage() {
                                                 onClick={() => adjust(key, 1)}
                                                 disabled={totalPassengers >= flight.remainingSeats}
                                             >
-                                                <Plus className="h-4 w-4" />
+                                                <PiPlusLight className="h-4 w-4" />
                                             </Button>
                                         </div>
                                     </div>

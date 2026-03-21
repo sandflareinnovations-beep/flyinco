@@ -1,22 +1,19 @@
 "use client";
-
+import { PiShieldCheckLight, PiBookOpenLight, PiAirplaneTiltLight, PiSquaresFourLight, PiUsersLight, PiSignOutLight, PiMegaphoneLight } from "react-icons/pi";
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import {
-    ShieldCheck, BookOpen, Plane, LayoutDashboard,
-    Users, LogOut, Megaphone
-} from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 
 const links = [
-    { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-    { href: "/admin/sectors", label: "Sector Management", icon: Plane },
-    { href: "/admin/bookings", label: "Bookings", icon: BookOpen },
-    { href: "/admin/users", label: "Users", icon: Users },
-    { href: "/admin/announcements", label: "Announcements", icon: Megaphone },
+    { href: "/admin", label: "Dashboard", icon: PiSquaresFourLight, exact: true },
+    { href: "/admin/sectors", label: "Sector Management", icon: PiAirplaneTiltLight },
+    { href: "/admin/bookings", label: "Bookings", icon: PiBookOpenLight },
+    { href: "/admin/users", label: "PiUsersLight", icon: PiUsersLight },
+    { href: "/admin/announcements", label: "Announcements", icon: PiMegaphoneLight },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -82,7 +79,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <div className="p-3 border-t border-gray-100">
                     <div className="flex items-center gap-3 px-3 py-2 mb-2">
                         <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F3F0FF" }}>
-                            <ShieldCheck className="h-4 w-4" style={{ color: "#2E0A57" }} />
+                            <PiShieldCheckLight className="h-4 w-4" style={{ color: "#2E0A57" }} />
                         </div>
                         <div>
                             <p className="text-xs font-bold text-gray-800">{user?.name || "Admin"}</p>
@@ -95,7 +92,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         className="w-full justify-start gap-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-xl"
                         onClick={handleLogout}
                     >
-                        <LogOut className="h-4 w-4" />
+                        <PiSignOutLight className="h-4 w-4" />
                         Sign Out
                     </Button>
                 </div>

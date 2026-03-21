@@ -1,8 +1,8 @@
 "use client";
-
+import { PiPrinterLight, PiDownloadSimpleLight, PiXLight } from "react-icons/pi";
 import React, { useRef } from 'react';
 import { Button } from "@/components/ui/button";
-import { Printer, Download, X } from "lucide-react";
+
 import { format } from "date-fns";
 
 interface BookingReceiptProps {
@@ -76,14 +76,14 @@ export function BookingReceipt({ booking, onClose, autoPrint = false }: BookingR
                         onClick={handlePrint}
                         className="rounded-xl gap-2 font-semibold bg-white shadow-sm border-gray-200"
                     >
-                        <Printer className="h-4 w-4" /> Print Itinerary
+                        <PiPrinterLight className="h-4 w-4" /> Print Itinerary
                     </Button>
                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2 animate-pulse">
                         ↓ Scroll to see full details
                     </span>
                 </div>
                 <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
-                    <X className="h-4 w-4" />
+                    <PiXLight className="h-4 w-4" />
                 </Button>
             </div>
 
@@ -238,7 +238,7 @@ export function BookingReceipt({ booking, onClose, autoPrint = false }: BookingR
                                 </thead>
                                 <tbody>
                                     <tr className="border-b border-gray-50 text-[11px]">
-                                        <td className="px-6 py-3 font-medium">Adult X 1</td>
+                                        <td className="px-6 py-3 font-medium">Adult PiXLight 1</td>
                                         <td className="px-6 py-3">SAR {(booking.baseFare || 0).toLocaleString()}</td>
                                         <td className="px-6 py-3">SAR {((booking.taxes || 0) + (booking.serviceFee || 0)).toLocaleString()}</td>
                                         <td className="px-6 py-3 font-bold text-right">SAR {(booking.sellingPrice || 0).toLocaleString()}</td>

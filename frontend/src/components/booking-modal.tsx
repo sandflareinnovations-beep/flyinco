@@ -1,5 +1,5 @@
 "use client";
-
+import { PiAirplaneTakeoffLight, PiShieldCheckLight, PiCheckCircleLight } from "react-icons/pi";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,7 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { PlaneTakeoff, ShieldCheck, CheckCircle } from "lucide-react";
+
 
 const formSchema = z.object({
     passengerName: z.string().min(2, "Name must be at least 2 characters."),
@@ -109,7 +109,7 @@ export function BookingModal({ sector, isOpen, onClose }: BookingModalProps) {
             <DialogContent className="sm:max-w-xl">
                 {successBookingId ? (
                     <div className="flex flex-col items-center justify-center p-6 text-center space-y-4">
-                        <CheckCircle className="h-16 w-16 text-green-500 mb-2" />
+                        <PiCheckCircleLight className="h-16 w-16 text-green-500 mb-2" />
                         <h2 className="text-2xl font-bold">Your ticket is HELD</h2>
                         <div className="bg-muted p-4 rounded-lg text-sm space-y-2 max-w-sm">
                             <p>Our team is processing your ticket.</p>
@@ -126,7 +126,7 @@ export function BookingModal({ sector, isOpen, onClose }: BookingModalProps) {
                     <>
                         <DialogHeader>
                             <DialogTitle className="flex items-center gap-2 text-2xl font-bold">
-                                <PlaneTakeoff className="h-6 w-6 text-primary" />
+                                <PiAirplaneTakeoffLight className="h-6 w-6 text-primary" />
                                 Book Ticket
                             </DialogTitle>
                             <DialogDescription className="text-lg">
@@ -136,7 +136,7 @@ export function BookingModal({ sector, isOpen, onClose }: BookingModalProps) {
                         </DialogHeader>
 
                         <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 dark:border-primary/30 p-3 mt-4 rounded-md flex items-start gap-3 text-sm">
-                            <ShieldCheck className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                            <PiShieldCheckLight className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                             <p className="text-muted-foreground leading-tight text-primary dark:text-primary-foreground/80">
                                 Tickets are processed with instant approval.
                                 Our team will reach out immediately to finalize issuance.
