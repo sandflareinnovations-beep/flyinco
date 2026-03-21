@@ -174,7 +174,7 @@ export class BookingsService {
 
         const profit = sellingPrice - purchasePrice;
 
-        await (this.prisma.booking as any).create({
+        const b = await (this.prisma.booking as any).create({
           data: {
             routeId,
             passengerName,
@@ -208,6 +208,22 @@ export class BookingsService {
             isNew: true,
           },
         });
+
+        // Financial Sync: Upate agent user balance if matched
+        if (agentDetails) {
+          const matchedAgent = await this.prisma.user.findFirst({
+            where: { OR: [{ name: agentDetails }, { agencyName: agentDetails }] }
+          });
+          if (matchedAgent && matchedAgent.role === 'AGENT' && (paymentStatus === 'UNPAID' || !paymentStatus)) {
+            await this.prisma.user.update({
+              where: { id: matchedAgent.id },
+              data: {
+                pendingDues: { increment: sellingPrice || 0 },
+                outstanding: { increment: sellingPrice || 0 }
+              }
+            });
+          }
+        }
 
         if (!isCharterFormat && (status === 'CONFIRMED' || status === 'PENDING')) {
           await this.prisma.route.update({

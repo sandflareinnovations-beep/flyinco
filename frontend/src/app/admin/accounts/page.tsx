@@ -93,7 +93,8 @@ export default function AdminAccounts() {
                 amount: parseFloat(formData.amount),
                 type: formData.type,
                 reference: formData.reference,
-                notes: formData.notes
+                notes: formData.notes,
+                status: 'COMPLETED'
             });
             toast({ title: "Success", description: "Payment recorded successfully." });
             setShowPaymentModal(false);
@@ -157,6 +158,10 @@ export default function AdminAccounts() {
         XLSX.utils.book_append_sheet(wb, ws, "Ledger");
         XLSX.writeFile(wb, `${selectedAgent.name}_Reports.xlsx`);
     };
+
+    const totalSalesRec = useMemo(() => agentLedger.reduce((sum, b) => sum + (b.sellingPrice || 0), 0), [agentLedger]);
+    const totalPaymentsRec = useMemo(() => agentPayments.reduce((sum, p) => sum + (p.amount || 0), 0), [agentPayments]);
+    const dynamicDues = totalSalesRec - totalPaymentsRec;
 
     if (isLoading) return <LoadingLogo fullPage text="Loading Financial Records..." />;
 
@@ -242,11 +247,11 @@ export default function AdminAccounts() {
                                     <div className="grid grid-cols-2 gap-4 mb-6">
                                         <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
                                             <p className="text-[10px] font-black text-gray-400 uppercase">Total Sales</p>
-                                            <p className="text-lg font-black text-gray-800">SAR {selectedAgent.totalSales?.toLocaleString() || 0}</p>
+                                            <p className="text-lg font-black text-gray-800">SAR {totalSalesRec.toLocaleString()}</p>
                                         </div>
                                         <div className="p-4 rounded-xl bg-red-50 border border-red-100">
                                             <p className="text-[10px] font-black text-red-400 uppercase">Total Dues</p>
-                                            <p className="text-lg font-black text-red-600">SAR {selectedAgent.pendingDues?.toLocaleString() || 0}</p>
+                                            <p className="text-lg font-black text-red-600">SAR {dynamicDues.toLocaleString()}</p>
                                         </div>
                                     </div>
 
