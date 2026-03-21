@@ -1,5 +1,5 @@
 "use client";
-import { PiSignOutLight, PiMapTrifoldLight, PiCalendarBlankLight, PiGearLight, PiAirplaneTiltLight, PiFileTextLight, PiCheckCircleLight, PiClockLight } from "react-icons/pi";
+import { PiSignOut, PiMapTrifold, PiCalendarBlank, PiGear, PiAirplaneTilt, PiFileText, PiCheckCircle, PiClock } from "react-icons/pi";
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 
@@ -87,11 +87,11 @@ export default function UserDashboard() {
                 </div>
                 <div className="flex gap-2">
                     <Button variant="outline" className="gap-2 font-medium" onClick={() => router.push("/")}>
-                        <PiAirplaneTiltLight className="h-4 w-4" />
+                        <PiAirplaneTilt className="h-4 w-4" />
                         Book Fares
                     </Button>
                     <Button variant="destructive" className="gap-2 font-medium" onClick={handleLogout}>
-                        <PiSignOutLight className="h-4 w-4" />
+                        <PiSignOut className="h-4 w-4" />
                         Log out
                     </Button>
                 </div>
@@ -138,7 +138,7 @@ export default function UserDashboard() {
                     <Card className="col-span-1 md:col-span-3 shadow-sm border border-border">
                         <CardHeader className="bg-primary/5 pb-3">
                             <CardTitle className="text-lg font-bold flex items-center gap-2">
-                                <PiFileTextLight className="h-5 w-5 text-primary" />
+                                <PiFileText className="h-5 w-5 text-primary" />
                                 Notifications & Announcements
                             </CardTitle>
                         </CardHeader>
@@ -160,7 +160,7 @@ export default function UserDashboard() {
                     <Card className="col-span-1 md:col-span-3 shadow-md border-2 border-emerald-100 mb-6">
                         <CardHeader className="bg-emerald-50/50 pb-3 border-b border-emerald-100">
                             <CardTitle className="text-xl flex items-center gap-2 font-bold text-emerald-800">
-                                <PiAirplaneTiltLight className="h-6 w-6" />
+                                <PiAirplaneTilt className="h-6 w-6" />
                                 Available Routes for Booking
                             </CardTitle>
                         </CardHeader>
@@ -184,7 +184,7 @@ export default function UserDashboard() {
                                                     {s.airlineLogo ? (
                                                         <img src={s.airlineLogo} alt={s.airline} className="h-4 w-auto object-contain" />
                                                     ) : (
-                                                        <PiAirplaneTiltLight className="h-4 w-4 text-emerald-600" />
+                                                        <PiAirplaneTilt className="h-4 w-4 text-emerald-600" />
                                                     )}
                                                     {s.airline}
                                                 </div>
@@ -211,7 +211,7 @@ export default function UserDashboard() {
                                                     className="h-8 gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4"
                                                     onClick={() => router.push(`/routes/${s.id}/flights`)}
                                                 >
-                                                    <PiAirplaneTiltLight className="h-3.5 w-3.5" />
+                                                    <PiAirplaneTilt className="h-3.5 w-3.5" />
                                                     Book Now
                                                 </Button>
                                             </TableCell>
@@ -228,7 +228,7 @@ export default function UserDashboard() {
                 <Card className="col-span-1 md:col-span-3 shadow-lg border-2 border-primary/10">
                     <CardHeader className="bg-muted/30 pb-4 border-b">
                         <CardTitle className="text-xl flex items-center gap-2 font-bold text-primary">
-                            <PiFileTextLight className="h-6 w-6" />
+                            <PiFileText className="h-6 w-6" />
                             My Secured Bookings
                         </CardTitle>
                         <CardDescription className="text-sm">
@@ -238,7 +238,7 @@ export default function UserDashboard() {
                     <CardContent className="p-0">
                         {bookings.length === 0 ? (
                             <div className="p-12 text-center flex flex-col items-center">
-                                <PiMapTrifoldLight className="h-16 w-16 text-muted mb-4" />
+                                <PiMapTrifold className="h-16 w-16 text-muted mb-4" />
                                 <h3 className="text-xl font-bold tracking-tight mb-2">No flights booked yet</h3>
                                 <p className="text-muted-foreground mb-6">You haven&apos;t made any reservations on Flyinco yet.</p>
                                 <Button onClick={() => router.push('/')} size="lg">Explore Special Fares</Button>
@@ -264,7 +264,7 @@ export default function UserDashboard() {
                                             </TableCell>
                                             <TableCell className="font-bold">
                                                 <div className="flex items-center gap-2">
-                                                    <PiMapTrifoldLight className="h-4 w-4 text-primary" />
+                                                    <PiMapTrifold className="h-4 w-4 text-primary" />
                                                     {booking.sector ? booking.sector : (booking.route ? `${booking.route.origin} → ${booking.route.destination}` : "N/A")}
                                                 </div>
                                             </TableCell>
@@ -287,14 +287,14 @@ export default function UserDashboard() {
                                                     }
                                                     className={booking.status === "CONFIRMED" ? "bg-emerald-500 hover:bg-emerald-600 font-semibold" : booking.status === "HELD" ? "bg-amber-100 text-amber-800 hover:bg-amber-200 border-amber-200 font-semibold" : ""}
                                                 >
-                                                    {booking.status === "CONFIRMED" && <PiCheckCircleLight className="h-3 w-3 mr-1" />}
-                                                    {booking.status === "HELD" && <PiClockLight className="h-3 w-3 mr-1" />}
+                                                    {booking.status === "CONFIRMED" && <PiCheckCircle className="h-3 w-3 mr-1" />}
+                                                    {booking.status === "HELD" && <PiClock className="h-3 w-3 mr-1" />}
                                                     {booking.status}
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="whitespace-nowrap">
                                                 <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
-                                                    <PiCalendarBlankLight className="h-4 w-4" />
+                                                    <PiCalendarBlank className="h-4 w-4" />
                                                     {(() => {
                                                         const dateObj = booking.travelDate ? new Date(booking.travelDate) : (booking.route?.departureDate ? new Date(booking.route.departureDate) : null);
                                                         if (dateObj && !isNaN(dateObj.getTime())) {
@@ -314,7 +314,7 @@ export default function UserDashboard() {
                                                         setShowReceipt(true);
                                                     }}
                                                 >
-                                                    <PiFileTextLight className="h-3.5 w-3.5" />
+                                                    <PiFileText className="h-3.5 w-3.5" />
                                                     Receipt
                                                 </Button>
                                             </TableCell>

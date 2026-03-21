@@ -1,5 +1,5 @@
 "use client";
-import { PiSidebarLight } from "react-icons/pi";
+import { PiSidebar } from "react-icons/pi";
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -288,7 +288,7 @@ const SidebarTrigger = React.forwardRef<
       }}
       {...props}
     >
-      <PiSidebarLight />
+      <PiSidebar />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   )

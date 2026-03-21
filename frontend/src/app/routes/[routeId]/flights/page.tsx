@@ -1,5 +1,5 @@
 "use client";
-import { PiArrowLeftLight, PiCalendarBlankLight, PiLockKeyLight, PiWarningLight } from "react-icons/pi";
+import { PiArrowLeft, PiCalendarBlank, PiLockKey, PiWarning } from "react-icons/pi";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FlightCard } from "@/components/flights/flight-card";
@@ -93,7 +93,7 @@ export default function FlightsPage() {
             <div className="bg-white sticky top-0 md:top-[64px] z-40" style={{ borderBottom: "1px solid #E5E7EB", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
                 <div className="container mx-auto px-4 md:px-8 max-w-5xl py-4 flex items-center gap-4 flex-wrap">
                     <Button variant="ghost" size="sm" onClick={() => router.push("/")} style={{ color: "#6B7280" }} className="gap-2">
-                        <PiArrowLeftLight className="h-4 w-4" />
+                        <PiArrowLeft className="h-4 w-4" />
                         Home
                     </Button>
                     <div className="h-5 w-px bg-gray-200 hidden md:block" />
@@ -109,7 +109,7 @@ export default function FlightsPage() {
                     )}
 
                     <div className="flex items-center gap-1.5 text-sm font-medium" style={{ color: "#2E0A57" }}>
-                        <PiCalendarBlankLight className="h-4 w-4" style={{ color: "#6C2BD9" }} />
+                        <PiCalendarBlank className="h-4 w-4" style={{ color: "#6C2BD9" }} />
                         <span>
                             {activeSector?.departureDate
                                 ? new Date(activeSector.departureDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -127,7 +127,7 @@ export default function FlightsPage() {
                 ) : error ? (
                     <div className="max-w-md w-full bg-white rounded-3xl shadow-md border border-gray-100 p-10 text-center mx-auto">
                         <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center mx-auto mb-5">
-                            <PiWarningLight className="h-8 w-8 text-amber-500" />
+                            <PiWarning className="h-8 w-8 text-amber-500" />
                         </div>
                         <h2 className="text-2xl font-black text-gray-900 mb-2">Notice</h2>
                         <p className="text-gray-500 mb-6 leading-relaxed">{error}</p>
@@ -148,7 +148,7 @@ export default function FlightsPage() {
                     >
                         <div className="max-w-md w-full bg-white rounded-3xl shadow-md border border-gray-100 p-10 text-center">
                             <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-5">
-                                <PiLockKeyLight className="h-8 w-8 text-red-500" />
+                                <PiLockKey className="h-8 w-8 text-red-500" />
                             </div>
                             <h2 className="text-2xl font-black text-gray-900 mb-2">
                                 {bookingStatus === "SOLD" || (activeSector?.remainingSeats || 0) <= 0 ? "Sold Out" : "Booking Closed"}

@@ -1,5 +1,5 @@
 "use client";
-import { PiXLight } from "react-icons/pi";
+import { PiX } from "react-icons/pi";
 import * as React from "react"
 import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -83,7 +83,7 @@ const ToastClose = React.forwardRef<
     toast-close=""
     {...props}
   >
-    <PiXLight className="h-4 w-4" />
+    <PiX className="h-4 w-4" />
   </ToastPrimitives.Close>
 ))
 ToastClose.displayName = ToastPrimitives.Close.displayName

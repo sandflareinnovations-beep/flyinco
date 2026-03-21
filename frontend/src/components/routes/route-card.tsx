@@ -1,5 +1,5 @@
 "use client";
-import { PiMapPinLight, PiCalendarBlankLight, PiAirplaneTiltLight, PiWarningCircleLight, PiArrowRightLight } from "react-icons/pi";
+import { PiMapPin, PiCalendarBlank, PiAirplaneTilt, PiWarningCircle, PiArrowRight } from "react-icons/pi";
 import { motion } from "framer-motion";
 import { RouteOption } from "@/lib/types";
 
@@ -31,7 +31,7 @@ export function RouteCard({ route }: RouteCardProps) {
                 <div className="flex items-center justify-between mb-5">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
-                            <PiAirplaneTiltLight className="h-5 w-5 text-blue-600" />
+                            <PiAirplaneTilt className="h-5 w-5 text-blue-600" />
                         </div>
                         <div>
                             <p className="font-bold text-sm text-gray-900 dark:text-white">{route.airline}</p>
@@ -40,7 +40,7 @@ export function RouteCard({ route }: RouteCardProps) {
                     </div>
                     {isLowSeats ? (
                         <Badge variant="destructive" className="gap-1 text-xs font-semibold animate-pulse">
-                            <PiWarningCircleLight className="h-3 w-3" />
+                            <PiWarningCircle className="h-3 w-3" />
                             Only {route.remainingSeats} left!
                         </Badge>
                     ) : (
@@ -60,7 +60,7 @@ export function RouteCard({ route }: RouteCardProps) {
                     <div className="flex-1 mx-6 flex flex-col items-center gap-1">
                         <div className="flex items-center w-full gap-2">
                             <div className="flex-1 h-px bg-gray-200 dark:bg-zinc-700" />
-                            <PiArrowRightLight className="h-5 w-5 text-blue-500 flex-shrink-0" />
+                            <PiArrowRight className="h-5 w-5 text-blue-500 flex-shrink-0" />
                             <div className="flex-1 h-px bg-gray-200 dark:bg-zinc-700" />
                         </div>
                         <span className="text-xs text-gray-400">Direct / 1 Stop</span>
@@ -75,11 +75,11 @@ export function RouteCard({ route }: RouteCardProps) {
                 {/* Info row */}
                 <div className="flex items-center gap-4 text-sm text-gray-500 mb-5">
                     <div className="flex items-center gap-1.5">
-                        <PiCalendarBlankLight className="h-4 w-4" />
+                        <PiCalendarBlank className="h-4 w-4" />
                         <span>{new Date(route.departureDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                        <PiMapPinLight className="h-4 w-4" />
+                        <PiMapPin className="h-4 w-4" />
                         <span>{route.originCity}</span>
                     </div>
                 </div>

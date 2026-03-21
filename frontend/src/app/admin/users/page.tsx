@@ -1,5 +1,5 @@
 "use client";
-import { PiUsersLight, PiEnvelopeSimpleLight, PiPhoneLight, PiCalendarBlankLight, PiPlusLight, PiKeyLight, PiTrashLight, PiShieldCheckLight, PiUserLight, PiWarningLight, PiDownloadSimpleLight, PiMagnifyingGlassLight } from "react-icons/pi";
+import { PiUsers, PiEnvelopeSimple, PiPhone, PiCalendarBlank, PiPlus, PiKey, PiTrash, PiShieldCheck, PiUser, PiWarning, PiDownloadSimple, PiMagnifyingGlass } from "react-icons/pi";
 import { useEffect, useState, useCallback } from "react";
 import { format } from "date-fns";
 
@@ -262,16 +262,16 @@ export default function UsersAdminPage() {
                     style={{ background: `linear-gradient(135deg, ${B.primary}, ${B.accent})` }}
                     onClick={() => openModal("addUser")}
                 >
-                    <PiPlusLight className="h-4 w-4" /> Add User
+                    <PiPlus className="h-4 w-4" /> Add User
                 </Button>
             </div>
 
-            {/* PiMagnifyingGlassLight & Actions Bar */}
+            {/* PiMagnifyingGlass & Actions Bar */}
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-4">
                 <div className="relative w-full md:max-w-md group">
-                    <PiMagnifyingGlassLight className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-hover:text-[#6C2BD9] transition-colors" />
+                    <PiMagnifyingGlass className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-hover:text-[#6C2BD9] transition-colors" />
                     <Input 
-                        placeholder="PiMagnifyingGlassLight by name, email, or agency..." 
+                        placeholder="PiMagnifyingGlass by name, email, or agency..." 
                         value={search}
                         onChange={(e) => { setSearch(e.target.value); setPage(1); }}
                         className="pl-11 h-12 rounded-2xl border-gray-100 bg-white hover:border-violet-200 transition-all focus-visible:ring-violet-400 shadow-sm"
@@ -305,7 +305,7 @@ export default function UsersAdminPage() {
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {[
-                    { label: "Total PiUsersLight", value: users.length, color: B.primary },
+                    { label: "Total PiUsers", value: users.length, color: B.primary },
                     { label: "Agents", value: users.filter(u => u.role === "AGENT").length, color: "#10B981" },
                     { label: "Customers", value: users.filter(u => u.role === "USER").length, color: "#64748B" },
                 ].map(stat => (
@@ -332,7 +332,7 @@ export default function UsersAdminPage() {
                         {isLoading && users.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={5} className="py-20">
-                                    <LoadingLogo text="Fetching PiUsersLight..." />
+                                    <LoadingLogo text="Fetching PiUsers..." />
                                 </TableCell>
                             </TableRow>
                         ) : users.length === 0 ? (
@@ -364,11 +364,11 @@ export default function UsersAdminPage() {
                                 <TableCell>
                                     <div className="space-y-0.5">
                                         <div className="flex items-center gap-1.5 text-xs text-gray-600">
-                                            <PiEnvelopeSimpleLight className="h-3 w-3 text-gray-400" />{user.email}
+                                            <PiEnvelopeSimple className="h-3 w-3 text-gray-400" />{user.email}
                                         </div>
                                         {user.phone && (
                                             <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                                                <PiPhoneLight className="h-3 w-3" />{user.phone}
+                                                <PiPhone className="h-3 w-3" />{user.phone}
                                             </div>
                                         )}
                                     </div>
@@ -376,15 +376,15 @@ export default function UsersAdminPage() {
                                 <TableCell>
                                     {user.role === "ADMIN" ? (
                                         <Badge className="bg-violet-50 text-violet-700 border-violet-200 gap-1 font-semibold" variant="outline">
-                                            <PiShieldCheckLight className="h-3 w-3" /> Admin
+                                            <PiShieldCheck className="h-3 w-3" /> Admin
                                         </Badge>
                                     ) : user.role === "AGENT" ? (
                                         <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 gap-1 font-semibold" variant="outline">
-                                            <PiUserLight className="h-3 w-3" /> Agent
+                                            <PiUser className="h-3 w-3" /> Agent
                                         </Badge>
                                     ) : (
                                         <Badge className="bg-gray-50 text-gray-600 border-gray-200 gap-1 font-semibold" variant="outline">
-                                            <PiUserLight className="h-3 w-3" /> User
+                                            <PiUser className="h-3 w-3" /> User
                                         </Badge>
                                     )}
                                 </TableCell>
@@ -405,7 +405,7 @@ export default function UsersAdminPage() {
                                             <>
                                                 <Button variant="ghost" size="sm" className="h-8 rounded-lg gap-1.5 text-xs text-blue-600 hover:bg-blue-50"
                                                     onClick={() => handleDownloadAgentReport(user)}>
-                                                    <PiDownloadSimpleLight className="h-3.5 w-3.5" /> Export
+                                                    <PiDownloadSimple className="h-3.5 w-3.5" /> Export
                                                 </Button>
                                                 <Button variant="ghost" size="sm" className="h-8 rounded-lg gap-1.5 text-xs text-emerald-600 hover:bg-emerald-50"
                                                     onClick={() => openModal("manageFinances", user)}>
@@ -419,11 +419,11 @@ export default function UsersAdminPage() {
                                         </Button>
                                         <Button variant="ghost" size="sm" className="h-8 rounded-lg gap-1.5 text-xs text-violet-600 hover:bg-violet-50"
                                             onClick={() => openModal("changePassword", user)}>
-                                            <PiKeyLight className="h-3.5 w-3.5" /> Password
+                                            <PiKey className="h-3.5 w-3.5" /> Password
                                         </Button>
                                         <Button variant="ghost" size="sm" className="h-8 rounded-lg gap-1.5 text-xs text-red-500 hover:bg-red-50"
                                             onClick={() => openModal("deleteUser", user)}>
-                                            <PiTrashLight className="h-3.5 w-3.5" /> Delete
+                                            <PiTrash className="h-3.5 w-3.5" /> Delete
                                         </Button>
                                     </div>
                                 </TableCell>
@@ -438,7 +438,7 @@ export default function UsersAdminPage() {
                 <DialogContent className="max-w-md rounded-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-black flex items-center gap-2">
-                            <PiPlusLight className="h-5 w-5 text-violet-600" /> Add New User
+                            <PiPlus className="h-5 w-5 text-violet-600" /> Add New User
                         </DialogTitle>
                     </DialogHeader>
                     <form onSubmit={handleAddUser}>
@@ -452,7 +452,7 @@ export default function UsersAdminPage() {
                                 <Input className="rounded-xl" type="email" placeholder="john@example.com" required value={form.email || ""} onChange={e => setForm({ ...form, email: e.target.value })} />
                             </div>
                             <div className="space-y-1.5">
-                                <Label className="text-xs font-semibold text-gray-600">PiPhoneLight</Label>
+                                <Label className="text-xs font-semibold text-gray-600">PiPhone</Label>
                                 <Input className="rounded-xl" placeholder="+966 5xx xxx xxxx" value={form.phone || ""} onChange={e => setForm({ ...form, phone: e.target.value })} />
                             </div>
                             <div className="space-y-1.5">
@@ -510,7 +510,7 @@ export default function UsersAdminPage() {
                                 <Input className="rounded-xl" type="email" value={form.email || ""} onChange={e => setForm({ ...form, email: e.target.value })} />
                             </div>
                             <div className="space-y-1.5">
-                                <Label className="text-xs font-semibold text-gray-600">PiPhoneLight</Label>
+                                <Label className="text-xs font-semibold text-gray-600">PiPhone</Label>
                                 <Input className="rounded-xl" value={form.phone || ""} onChange={e => setForm({ ...form, phone: e.target.value })} />
                             </div>
                             <div className="space-y-1.5">
@@ -556,7 +556,7 @@ export default function UsersAdminPage() {
                 <DialogContent className="max-w-sm rounded-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-black flex items-center gap-2">
-                            <PiKeyLight className="h-5 w-5 text-violet-600" /> Change Password
+                            <PiKey className="h-5 w-5 text-violet-600" /> Change Password
                         </DialogTitle>
                         <p className="text-sm text-gray-400">{selected?.name} · {selected?.email}</p>
                     </DialogHeader>
@@ -571,7 +571,7 @@ export default function UsersAdminPage() {
                                 <Input className="rounded-xl" type="password" placeholder="Repeat password" required value={form.confirmPassword || ""} onChange={e => setForm({ ...form, confirmPassword: e.target.value })} />
                                 {form.confirmPassword && form.newPassword !== form.confirmPassword && (
                                     <p className="text-xs text-red-500 flex items-center gap-1">
-                                        <PiWarningLight className="h-3 w-3" /> Passwords do not match
+                                        <PiWarning className="h-3 w-3" /> Passwords do not match
                                     </p>
                                 )}
                             </div>
@@ -591,12 +591,12 @@ export default function UsersAdminPage() {
                 <DialogContent className="max-w-sm rounded-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-black text-red-600 flex items-center gap-2">
-                            <PiTrashLight className="h-5 w-5" /> Delete User
+                            <PiTrash className="h-5 w-5" /> Delete User
                         </DialogTitle>
                     </DialogHeader>
                     <div className="py-4">
                         <div className="bg-red-50 border border-red-100 rounded-xl p-3 flex gap-3 mb-3">
-                            <PiWarningLight className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+                            <PiWarning className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
                             <p className="text-sm text-red-700">This action cannot be undone. All bookings for this user will remain.</p>
                         </div>
                         <p className="text-sm text-gray-600">

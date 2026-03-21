@@ -1,5 +1,5 @@
 "use client";
-import { PiAirplaneTiltLight } from "react-icons/pi";
+import { PiAirplaneTilt } from "react-icons/pi";
 import { FlightSegment } from "@/lib/types";
 
 import { motion } from "framer-motion";
@@ -31,7 +31,7 @@ export function TimelineFlight({ segments }: TimelineFlightProps) {
                         <div className="flex-1 pb-6">
                             <div className="flex items-center gap-2 mb-2">
                                 <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
-                                    <PiAirplaneTiltLight className="h-3.5 w-3.5 text-blue-600" />
+                                    <PiAirplaneTilt className="h-3.5 w-3.5 text-blue-600" />
                                 </div>
                                 <span className="text-xs font-mono font-bold text-gray-500 dark:text-gray-400">{seg.airline} · {seg.flightNumber}</span>
                             </div>
@@ -48,7 +48,7 @@ export function TimelineFlight({ segments }: TimelineFlightProps) {
                                         <span className="text-xs text-gray-400 mb-1">{seg.duration}</span>
                                         <div className="flex items-center gap-1">
                                             <div className="w-16 h-px bg-gray-300 dark:bg-zinc-600" />
-                                            <PiAirplaneTiltLight className="h-4 w-4 text-blue-500 rotate-90" />
+                                            <PiAirplaneTilt className="h-4 w-4 text-blue-500 rotate-90" />
                                             <div className="w-16 h-px bg-gray-300 dark:bg-zinc-600" />
                                         </div>
                                     </div>

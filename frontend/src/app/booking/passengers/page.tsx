@@ -1,5 +1,5 @@
 "use client";
-import { PiArrowLeftLight, PiUserLight, PiSpinnerLight, PiPhoneLight, PiEnvelopeSimpleLight, PiCreditCardLight, PiArrowRightLight } from "react-icons/pi";
+import { PiArrowLeft, PiUser, PiSpinner, PiPhone, PiEnvelopeSimple, PiCreditCard, PiArrowRight } from "react-icons/pi";
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { mockFlights } from "@/lib/mock";
@@ -56,7 +56,7 @@ function PassengersForm() {
         e.preventDefault();
 
         if (!phone || !email) {
-            toast({ title: "Missing Fields", description: "PiPhoneLight and email are required.", variant: "destructive" });
+            toast({ title: "Missing Fields", description: "PiPhone and email are required.", variant: "destructive" });
             return;
         }
         if (!passenger.firstName || !passenger.lastName || !passenger.passportNumber) {
@@ -89,7 +89,7 @@ function PassengersForm() {
     if (!flight) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <PiSpinnerLight className="h-8 w-8 animate-spin" style={{ color: '#2E0A57' }} />
+                <PiSpinner className="h-8 w-8 animate-spin" style={{ color: '#2E0A57' }} />
             </div>
         );
     }
@@ -100,7 +100,7 @@ function PassengersForm() {
             <div className="bg-white border-b border-gray-100 sticky top-16 z-40 shadow-sm">
                 <div className="container mx-auto px-4 md:px-8 max-w-6xl py-3 flex items-center gap-3">
                     <Button variant="ghost" size="sm" onClick={() => router.back()} className="gap-2 text-gray-500 h-8">
-                        <PiArrowLeftLight className="h-4 w-4" />
+                        <PiArrowLeft className="h-4 w-4" />
                         Back
                     </Button>
                     <span className="text-sm font-semibold text-gray-700">Passenger Details</span>
@@ -122,13 +122,13 @@ function PassengersForm() {
                             <Card className="shadow-sm border-gray-100">
                                 <CardHeader className="pb-3">
                                     <CardTitle className="text-sm font-bold flex items-center gap-2 text-gray-700">
-                                        <PiPhoneLight className="h-4 w-4" style={{ color: '#2E0A57' }} />
+                                        <PiPhone className="h-4 w-4" style={{ color: '#2E0A57' }} />
                                         Contact Information
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-1.5">
-                                        <Label className="text-xs font-semibold text-gray-600">PiPhoneLight Number *</Label>
+                                        <Label className="text-xs font-semibold text-gray-600">PiPhone Number *</Label>
                                         <Input
                                             placeholder="+966 50 000 0000"
                                             className="rounded-xl border-gray-200 focus-visible:ring-[#6C2BD9]"
@@ -155,7 +155,7 @@ function PassengersForm() {
                             <Card className="shadow-sm border-gray-100">
                                 <CardHeader className="pb-3">
                                     <CardTitle className="text-sm font-bold flex items-center gap-2 text-gray-700">
-                                        <PiUserLight className="h-4 w-4" style={{ color: '#2E0A57' }} />
+                                        <PiUser className="h-4 w-4" style={{ color: '#2E0A57' }} />
                                         Passenger 1 — Adult
                                     </CardTitle>
                                 </CardHeader>
@@ -205,7 +205,7 @@ function PassengersForm() {
                             <Card className="shadow-sm border-gray-100">
                                 <CardHeader className="pb-3">
                                     <CardTitle className="text-sm font-bold flex items-center gap-2 text-gray-700">
-                                        <PiCreditCardLight className="h-4 w-4" style={{ color: '#2E0A57' }} />
+                                        <PiCreditCard className="h-4 w-4" style={{ color: '#2E0A57' }} />
                                         Passport Information
                                     </CardTitle>
                                 </CardHeader>
@@ -233,9 +233,9 @@ function PassengersForm() {
                                 disabled={isSubmitting}
                             >
                                 {isSubmitting ? (
-                                    <PiSpinnerLight className="h-5 w-5 animate-spin" />
+                                    <PiSpinner className="h-5 w-5 animate-spin" />
                                 ) : (
-                                    <>Proceed to Payment <PiArrowRightLight className="h-5 w-5" /></>
+                                    <>Proceed to Payment <PiArrowRight className="h-5 w-5" /></>
                                 )}
                             </Button>
                         </div>
@@ -256,7 +256,7 @@ function PassengersForm() {
 
 export default function PassengersPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><PiSpinnerLight className="h-8 w-8 animate-spin" style={{ color: '#2E0A57' }} /></div>}>
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><PiSpinner className="h-8 w-8 animate-spin" style={{ color: '#2E0A57' }} /></div>}>
             <PassengersForm />
         </Suspense>
     );

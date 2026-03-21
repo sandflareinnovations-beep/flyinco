@@ -1,5 +1,5 @@
 "use client";
-import { PiAirplaneTiltLight, PiClockLight, PiSuitcaseRollingLight, PiWarningCircleLight, PiCaretRightLight } from "react-icons/pi";
+import { PiAirplaneTilt, PiClock, PiSuitcaseRolling, PiWarningCircle, PiCaretRight } from "react-icons/pi";
 import { motion } from "framer-motion";
 import { FlightOption } from "@/lib/types";
 
@@ -47,7 +47,7 @@ export function FlightCard({ flight, routeId, index = 0 }: FlightCardProps) {
                                 {flight.airlineLogo ? (
                                     <img src={flight.airlineLogo} alt={firstSeg.airline} width={40} height={40} style={{ objectFit: 'contain' }} />
                                 ) : (
-                                    <PiAirplaneTiltLight size={24} style={{ color: BRAND_ACCENT }} />
+                                    <PiAirplaneTilt size={24} style={{ color: BRAND_ACCENT }} />
                                 )}
                             </div>
                             <div>
@@ -76,7 +76,7 @@ export function FlightCard({ flight, routeId, index = 0 }: FlightCardProps) {
                         <div className="flex-1 flex flex-col items-center gap-1 min-w-[100px]">
                             <div className="flex items-center w-full gap-2">
                                 <div style={{ flex: 1, height: 2, background: "#F3F4F6", borderRadius: 2 }} />
-                                <PiAirplaneTiltLight size={14} style={{ color: BRAND_ACCENT }} />
+                                <PiAirplaneTilt size={14} style={{ color: BRAND_ACCENT }} />
                                 <div style={{ flex: 1, height: 2, background: "#F3F4F6", borderRadius: 2 }} />
                             </div>
                             <span style={{ fontSize: 11, fontWeight: 700, color: flight.layover ? "#F59E0B" : "#10B981" }}>
@@ -98,7 +98,7 @@ export function FlightCard({ flight, routeId, index = 0 }: FlightCardProps) {
                     {/* ── Baggage & Flight Details ── */}
                     <div className="hidden md:flex flex-col items-center gap-1.5 w-24 flex-shrink-0">
                         <div style={{ background: "#F9FAFB", padding: "6px 12px", borderRadius: 8, display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
-                            <PiSuitcaseRollingLight size={16} color="#6B7280" />
+                            <PiSuitcaseRolling size={16} color="#6B7280" />
                             <span style={{ fontSize: 10, color: "#4B5563", fontWeight: 700, marginTop: 4, textAlign: "center", whiteSpace: "nowrap" }}>
                                 {flight.baggage}
                             </span>
@@ -134,7 +134,7 @@ export function FlightCard({ flight, routeId, index = 0 }: FlightCardProps) {
                             </div>
                             {isLowSeats && (
                                 <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#FEF2F2", color: "#DC2626", padding: "2px 8px", borderRadius: 4, fontSize: 10, fontWeight: 700, marginTop: 4 }}>
-                                    <PiWarningCircleLight size={10} /> {flight.remainingSeats} seats left
+                                    <PiWarningCircle size={10} /> {flight.remainingSeats} seats left
                                 </span>
                             )}
                         </div>
@@ -162,7 +162,7 @@ export function FlightCard({ flight, routeId, index = 0 }: FlightCardProps) {
                                 router.push(`/booking/passengers?flightId=${flight.id}&routeId=${routeId}`);
                             }}
                         >
-                            Select <PiCaretRightLight size={16} />
+                            Select <PiCaretRight size={16} />
                         </button>
                     </div>
                 </div>

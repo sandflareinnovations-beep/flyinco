@@ -1,5 +1,5 @@
 "use client";
-import { PiPlusLight, PiTrashLight, PiMegaphoneLight } from "react-icons/pi";
+import { PiPlus, PiTrash, PiMegaphone } from "react-icons/pi";
 import { useEffect, useState } from "react";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -68,7 +68,7 @@ export default function AnnouncementsPage() {
                     <p className="text-gray-400 text-sm mt-0.5">Broadcast messages to agents.</p>
                 </div>
                 <Button className="rounded-xl gap-2 font-semibold bg-primary text-white" onClick={() => setModal("add")}>
-                    <PiPlusLight className="h-4 w-4" /> New Announcement
+                    <PiPlus className="h-4 w-4" /> New Announcement
                 </Button>
             </div>
 
@@ -94,7 +94,7 @@ export default function AnnouncementsPage() {
                                 <TableCell className="text-sm text-gray-400">{format(new Date(ann.createdAt), "MMM dd, yyyy")}</TableCell>
                                 <TableCell className="text-right">
                                     <Button variant="ghost" size="icon" onClick={() => handleDelete(ann.id)} className="text-red-500 hover:bg-red-50">
-                                        <PiTrashLight className="h-4 w-4" />
+                                        <PiTrash className="h-4 w-4" />
                                     </Button>
                                 </TableCell>
                             </TableRow>

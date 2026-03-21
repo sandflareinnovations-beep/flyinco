@@ -1,5 +1,5 @@
 "use client";
-import { PiAirplaneTiltLight, PiCalendarBlankLight, PiSuitcaseRollingLight, PiUsersLight } from "react-icons/pi";
+import { PiAirplaneTilt, PiCalendarBlank, PiSuitcaseRolling, PiUsers } from "react-icons/pi";
 import { FlightOption, PassengerCounts } from "@/lib/types";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,7 +33,7 @@ export function BookingSummaryCard({
         <Card className="shadow-sm border-gray-100 dark:border-zinc-800 sticky top-24">
             <CardHeader className="pb-3">
                 <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <PiAirplaneTiltLight className="h-4 w-4" style={{ color: '#2E0A57' }} />
+                    <PiAirplaneTilt className="h-4 w-4" style={{ color: '#2E0A57' }} />
                     Booking Summary
                 </CardTitle>
             </CardHeader>
@@ -48,7 +48,7 @@ export function BookingSummaryCard({
                         </div>
                         <div className="flex-1 mx-3 flex flex-col items-center">
                             <div className="w-full h-px bg-purple-200 dark:bg-purple-800 relative">
-                                <PiAirplaneTiltLight className="h-3 w-3 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ color: '#6C2BD9' }} />
+                                <PiAirplaneTilt className="h-3 w-3 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ color: '#6C2BD9' }} />
                             </div>
                         </div>
                         <div className="text-center">
@@ -61,15 +61,15 @@ export function BookingSummaryCard({
                 {/* Flight Info */}
                 <div className="space-y-2 text-sm">
                     <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                        <PiCalendarBlankLight className="h-4 w-4 flex-shrink-0" style={{ color: '#6C2BD9' }} />
+                        <PiCalendarBlank className="h-4 w-4 flex-shrink-0" style={{ color: '#6C2BD9' }} />
                         <span>{new Date(flight.departureDate).toLocaleDateString('en-US', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}</span>
                     </div>
                     <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                        <PiSuitcaseRollingLight className="h-4 w-4 flex-shrink-0" style={{ color: '#6C2BD9' }} />
+                        <PiSuitcaseRolling className="h-4 w-4 flex-shrink-0" style={{ color: '#6C2BD9' }} />
                         <span>Baggage: {flight.baggage}</span>
                     </div>
                     <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                        <PiUsersLight className="h-4 w-4 flex-shrink-0" style={{ color: '#6C2BD9' }} />
+                        <PiUsers className="h-4 w-4 flex-shrink-0" style={{ color: '#6C2BD9' }} />
                         <span>
                             {passengerCounts.adults > 0 && `${passengerCounts.adults} Adult${passengerCounts.adults > 1 ? 's' : ''}`}
                             {passengerCounts.children > 0 && `, ${passengerCounts.children} Child`}
@@ -77,7 +77,7 @@ export function BookingSummaryCard({
                         </span>
                     </div>
                     <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                        <PiAirplaneTiltLight className="h-4 w-4 flex-shrink-0" style={{ color: '#6C2BD9' }} />
+                        <PiAirplaneTilt className="h-4 w-4 flex-shrink-0" style={{ color: '#6C2BD9' }} />
                         <span className="font-mono text-xs">{flight.segments.map(s => s.flightNumber).join(' + ')}</span>
                     </div>
                 </div>

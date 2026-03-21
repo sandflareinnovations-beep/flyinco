@@ -1,5 +1,5 @@
 "use client";
-import { PiEyeLight, PiStarLight, PiMagnifyingGlassLight, PiUserLight, PiPhoneLight, PiEnvelopeSimpleLight, PiCreditCardLight, PiAirplaneTiltLight, PiTrashLight, PiWarningLight, PiPlusLight, PiFileTextLight } from "react-icons/pi";
+import { PiEye, PiStar, PiMagnifyingGlass, PiUser, PiPhone, PiEnvelopeSimple, PiCreditCard, PiAirplaneTilt, PiTrash, PiWarning, PiPlus, PiFileText } from "react-icons/pi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -182,7 +182,7 @@ export default function AdminBookings() {
             return res.json();
         },
         onSuccess: () => {
-            toast({ title: "PiStarLight sent successfully!" });
+            toast({ title: "PiStar sent successfully!" });
             setTicketFile(null);
         },
         onError: () => toast({ title: "Error", description: "Failed to send ticket.", variant: "destructive" }),
@@ -295,26 +295,26 @@ export default function AdminBookings() {
                             className="bg-red-600 hover:bg-red-700 text-white rounded-xl gap-1.5"
                             onClick={() => setShowBulkDelete(true)}
                         >
-                            <PiTrashLight className="h-4 w-4" /> Delete ({selectedIds.length})
+                            <PiTrash className="h-4 w-4" /> Delete ({selectedIds.length})
                         </Button>
                     )}
                     <Button 
                         className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl gap-1.5"
                         onClick={() => setShowAdd(true)}
                     >
-                        <PiPlusLight className="h-4 w-4" /> Add Booking
+                        <PiPlus className="h-4 w-4" /> Add Booking
                     </Button>
                     <Button 
                         variant="outline"
                         className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 rounded-xl gap-1.5"
                         onClick={() => setShowBulkImport(true)}
                     >
-                        <PiStarLight className="h-4 w-4" /> Bulk Import
+                        <PiStar className="h-4 w-4" /> Bulk Import
                     </Button>
                     <div className="relative flex-1 min-w-[220px]">
-                        <PiMagnifyingGlassLight className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <PiMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                         <Input
-                            placeholder="PiMagnifyingGlassLight name, email, phone..."
+                            placeholder="PiMagnifyingGlass name, email, phone..."
                             className="pl-9 rounded-xl border-gray-200 focus-visible:ring-violet-400 text-sm"
                             value={search}
                         onChange={e => {
@@ -324,7 +324,7 @@ export default function AdminBookings() {
                         />
                     </div>
                     <Button variant="outline" size="sm" className="rounded-xl gap-1.5" onClick={() => refetch()}>
-                        <PiStarLight className="h-3.5 w-3.5" /> Refresh
+                        <PiStar className="h-3.5 w-3.5" /> Refresh
                     </Button>
                 </div>
             </div>
@@ -504,7 +504,7 @@ export default function AdminBookings() {
                                                         setShowDetail(true);
                                                     }}
                                                 >
-                                                    <PiEyeLight className="h-3.5 w-3.5" />
+                                                    <PiEye className="h-3.5 w-3.5" />
                                                 </Button>
                                                 <Button
                                                     variant="ghost" size="sm"
@@ -512,7 +512,7 @@ export default function AdminBookings() {
                                                     title="Confirm / Issue PNR"
                                                     onClick={() => statusMutation.mutate({ id: booking.id, status: "CONFIRMED" })}
                                                 >
-                                                    <PiStarLight className="h-3.5 w-3.5" />
+                                                    <PiStar className="h-3.5 w-3.5" />
                                                 </Button>
                                                 <Button
                                                     variant="ghost" size="sm"
@@ -520,7 +520,7 @@ export default function AdminBookings() {
                                                     title="Cancel Booking"
                                                     onClick={() => statusMutation.mutate({ id: booking.id, status: "CANCELLED" })}
                                                 >
-                                                    <PiStarLight className="h-3.5 w-3.5" />
+                                                    <PiStar className="h-3.5 w-3.5" />
                                                 </Button>
                                                 <Button
                                                     variant="ghost" size="sm"
@@ -531,7 +531,7 @@ export default function AdminBookings() {
                                                         setShowReceipt(true);
                                                     }}
                                                 >
-                                                    <PiFileTextLight className="h-3.5 w-3.5" />
+                                                    <PiFileText className="h-3.5 w-3.5" />
                                                 </Button>
                                                 <Button
                                                     variant="ghost" size="sm"
@@ -543,7 +543,7 @@ export default function AdminBookings() {
                                                         setShowEmailDialog(true);
                                                     }}
                                                 >
-                                                    <PiEnvelopeSimpleLight className="h-3.5 w-3.5" />
+                                                    <PiEnvelopeSimple className="h-3.5 w-3.5" />
                                                 </Button>
                                                 <Button
                                                     variant="ghost" size="sm"
@@ -554,7 +554,7 @@ export default function AdminBookings() {
                                                         setShowDelete(true);
                                                     }}
                                                 >
-                                                    <PiTrashLight className="h-3.5 w-3.5 text-red-600" />
+                                                    <PiTrash className="h-3.5 w-3.5 text-red-600" />
                                                 </Button>
                                             </div>
                                         </TableCell>
@@ -659,20 +659,20 @@ export default function AdminBookings() {
                                 <div className="bg-gray-50 rounded-xl p-4 space-y-2.5">
                                     <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Passenger</p>
                                     <div className="flex items-center gap-2 text-sm">
-                                        <PiUserLight className="h-4 w-4 text-violet-500" />
+                                        <PiUser className="h-4 w-4 text-violet-500" />
                                         <span className="font-semibold text-gray-900">{selected.passengerName}</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-sm">
-                                        <PiCreditCardLight className="h-4 w-4 text-violet-500" />
+                                        <PiCreditCard className="h-4 w-4 text-violet-500" />
                                         <span className="text-gray-600 font-mono">{selected.passportNumber}</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-sm">
-                                        <PiEnvelopeSimpleLight className="h-4 w-4 text-violet-500" />
+                                        <PiEnvelopeSimple className="h-4 w-4 text-violet-500" />
                                         <span className="text-gray-600">{selected.email}</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-sm">
-                                        <PiPhoneLight className="h-4 w-4 text-violet-500" />
-                                        <span className="text-gray-600">{selected.phone || "No PiPhoneLight"}</span>
+                                        <PiPhone className="h-4 w-4 text-violet-500" />
+                                        <span className="text-gray-600">{selected.phone || "No PiPhone"}</span>
                                     </div>
                                     <div className="grid grid-cols-2 gap-x-2 gap-y-1 mt-2 pt-2 border-t border-gray-100 text-[11px]">
                                         <div>
@@ -710,7 +710,7 @@ export default function AdminBookings() {
                                     <div className="bg-violet-50 border border-violet-100 rounded-xl p-4 space-y-2">
                                         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Flight</p>
                                         <div className="flex items-center gap-2 text-sm">
-                                            <PiAirplaneTiltLight className="h-4 w-4 text-violet-600" />
+                                            <PiAirplaneTilt className="h-4 w-4 text-violet-600" />
                                             <span className="font-bold text-violet-800">
                                                 {selected.route.origin} → {selected.route.destination}
                                             </span>
@@ -750,9 +750,9 @@ export default function AdminBookings() {
                                     </div>
                                 </div>
 
-                                {/* Send PDF PiStarLight */}
+                                {/* Send PDF PiStar */}
                                 <div className="space-y-2 bg-gray-50 p-4 rounded-xl border border-gray-100">
-                                    <Label className="text-xs font-bold text-gray-500">Upload PiStarLight & Send Email</Label>
+                                    <Label className="text-xs font-bold text-gray-500">Upload PiStar & Send Email</Label>
                                     <div className="flex flex-col gap-3">
                                         <Input
                                             type="file"
@@ -769,8 +769,8 @@ export default function AdminBookings() {
                                                 }
                                             }}
                                         >
-                                            <PiStarLight className="w-4 h-4 mr-1.5" />
-                                            {sendTicketMutation.isPending ? "Sending..." : "Send PiStarLight"}
+                                            <PiStar className="w-4 h-4 mr-1.5" />
+                                            {sendTicketMutation.isPending ? "Sending..." : "Send PiStar"}
                                         </Button>
                                     </div>
                                 </div>
@@ -781,7 +781,7 @@ export default function AdminBookings() {
                                 {/* Accounting & Fares */}
                                 <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 space-y-4">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <PiStarLight className="h-4 w-4 text-emerald-600" />
+                                        <PiStar className="h-4 w-4 text-emerald-600" />
                                         <p className="text-xs font-bold text-emerald-700 uppercase tracking-widest">Accounting</p>
                                     </div>
                                     
@@ -848,7 +848,7 @@ export default function AdminBookings() {
                                             </div>
                                         </div>
                                         <div className="space-y-1.5">
-                                            <Label className="text-[10px] font-bold text-gray-400 uppercase">PiStarLight Number</Label>
+                                            <Label className="text-[10px] font-bold text-gray-400 uppercase">PiStar Number</Label>
                                             <Input 
                                                 className="h-8 rounded-lg text-sm font-mono"
                                                 placeholder="Tkt No"
@@ -978,7 +978,7 @@ export default function AdminBookings() {
                 <DialogContent className="max-w-sm rounded-2xl">
                     <DialogHeader>
                         <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mb-4">
-                            <PiWarningLight className="h-6 w-6 text-red-600" />
+                            <PiWarning className="h-6 w-6 text-red-600" />
                         </div>
                         <DialogTitle className="font-black text-xl">Delete Booking?</DialogTitle>
                         <p className="text-gray-500 text-sm py-2">
@@ -1009,7 +1009,7 @@ export default function AdminBookings() {
                 <DialogContent className="max-w-sm rounded-2xl">
                     <DialogHeader>
                         <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mb-4">
-                            <PiWarningLight className="h-6 w-6 text-red-600" />
+                            <PiWarning className="h-6 w-6 text-red-600" />
                         </div>
                         <DialogTitle className="font-black text-xl">Delete {selectedIds.length} Bookings?</DialogTitle>
                         <p className="text-gray-500 text-sm py-2">
@@ -1088,7 +1088,7 @@ export default function AdminBookings() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-sm font-semibold">PiPhoneLight</Label>
+                                    <Label className="text-sm font-semibold">PiPhone</Label>
                                     <Input 
                                         placeholder="+966..."
                                         className="rounded-xl"
@@ -1168,7 +1168,7 @@ export default function AdminBookings() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label className="text-sm font-semibold">PNR / PiStarLight</Label>
+                                <Label className="text-sm font-semibold">PNR / PiStar</Label>
                                 <div className="flex gap-2">
                                     <Input 
                                         placeholder="PNR (ABCDEF)"
@@ -1177,7 +1177,7 @@ export default function AdminBookings() {
                                         onChange={e => setAddData({...addData, pnr: e.target.value.toUpperCase()})}
                                     />
                                     <Input 
-                                        placeholder="PiStarLight No"
+                                        placeholder="PiStar No"
                                         className="rounded-xl font-mono w-1/2"
                                         value={addData.ticketNumber}
                                         onChange={e => setAddData({...addData, ticketNumber: e.target.value})}
@@ -1192,7 +1192,7 @@ export default function AdminBookings() {
                                         SAR {(addData.sellingPrice - addData.purchasePrice).toLocaleString()}
                                     </p>
                                 </div>
-                                <PiStarLight className="h-8 w-8 text-emerald-200" />
+                                <PiStar className="h-8 w-8 text-emerald-200" />
                             </div>
                         </div>
                     </div>
@@ -1321,7 +1321,7 @@ export default function AdminBookings() {
                 <DialogContent className="max-w-sm rounded-2xl">
                     <DialogHeader>
                         <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mb-4">
-                            <PiEnvelopeSimpleLight className="h-6 w-6 text-blue-600" />
+                            <PiEnvelopeSimple className="h-6 w-6 text-blue-600" />
                         </div>
                         <DialogTitle className="font-black text-xl">Email Itinerary</DialogTitle>
                         <p className="text-gray-500 text-sm py-2">

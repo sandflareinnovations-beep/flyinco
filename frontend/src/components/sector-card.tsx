@@ -1,5 +1,5 @@
 "use client";
-import { PiClockLight, PiAirplaneTiltLight, PiCalendarBlankLight, PiBriefcaseLight } from "react-icons/pi";
+import { PiClock, PiAirplaneTilt, PiCalendarBlank, PiBriefcase } from "react-icons/pi";
 import { FareSector } from "@/lib/types";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,7 @@ export function SectorCard({ sector, onBook }: SectorCardProps) {
                     <div className="flex justify-between items-start mb-6">
                         <div className="flex items-center gap-2">
                             <div className="bg-primary/10 dark:bg-primary/30 p-2 rounded-full">
-                                <PiAirplaneTiltLight className="h-5 w-5 text-primary" />
+                                <PiAirplaneTilt className="h-5 w-5 text-primary" />
                             </div>
                             <div>
                                 <h3 className="font-semibold text-lg leading-none">{sector.airline}</h3>
@@ -43,7 +43,7 @@ export function SectorCard({ sector, onBook }: SectorCardProps) {
 
                     {sector.departureDate && (
                         <div className="flex items-center gap-1.5 text-sm font-semibold text-primary mb-3 bg-primary/5 w-fit px-3 py-1.5 rounded-md border border-primary/20">
-                            <PiCalendarBlankLight className="h-4 w-4" />
+                            <PiCalendarBlank className="h-4 w-4" />
                             {sector.departureDate}
                         </div>
                     )}
@@ -57,7 +57,7 @@ export function SectorCard({ sector, onBook }: SectorCardProps) {
 
                         <div className="flex-1 flex flex-col items-center px-4 relative">
                             <div className="flex items-center text-xs text-muted-foreground font-medium mb-2 gap-1 bg-background px-2 py-1 rounded-full border">
-                                <PiClockLight className="h-3 w-3" />
+                                <PiClock className="h-3 w-3" />
                                 {sector.duration}
                             </div>
                             <div className="w-full border-t border-dashed border-primary/30 relative">
@@ -68,7 +68,7 @@ export function SectorCard({ sector, onBook }: SectorCardProps) {
                                 <span>{sector.layover ? `One Stop • ${sector.layover}` : "Direct Flight"}</span>
                                 {sector.baggage && (
                                     <span className="flex items-center gap-1 bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20">
-                                        <PiBriefcaseLight className="h-3 w-3" />
+                                        <PiBriefcase className="h-3 w-3" />
                                         {sector.baggage}
                                     </span>
                                 )}

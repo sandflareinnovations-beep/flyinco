@@ -1,5 +1,5 @@
 "use client";
-import { PiAirplaneTiltLight, PiUsersLight, PiCurrencyDollarLight, PiPulseLight, PiTrendUpLight, PiCalendarBlankLight, PiCaretLeftLight, PiCaretRightLight } from "react-icons/pi";
+import { PiAirplaneTilt, PiUsers, PiCurrencyDollar, PiPulse, PiTrendUp, PiCalendarBlank, PiCaretLeft, PiCaretRight } from "react-icons/pi";
 import { useQuery } from "@tanstack/react-query";
 import { flyApi } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,12 +15,12 @@ import { startOfMonth, endOfMonth, eachDayOfInterval, format, isSameMonth, isTod
 import { LoadingLogo } from "@/components/ui/loading-logo";
 
 const statCards = (totalRevenue: number, totalProfit: number, totalBookings: number, seatsSold: number, remainingSeats: number, totalUnpaidDues: number, topAgent: string) => [
-    { label: "Total Revenue", value: `SAR ${totalRevenue.toLocaleString()}`, icon: PiCurrencyDollarLight, color: "text-emerald-600", bg: "bg-emerald-50", sub: "From selling prices" },
-    { label: "Total Profit", value: `SAR ${totalProfit.toLocaleString()}`, icon: PiTrendUpLight, color: "text-violet-600", bg: "bg-violet-50", sub: "Net margin" },
-    { label: "Payments Due", value: `SAR ${totalUnpaidDues.toLocaleString()}`, icon: PiPulseLight, color: "text-red-600", bg: "bg-red-50", sub: "Total unpaid dues" },
-    { label: "Top Performer", value: topAgent || "None", icon: PiUsersLight, color: "text-indigo-600", bg: "bg-indigo-50", sub: "Highest selling agent" },
-    { label: "Seats Sold/Held", value: seatsSold, icon: PiPulseLight, color: "text-indigo-600", bg: "bg-indigo-50", sub: "Across all sectors" },
-    { label: "Remaining", value: remainingSeats, icon: PiAirplaneTiltLight, color: "text-amber-600", bg: "bg-amber-50", sub: "Available seats" },
+    { label: "Total Revenue", value: `SAR ${totalRevenue.toLocaleString()}`, icon: PiCurrencyDollar, color: "text-emerald-600", bg: "bg-emerald-50", sub: "From selling prices" },
+    { label: "Total Profit", value: `SAR ${totalProfit.toLocaleString()}`, icon: PiTrendUp, color: "text-violet-600", bg: "bg-violet-50", sub: "Net margin" },
+    { label: "Payments Due", value: `SAR ${totalUnpaidDues.toLocaleString()}`, icon: PiPulse, color: "text-red-600", bg: "bg-red-50", sub: "Total unpaid dues" },
+    { label: "Top Performer", value: topAgent || "None", icon: PiUsers, color: "text-indigo-600", bg: "bg-indigo-50", sub: "Highest selling agent" },
+    { label: "Seats Sold/Held", value: seatsSold, icon: PiPulse, color: "text-indigo-600", bg: "bg-indigo-50", sub: "Across all sectors" },
+    { label: "Remaining", value: remainingSeats, icon: PiAirplaneTilt, color: "text-amber-600", bg: "bg-amber-50", sub: "Available seats" },
 ];
 
 export default function AdminDashboard() {
@@ -93,7 +93,7 @@ export default function AdminDashboard() {
         <div className="space-y-8 max-w-6xl pb-10">
             <div>
                 <h1 className="text-2xl font-black text-gray-900 mb-1">Admin Dashboard</h1>
-                <p className="text-gray-400 text-sm">Real-time Performance Metrics & Agent PiPulseLight</p>
+                <p className="text-gray-400 text-sm">Real-time Performance Metrics & Agent PiPulse</p>
             </div>
 
             {/* Stat Cards - 6 Columns on large screens */}
@@ -125,14 +125,14 @@ export default function AdminDashboard() {
                         <div className="flex items-center justify-between">
                             <CardTitle className="text-sm font-bold text-gray-900 flex items-center gap-2">
                                 <div className="w-6 h-6 rounded-md bg-violet-100 flex items-center justify-center">
-                                    <PiCalendarBlankLight className="h-4 w-4 text-violet-600" />
+                                    <PiCalendarBlank className="h-4 w-4 text-violet-600" />
                                 </div>
                                 Travel Calendar
                             </CardTitle>
                             <div className="flex items-center gap-2 bg-white rounded-lg p-1 border border-gray-100 shadow-sm">
-                                <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1 hover:bg-gray-100 rounded-md transition-colors"><PiCaretLeftLight className="h-4 w-4 text-gray-500" /></button>
+                                <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1 hover:bg-gray-100 rounded-md transition-colors"><PiCaretLeft className="h-4 w-4 text-gray-500" /></button>
                                 <span className="text-xs font-black w-24 text-center text-gray-800 uppercase tracking-widest">{format(currentMonth, 'MMM yyyy')}</span>
-                                <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-1 hover:bg-gray-100 rounded-md transition-colors"><PiCaretRightLight className="h-4 w-4 text-gray-500" /></button>
+                                <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-1 hover:bg-gray-100 rounded-md transition-colors"><PiCaretRight className="h-4 w-4 text-gray-500" /></button>
                             </div>
                         </div>
                     </CardHeader>
@@ -177,7 +177,7 @@ export default function AdminDashboard() {
                 <Card className="border-gray-100 shadow-sm">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                            <PiPulseLight className="h-4 w-4 text-emerald-600" />
+                            <PiPulse className="h-4 w-4 text-emerald-600" />
                             Global Inventory Status
                         </CardTitle>
                     </CardHeader>
@@ -210,7 +210,7 @@ export default function AdminDashboard() {
                 <Card className="md:col-span-2 border-gray-100 shadow-sm">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                            <PiUsersLight className="h-4 w-4 text-indigo-600" />
+                            <PiUsers className="h-4 w-4 text-indigo-600" />
                             Sales by Agent (SAR)
                         </CardTitle>
                     </CardHeader>
