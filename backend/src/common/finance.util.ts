@@ -15,7 +15,7 @@ export async function calculateAgentFinances(prisma: PrismaService, user: any) {
   }
 
   // Use a targeted aggregate to avoid fetching thousands of records
-  const [totalAgg, paidAgg, unpaidAgg] = await Promise.all([
+  const [totalAgg, manualPaymentsAgg] = await Promise.all([
     prisma.booking.aggregate({
       where: { 
         OR: orConditions,
@@ -23,33 +23,21 @@ export async function calculateAgentFinances(prisma: PrismaService, user: any) {
       },
       _sum: { sellingPrice: true, purchasePrice: true }
     }),
-    prisma.booking.aggregate({
-      where: { 
-        OR: orConditions,
-        status: { in: ['CONFIRMED', 'PENDING', 'COMPLETED'] },
-        paymentStatus: 'PAID'
-      },
-      _sum: { sellingPrice: true, purchasePrice: true }
-    }),
-    prisma.booking.aggregate({
-      where: { 
-        OR: orConditions,
-        status: { in: ['CONFIRMED', 'PENDING', 'COMPLETED'] },
-        paymentStatus: 'UNPAID'
-      },
-      _sum: { sellingPrice: true, purchasePrice: true }
+    prisma.payment.aggregate({
+      where: { agentId: user.id, status: 'COMPLETED' },
+      _sum: { amount: true }
     })
   ]);
 
   const totalSales = totalAgg._sum.sellingPrice || totalAgg._sum.purchasePrice || 0;
-  const paidAmount = paidAgg._sum.sellingPrice || paidAgg._sum.purchasePrice || 0;
-  const unpaidAmount = unpaidAgg._sum.sellingPrice || unpaidAgg._sum.purchasePrice || 0;
+  const manualPaid = manualPaymentsAgg._sum.amount || 0;
+  const unpaidAmount = totalSales - manualPaid;
 
   return {
     ...user,
-    totalPaid: paidAmount,
+    totalPaid: manualPaid,
     outstanding: totalSales,
-    pendingDues: unpaidAmount,
+    pendingDues: Math.max(0, unpaidAmount),
     totalSales: totalSales,
   };
 }

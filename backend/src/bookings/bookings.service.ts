@@ -506,7 +506,7 @@ export class BookingsService {
       where.userId = user.id;
     }
 
-    const [allBookings, counts] = await Promise.all([
+    const [allBookings, counts, allPayments] = await Promise.all([
       this.prisma.booking.findMany({
         where: { ...where, status: { not: 'CANCELLED' } },
         select: {
@@ -523,6 +523,10 @@ export class BookingsService {
         by: ['status'],
         where,
         _count: { _all: true }
+      }),
+      this.prisma.payment.findMany({
+        where: { status: 'COMPLETED' },
+        include: { agent: { select: { id: true, name: true, agencyName: true } } }
       })
     ]);
 
@@ -542,9 +546,8 @@ export class BookingsService {
       return acc;
     }, {} as Record<string, number>);
 
-    const totalUnpaidDues = activeFinancials
-      .filter(b => b.paymentStatus === 'UNPAID')
-      .reduce((acc, b) => acc + (b.sellingPrice || b.route?.price || 0), 0);
+    const globalPaymentsSum = allPayments.reduce((acc, p) => acc + (p.amount || 0), 0);
+    const totalUnpaidDues = Math.max(0, totalRevenue - globalPaymentsSum);
 
     const agentMap: Record<string, { totalSales: number; profit: number; count: number; unpaid: number }> = {};
     activeFinancials.forEach(b => {
@@ -559,7 +562,24 @@ export class BookingsService {
       agentMap[agent].totalSales += sale;
       agentMap[agent].profit += p;
       agentMap[agent].count += 1;
-      if (b.paymentStatus === 'UNPAID') agentMap[agent].unpaid += sale;
+      agentMap[agent].unpaid += sale; // Initialize unpaid with total sales
+    });
+
+    // Subtract payments from agentMap unpaid
+    allPayments.forEach(p => {
+      const names = [p.agent?.name, p.agent?.agencyName].filter(Boolean);
+      for (const name of names) {
+        const agentKey = (name || '').trim();
+        if (agentMap[agentKey]) {
+          agentMap[agentKey].unpaid -= (p.amount || 0);
+          break; // Found matching agent
+        }
+      }
+    });
+
+    // Ensure unpaid doesn't go below 0
+    Object.values(agentMap).forEach(stats => {
+      stats.unpaid = Math.max(0, stats.unpaid);
     });
 
     const agentPerformance = Object.entries(agentMap)
