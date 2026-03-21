@@ -8,7 +8,7 @@ import {
     PieChart, Pie, Cell, CartesianGrid
 } from 'recharts';
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plane, Users, DollarSign, Activity, TrendingUp } from "lucide-react";
+import { Plane, Users, DollarSign, Activity, TrendingUp, Calendar } from "lucide-react";
 import { motion } from "framer-motion";
 import { LoadingLogo } from "@/components/ui/loading-logo";
 
@@ -46,11 +46,6 @@ export default function AdminDashboard() {
     const seatsSold = sectorList.reduce((acc: number, s: any) => acc + (s.soldSeats || 0) + (s.heldSeats || 0), 0);
     const remainingSeats = sectorList.reduce((acc: number, s: any) => acc + (s.remainingSeats || 0), 0);
 
-    const seatData = sectorList.map((s: any) => ({
-        name: `${s.originCode}→${s.destinationCode}`,
-        Sold: (s.soldSeats || 0) + (s.heldSeats || 0),
-        Remaining: s.remainingSeats || 0,
-    }));
 
     const agentSalesData = agentPerformance.map((a: any) => ({
         name: a.name.split(' ').slice(0, 1).join(' '), // Short name
@@ -99,27 +94,72 @@ export default function AdminDashboard() {
 
             {/* Charts Row 1: Seats & Inventory */}
             <div className="grid gap-6 md:grid-cols-2">
-                <Card className="border-gray-100 shadow-sm">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                            <Plane className="h-4 w-4 text-violet-600" />
-                            Seat Occupancy per Route
+                <Card className="border-gray-100 shadow-sm overflow-hidden flex flex-col">
+                    <CardHeader className="pb-3 border-b border-gray-50 bg-gray-50/30">
+                        <CardTitle className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-md bg-violet-100 flex items-center justify-center">
+                                <Calendar className="h-3.5 w-3.5 text-violet-600" />
+                            </div>
+                            Travel Calendar
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="h-[280px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={seatData} barSize={20}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
-                                <XAxis dataKey="name" fontSize={10} fontWeight={600} tickLine={false} axisLine={false} />
-                                <YAxis fontSize={10} fontWeight={600} tickLine={false} axisLine={false} />
-                                <Tooltip 
-                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
-                                    cursor={{ fill: '#f5f3ff' }} 
-                                />
-                                <Bar dataKey="Sold" fill="#7c3aed" radius={[4, 4, 0, 0]} />
-                                <Bar dataKey="Remaining" fill="#ddd6fe" radius={[4, 4, 0, 0]} />
-                            </BarChart>
-                        </ResponsiveContainer>
+                    <CardContent className="flex-1 p-0 h-[280px] overflow-y-auto w-full custom-scrollbar">
+                        <div className="p-4 space-y-4">
+                            {Object.entries(sectorList.reduce((acc: any, s: any) => {
+                                const date = s.departureDate || 'Unscheduled';
+                                if (!acc[date]) acc[date] = [];
+                                acc[date].push(s);
+                                return acc;
+                            }, {})).sort((a: any, b: any) => {
+                                if (a[0] === 'Unscheduled') return 1;
+                                if (b[0] === 'Unscheduled') return -1;
+                                return new Date(a[0]).getTime() - new Date(b[0]).getTime();
+                            }).map(([date, flights]: any, i) => (
+                                <div key={i} className="flex flex-col gap-2.5">
+                                    <div className="text-[11px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2 sticky top-0 bg-white/95 backdrop-blur py-1 z-10 border-b border-gray-100 pr-2">
+                                        <Calendar className="h-3 w-3 text-violet-400" />
+                                        {date !== 'Unscheduled' ? new Date(date).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Unscheduled Fares'}
+                                    </div>
+                                    <div className="space-y-2">
+                                        {flights.map((s: any, idx: number) => (
+                                            <div key={idx} className="group flex flex-col sm:flex-row sm:items-center justify-between gap-y-3 gap-x-4 bg-white p-3.5 rounded-xl border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:border-violet-200 hover:shadow-md transition-all">
+                                                <div className="flex items-center gap-3 w-full sm:w-auto">
+                                                    <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0 border border-indigo-100/50">
+                                                        <Plane className="h-4 w-4 text-indigo-600 drop-shadow-sm" />
+                                                    </div>
+                                                    <div>
+                                                        <div className="font-black text-gray-900 text-[15px] flex items-center gap-2 tracking-tight">
+                                                            {s.originCode} <span className="text-gray-300 font-medium">→</span> {s.destinationCode}
+                                                        </div>
+                                                        <div className="text-[11px] text-gray-500 font-semibold mt-0.5 flex items-center gap-1.5 opacity-80">
+                                                            <span>{s.airline}</span>
+                                                            <span className="w-1 h-1 rounded-full bg-gray-300" />
+                                                            <span>{s.flightNumber}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-2 w-full sm:w-auto self-end sm:self-auto">
+                                                    <span className="text-[10px] font-bold text-gray-600 bg-gray-50 border border-gray-200 px-2 py-1.5 rounded uppercase">
+                                                        {s.departureTime || "--:--"}
+                                                    </span>
+                                                    <span className="text-[10px] font-black tracking-wider text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1.5 rounded uppercase shadow-sm">
+                                                        {s.remainingSeats} Left
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                            {sectorList.length === 0 && (
+                                <div className="text-center text-sm font-medium text-gray-400 py-16 flex flex-col items-center justify-center gap-3 bg-gray-50 rounded-2xl border border-gray-100 border-dashed">
+                                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
+                                        <Calendar className="h-5 w-5 text-gray-300" />
+                                    </div>
+                                    <p>No scheduled flights available</p>
+                                </div>
+                            )}
+                        </div>
                     </CardContent>
                 </Card>
 
