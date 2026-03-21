@@ -44,26 +44,13 @@ export default function AdminAccounts() {
     const [formData, setFormData] = useState({ amount: "", type: "PAYMENT", reference: "", notes: "" });
     const { toast } = useToast();
 
-    const [metricsMap, setMetricsMap] = useState<Record<string, any>>({});
-
     const fetchAgents = useCallback(async () => {
         setIsLoading(true);
         try {
-            const [data, metricsData] = await Promise.all([
-                flyApi.users.list({ limit: 1000 }),
-                flyApi.bookings.getMetrics()
-            ]);
+            const data = await flyApi.users.list({ limit: 1000 });
             const list = Array.isArray(data) ? data : (data.users || []);
             const agentList = list.filter((u: any) => u.role === 'AGENT');
             setAgents(agentList);
-
-            // Build a lookup map from metrics agentPerformance
-            const perfMap: Record<string, any> = {};
-            const agentPerf = metricsData?.agentPerformance || [];
-            for (const perf of agentPerf) {
-                perfMap[perf.name.trim().toUpperCase()] = perf;
-            }
-            setMetricsMap(perfMap);
         } catch (error: any) {
             console.error("FETCH AGENTS ERROR:", error);
             toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -241,18 +228,9 @@ export default function AdminAccounts() {
                                         <p className="text-[10px] text-gray-400 font-medium uppercase">{agent.agencyName || 'INDIVIDUAL AGENT'}</p>
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        {(() => {
-                                            // Look up live metrics by BOTH name and agencyName
-                                            const nameKey = (agent.name || '').trim().toUpperCase();
-                                            const agencyKey = (agent.agencyName || '').trim().toUpperCase();
-                                            const perf = metricsMap[nameKey] || metricsMap[agencyKey];
-                                            const liveUnpaid = perf?.unpaid ?? agent.pendingDues ?? 0;
-                                            return (
-                                                <span className={`font-black ${liveUnpaid > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
-                                                    SAR {liveUnpaid.toLocaleString()}
-                                                </span>
-                                            );
-                                        })()}
+                                        <span className={`font-black ${(agent.pendingDues || 0) > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+                                            SAR {(agent.pendingDues || 0).toLocaleString()}
+                                        </span>
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <Button variant="ghost" size="sm" className="rounded-md hover:bg-white hover:shadow-sm" onClick={(e) => { e.stopPropagation(); fetchLedger(agent); }}>
