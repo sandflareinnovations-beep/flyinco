@@ -1,5 +1,5 @@
 "use client";
-import { PiEye, PiStar, PiMagnifyingGlass, PiUser, PiPhone, PiEnvelopeSimple, PiCreditCard, PiAirplaneTilt, PiTrash, PiWarning, PiPlus, PiFileText } from "react-icons/pi";
+import { PiEye, PiTicket, PiMagnifyingGlass, PiUser, PiPhone, PiEnvelopeSimple, PiCreditCard, PiAirplaneTilt, PiTrash, PiWarning, PiPlus, PiFileText, PiTable } from "react-icons/pi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -345,14 +345,14 @@ export default function AdminBookings() {
                         className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 rounded-xl gap-1.5"
                         onClick={() => setShowBulkImport(true)}
                     >
-                        <PiStar className="h-4 w-4" /> Bulk Import
+                        <PiTable className="h-4 w-4" /> Bulk Import
                     </Button>
                     <Button 
                         variant="outline"
                         className="border-blue-200 text-blue-700 hover:bg-blue-50 rounded-xl gap-1.5"
                         onClick={handleExportAll}
                     >
-                        <PiStar className="h-4 w-4" /> Export Report
+                        <PiTicket className="h-4 w-4" /> Export Report
                     </Button>
                     <div className="flex items-center gap-2 flex-1 min-w-[300px]">
                         <Select value={searchType} onValueChange={v => { setSearchType(v); setPage(1); }}>
@@ -383,7 +383,7 @@ export default function AdminBookings() {
                         </div>
                     </div>
                     <Button variant="outline" size="sm" className="rounded-xl gap-1.5" onClick={() => refetch()}>
-                        <PiStar className="h-3.5 w-3.5" /> Refresh
+                        <PiTicket className="h-3.5 w-3.5" /> Refresh
                     </Button>
                 </div>
             </div>
@@ -571,7 +571,7 @@ export default function AdminBookings() {
                                                     title="Confirm / Issue PNR"
                                                     onClick={() => statusMutation.mutate({ id: booking.id, status: "CONFIRMED" })}
                                                 >
-                                                    <PiStar className="h-3.5 w-3.5" />
+                                                    <PiTicket className="h-3.5 w-3.5" />
                                                 </Button>
                                                 <Button
                                                     variant="ghost" size="sm"
@@ -579,7 +579,7 @@ export default function AdminBookings() {
                                                     title="Cancel Booking"
                                                     onClick={() => statusMutation.mutate({ id: booking.id, status: "CANCELLED" })}
                                                 >
-                                                    <PiStar className="h-3.5 w-3.5" />
+                                                    <PiTicket className="h-3.5 w-3.5" />
                                                 </Button>
                                                 <Button
                                                     variant="ghost" size="sm"
@@ -827,7 +827,7 @@ export default function AdminBookings() {
                                                 }
                                             }}
                                         >
-                                            <PiStar className="w-4 h-4 mr-1.5" />
+                                            <PiTicket className="w-4 h-4 mr-1.5" />
                                             {sendTicketMutation.isPending ? "Sending..." : "Send Ticket"}
                                         </Button>
                                     </div>
@@ -839,7 +839,7 @@ export default function AdminBookings() {
                                 {/* Accounting & Fares */}
                                 <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 space-y-4">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <PiStar className="h-4 w-4 text-emerald-600" />
+                                        <PiTicket className="h-4 w-4 text-emerald-600" />
                                         <p className="text-xs font-bold text-emerald-700 uppercase tracking-widest">Accounting</p>
                                     </div>
                                     
@@ -1254,7 +1254,7 @@ export default function AdminBookings() {
                                         SAR {(addData.sellingPrice - addData.purchasePrice).toLocaleString()}
                                     </p>
                                 </div>
-                                <PiStar className="h-8 w-8 text-emerald-200" />
+                                <PiTicket className="h-8 w-8 text-emerald-200" />
                             </div>
                         </div>
                     </div>

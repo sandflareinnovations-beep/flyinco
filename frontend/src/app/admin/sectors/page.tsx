@@ -1,5 +1,5 @@
 "use client";
-import { PiPlus, PiStar, PiTrash, PiLockKey, PiWarning } from "react-icons/pi";
+import { PiPlus, PiDotsThreeVertical, PiTrash, PiLockKey, PiWarning, PiPencilSimple, PiListNumbers, PiCheckCircle, PiGear } from "react-icons/pi";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { flyApi } from "@/lib/api";
@@ -348,20 +348,20 @@ export default function SectorManagement() {
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg">
-                                                <PiStar className="h-4 w-4" />
+                                                <PiDotsThreeVertical className="h-4 w-4" />
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-lg border-gray-100">
                                             <DropdownMenuLabel className="text-xs text-gray-400">Actions</DropdownMenuLabel>
                                             <DropdownMenuSeparator />
                                             <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => openModal("edit", sector)}>
-                                                <PiStar className="h-3.5 w-3.5" /> Edit Fare
+                                                <PiPencilSimple className="h-3.5 w-3.5" /> Edit Fare
                                             </DropdownMenuItem>
                                             <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => openModal("seats", sector)}>
-                                                <PiStar className="h-3.5 w-3.5" /> Adjust Seats
+                                                <PiListNumbers className="h-3.5 w-3.5" /> Adjust Seats
                                             </DropdownMenuItem>
                                             <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelected(sector); setTargetStatus("OPEN"); openModal("bookingStatus", sector); }}>
-                                                <PiStar className="h-3.5 w-3.5" /> Open Booking
+                                                <PiCheckCircle className="h-3.5 w-3.5" /> Open Booking
                                             </DropdownMenuItem>
                                             <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelected(sector); setTargetStatus("CLOSED"); openModal("bookingStatus", sector); }}>
                                                 <PiLockKey className="h-3.5 w-3.5" /> Close Booking
@@ -585,7 +585,7 @@ export default function SectorManagement() {
                 <DialogContent className="max-w-sm rounded-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-black flex items-center gap-2">
-                            {targetStatus === "OPEN" ? <PiStar className="h-5 w-5 text-emerald-600" /> : <PiLockKey className="h-5 w-5 text-red-500" />}
+                            {targetStatus === "OPEN" ? <PiCheckCircle className="h-5 w-5 text-emerald-600" /> : <PiLockKey className="h-5 w-5 text-red-500" />}
                             {targetStatus === "OPEN" ? "Open Booking" : "Close Booking"}
                         </DialogTitle>
                     </DialogHeader>

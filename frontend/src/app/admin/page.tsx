@@ -1,5 +1,5 @@
 "use client";
-import { PiAirplaneTilt, PiUsers, PiCurrencyDollar, PiPulse, PiTrendUp, PiCalendarBlank, PiCaretLeft, PiCaretRight } from "react-icons/pi";
+import { PiAirplaneTilt, PiUsers, PiWallet, PiPulse, PiTrendUp, PiCalendarBlank, PiCaretLeft, PiCaretRight, PiMoney } from "react-icons/pi";
 import { useQuery } from "@tanstack/react-query";
 import { flyApi } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,7 +15,7 @@ import { startOfMonth, endOfMonth, eachDayOfInterval, format, isSameMonth, isTod
 import { LoadingLogo } from "@/components/ui/loading-logo";
 
 const statCards = (totalRevenue: number, totalProfit: number, totalBookings: number, seatsSold: number, remainingSeats: number, totalUnpaidDues: number, topAgent: string) => [
-    { label: "Total Revenue", value: `SAR ${totalRevenue.toLocaleString()}`, icon: PiCurrencyDollar, color: "text-emerald-600", bg: "bg-emerald-50", sub: "From selling prices" },
+    { label: "Total Revenue", value: `SAR ${totalRevenue.toLocaleString()}`, icon: PiMoney, color: "text-emerald-600", bg: "bg-emerald-50", sub: "From selling prices" },
     { label: "Total Profit", value: `SAR ${totalProfit.toLocaleString()}`, icon: PiTrendUp, color: "text-violet-600", bg: "bg-violet-50", sub: "Net margin" },
     { label: "Payments Due", value: `SAR ${totalUnpaidDues.toLocaleString()}`, icon: PiPulse, color: "text-red-600", bg: "bg-red-50", sub: "Total unpaid dues" },
     { label: "Top Performer", value: topAgent || "None", icon: PiUsers, color: "text-indigo-600", bg: "bg-indigo-50", sub: "Highest selling agent" },

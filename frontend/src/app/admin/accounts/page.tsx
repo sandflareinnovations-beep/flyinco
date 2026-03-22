@@ -1,7 +1,7 @@
 "use client";
 import { 
     PiUsers, 
-    PiCurrencyDollar, 
+    PiWallet, 
     PiBriefcase, 
     PiPlus, 
     PiReceipt, 
@@ -11,7 +11,8 @@ import {
     PiDownloadSimple,
     PiMagnifyingGlass,
     PiCaretRight,
-    PiClock
+    PiClock,
+    PiMoney
 } from "react-icons/pi";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { format } from "date-fns";
@@ -68,6 +69,8 @@ export default function AdminAccounts() {
 
     const fetchLedger = async (agent: any) => {
         setSelectedAgent(agent);
+        setAgentLedger([]); // Clear previous data immediately
+        setAgentPayments([]);
         setLoadingLedger(true);
         try {
             // Fetch bookings by BOTH name AND agencyName, then merge + deduplicate
