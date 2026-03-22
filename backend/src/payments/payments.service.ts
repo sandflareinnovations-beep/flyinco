@@ -35,23 +35,29 @@ export class PaymentsService {
           const unpaidBookings = await this.prisma.booking.findMany({
               where: {
                   OR: bookingConditions,
-                  paymentStatus: 'UNPAID',
-                  status: { not: 'CANCELLED' }
+                  paymentStatus: { in: ['UNPAID', 'PENDING'] },
+                  status: { in: ['CONFIRMED', 'PENDING', 'HELD', 'COMPLETED'] }
               },
-              orderBy: { createdAt: 'asc' }
+              orderBy: { createdAt: 'asc' },
+              select: { id: true, sellingPrice: true }
           });
 
+          const idsToMarkPaid: string[] = [];
           let amountLeft = payment.amount;
           for (const b of unpaidBookings) {
               const price = b.sellingPrice || 0;
-              if (price > 0 && amountLeft >= price) {
-                  await this.prisma.booking.update({
-                      where: { id: b.id },
-                      data: { paymentStatus: 'PAID' }
-                  });
+              if (price > 0 && amountLeft >= (price - 0.01)) { // handle tiny float diffs
+                  idsToMarkPaid.push(b.id);
                   amountLeft -= price;
               }
               if (amountLeft <= 0) break;
+          }
+
+          if (idsToMarkPaid.length > 0) {
+              await this.prisma.booking.updateMany({
+                  where: { id: { in: idsToMarkPaid } },
+                  data: { paymentStatus: 'PAID' }
+              });
           }
       }
     } else if (data.type === 'DUES' && payment.status === 'COMPLETED') {
@@ -86,20 +92,27 @@ export class PaymentsService {
                     paymentStatus: 'PAID',
                     status: { not: 'CANCELLED' }
                 },
-                orderBy: { createdAt: 'desc' }
+                orderBy: { createdAt: 'desc' },
+                select: { id: true, sellingPrice: true }
             });
-            bookingsToRevert.push(...matchingPaidBookings);
-        }
 
-        // Revert up to the amount deleted
-        let remainingToRevert = payment.amount;
-        for (const b of bookingsToRevert) {
-            const price = b.sellingPrice || 0;
-            if (remainingToRevert >= price) {
-                await this.prisma.booking.update({ where: { id: b.id }, data: { paymentStatus: 'UNPAID' } });
-                remainingToRevert -= price;
+            const idsToRevert: string[] = [];
+            let remainingToRevert = payment.amount;
+            for (const b of matchingPaidBookings) {
+                const price = b.sellingPrice || 0;
+                if (remainingToRevert >= (price - 0.01)) {
+                    idsToRevert.push(b.id);
+                    remainingToRevert -= price;
+                }
+                if (remainingToRevert <= 0) break;
             }
-            if (remainingToRevert <= 0) break;
+
+            if (idsToRevert.length > 0) {
+                await this.prisma.booking.updateMany({
+                    where: { id: { in: idsToRevert } },
+                    data: { paymentStatus: 'UNPAID' }
+                });
+            }
         }
 
         await this.prisma.user.update({

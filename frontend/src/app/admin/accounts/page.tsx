@@ -186,6 +186,14 @@ export default function AdminAccounts() {
     const totalPaymentsRec = useMemo(() => agentPayments.reduce((sum, p) => sum + (p.amount || 0), 0), [agentPayments]);
     const dynamicDues = totalSalesRec - totalPaymentsRec;
 
+    // Optimized transaction list memoization
+    const sortedTransactions = useMemo(() => {
+        return [
+            ...agentLedger.map(b => ({ ...b, itemType: 'BOOKING' })),
+            ...agentPayments.map(p => ({ ...p, itemType: 'PAYMENT' }))
+        ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }, [agentLedger, agentPayments]);
+
     if (isLoading) return <LoadingLogo fullPage text="Loading Financial Records..." />;
 
     return (
@@ -293,12 +301,8 @@ export default function AdminAccounts() {
                                             <div className="flex justify-center p-8"><PiClock className="animate-spin h-8 w-8 text-gray-200" /></div>
                                         ) : (
                                             <div className="space-y-2">
-                                                {/* Combine bookings and payments */}
-                                                {[
-                                                    ...agentLedger.map(b => ({ ...b, itemType: 'BOOKING' })),
-                                                    ...agentPayments.map(p => ({ ...p, itemType: 'PAYMENT' }))
-                                                ].sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((item: any) => (
-                                                    <div key={item.id} className="flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:bg-gray-50 transition-all">
+                                                {sortedTransactions.map((item: any) => (
+                                                    <div key={`${item.itemType}-${item.id}`} className="flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:bg-gray-50 transition-all">
                                                         <div className="flex items-center gap-3">
                                                             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${item.itemType === 'BOOKING' ? 'bg-purple-100 text-purple-600' : 'bg-emerald-100 text-emerald-600'}`}>
                                                                 {item.itemType === 'BOOKING' ? <PiReceipt /> : <PiBank />}
