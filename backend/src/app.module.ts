@@ -12,6 +12,7 @@ import { MailService } from './mail/mail.service';
 import { AnnouncementsModule } from './announcements/announcements.module';
 import { PaymentsModule } from './payments/payments.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { BackupService } from './common/backup.service';
 import { SecurityLoggerMiddleware } from './common/middleware/security-logger.middleware';
 
 @Module({
@@ -45,6 +46,7 @@ import { SecurityLoggerMiddleware } from './common/middleware/security-logger.mi
   controllers: [AppController],
   providers: [
     AppService, 
+    BackupService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

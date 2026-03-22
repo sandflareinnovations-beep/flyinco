@@ -39,7 +39,8 @@ export class PaymentsService {
                   status: { in: ['CONFIRMED', 'PENDING', 'HELD', 'COMPLETED'] }
               },
               orderBy: { createdAt: 'asc' },
-              select: { id: true, sellingPrice: true }
+              select: { id: true, sellingPrice: true },
+              take: 1000 // Large enough for most payments but bounded for speed
           });
 
           const idsToMarkPaid: string[] = [];
@@ -93,7 +94,8 @@ export class PaymentsService {
                     status: { not: 'CANCELLED' }
                 },
                 orderBy: { createdAt: 'desc' },
-                select: { id: true, sellingPrice: true }
+                select: { id: true, sellingPrice: true },
+                take: 1000
             });
 
             const idsToRevert: string[] = [];

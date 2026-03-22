@@ -17,6 +17,7 @@ import {
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { format } from "date-fns";
 import * as XLSX from "xlsx";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,7 @@ export default function AdminAccounts() {
     const [agentPayments, setAgentPayments] = useState<any[]>([]);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [loadingLedger, setLoadingLedger] = useState(false);
+    const [savingRecord, setSavingRecord] = useState(false);
     const [formData, setFormData] = useState({ amount: "", type: "PAYMENT", reference: "", notes: "" });
     const { toast } = useToast();
 
@@ -113,6 +115,7 @@ export default function AdminAccounts() {
 
     const handleRecordPayment = async () => {
         if (!selectedAgent || !formData.amount) return;
+        setSavingRecord(true);
         try {
             await flyApi.payments.create({
                 agentId: selectedAgent.id,
@@ -129,6 +132,8 @@ export default function AdminAccounts() {
             fetchAgents();
         } catch (error: any) {
             toast({ title: "Error", description: error.message, variant: "destructive" });
+        } finally {
+            setSavingRecord(false);
         }
     };
 
@@ -359,7 +364,11 @@ export default function AdminAccounts() {
                         <DialogTitle className="text-xl font-black">Record Transaction</DialogTitle>
                         <DialogDescription>Record a payment or add manual dues for {selectedAgent?.name}.</DialogDescription>
                     </DialogHeader>
-                    <div className="space-y-4 py-4">
+                    <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="space-y-4 py-4"
+                    >
                         <div className="grid gap-2">
                             <Label>Transaction Type</Label>
                             <select 
@@ -399,10 +408,18 @@ export default function AdminAccounts() {
                                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                             />
                         </div>
-                    </div>
+                    </motion.div>
                     <DialogFooter>
                         <Button variant="ghost" onClick={() => setShowPaymentModal(false)}>Cancel</Button>
-                        <Button style={{ backgroundColor: B.primary }} className="text-white px-8" onClick={handleRecordPayment}>Save Record</Button>
+                        <Button 
+                            style={{ backgroundColor: B.primary }} 
+                            className="text-white px-8" 
+                            onClick={handleRecordPayment}
+                            disabled={savingRecord}
+                        >
+                            {savingRecord ? <PiClock className="animate-spin mr-2" /> : null}
+                            {savingRecord ? "Processing..." : "Save Record"}
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

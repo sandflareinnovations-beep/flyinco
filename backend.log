@@ -972,33 +972,85 @@ Please make sure your database server is running at `localhost:5432`.
 }
 
 Node.js v24.14.0
-}`);let i=JSON.stringify({traceparent:t}),o=JSON.stringify(r);try{await this.start();let s=await this.adapterPromise;this.executingQueryPromise=this.engine?.query(o,i,n?.id),this.lastQuery=o;let a=this.parseEngineResponse(await this.executingQueryPromise);if(a.errors)throw a.errors.length===1?this.buildQueryError(a.errors[0],s?.errorRegistry):new V(JSON.stringify(a.errors),{clientVersion:this.config.clientVersion});if(this.loggerRustPanic)throw this.loggerRustPanic;return{data:a}}catch(s){if(s instanceof P)throw s;if(s.code==="GenericFailure"&&s.message?.startsWith("PANIC:"))throw new ae(Po(this,s.message),this.config.clientVersion);let a=this.parseRequestError(s.message);throw typeof a=="string"?s:new V(`${a.message}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+[2J[3J[H[[90m2:31:08 PM[0m] File change detected. Starting incremental compilation...
 
-PrismaClientInitializationError: Can't reach database server at `localhost:5432`
+[96msrc/common/backup.service.ts[0m:[93m3[0m:[93m23[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node-cron' or its corresponding type declarations.
 
-Please make sure your database server is running at `localhost:5432`.
-    at r (/Users/swali/flyinco website/flyinco urgent web aap/backend/node_modules/@prisma/client/runtime/library.js:112:2770)
-    at async Proxy.onModuleInit (/Users/swali/flyinco website/flyinco urgent web aap/backend/dist/prisma/prisma.service.js:17:9)
-    at async Promise.all (index 0)
-    at async callModuleInitHook (/Users/swali/flyinco website/flyinco urgent web aap/backend/node_modules/@nestjs/core/hooks/on-module-init.hook.js:43:5)
-    at async NestApplication.callInitHook (/Users/swali/flyinco website/flyinco urgent web aap/backend/node_modules/@nestjs/core/nest-application-context.js:252:13)
-    at async NestApplication.init (/Users/swali/flyinco website/flyinco urgent web aap/backend/node_modules/@nestjs/core/nest-application.js:103:9)
-    at async NestApplication.listen (/Users/swali/flyinco website/flyinco urgent web aap/backend/node_modules/@nestjs/core/nest-application.js:175:13)
-    at async bootstrap (/Users/swali/flyinco website/flyinco urgent web aap/backend/dist/main.js:32:5) {
-  clientVersion: '6.19.2',
-  errorCode: 'P1001',
-  retryable: undefined
-}
+[7m3[0m import * as cron from 'node-cron';
+[7m [0m [91m                      ~~~~~~~~~~~[0m
 
-Node.js v24.14.0
-[2J[3J[H[[90m2:17:00 AM[0m] File change detected. Starting incremental compilation...
+[[90m2:31:08 PM[0m] Found 1 error. Watching for file changes.
 
-[[90m2:17:01 AM[0m] Found 0 errors. Watching for file changes.
+[2J[3J[H[[90m2:31:26 PM[0m] File change detected. Starting incremental compilation...
 
-[32m[Nest] 70985  - [39m03/22/2026, 2:17:01 AM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
-[32m[Nest] 70985  - [39m03/22/2026, 2:17:02 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPrismaModule dependencies initialized[39m[38;5;3m +779ms[39m
-[32m[Nest] 70985  - [39m03/22/2026, 2:17:02 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPassportModule dependencies initialized[39m[38;5;3m +0ms[39m
+[96msrc/app.module.ts[0m:[93m25[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'PaymentsModule'.
+
+[7m25[0m     PaymentsModule,
+[7m  [0m [91m    ~~~~~~~~~~~~~~[0m
+
+[96msrc/app.module.ts[0m:[93m26[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'ThrottlerModule'.
+
+[7m26[0m     ThrottlerModule.forRoot([
+[7m  [0m [91m    ~~~~~~~~~~~~~~~[0m
+
+[96msrc/app.module.ts[0m:[93m50[0m:[93m17[0m - [91merror[0m[90m TS2304: [0mCannot find name 'ThrottlerGuard'.
+
+[7m50[0m       useClass: ThrottlerGuard,
+[7m  [0m [91m                ~~~~~~~~~~~~~~[0m
+
+[96msrc/common/backup.service.ts[0m:[93m3[0m:[93m23[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node-cron' or its corresponding type declarations.
+
+[7m3[0m import * as cron from 'node-cron';
+[7m [0m [91m                      ~~~~~~~~~~~[0m
+
+[[90m2:31:26 PM[0m] Found 4 errors. Watching for file changes.
+
+[2J[3J[H[[90m2:31:51 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/common/backup.service.ts[0m:[93m3[0m:[93m23[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node-cron' or its corresponding type declarations.
+
+[7m3[0m import * as cron from 'node-cron';
+[7m [0m [91m                      ~~~~~~~~~~~[0m
+
+[[90m2:31:51 PM[0m] Found 1 error. Watching for file changes.
+
+[2J[3J[H[[90m2:32:31 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/common/backup.service.ts[0m:[93m3[0m:[93m23[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node-cron' or its corresponding type declarations.
+
+[7m3[0m import * as cron from 'node-cron';
+[7m [0m [91m                      ~~~~~~~~~~~[0m
+
+[[90m2:32:31 PM[0m] Found 1 error. Watching for file changes.
+
+[2J[3J[H[[90m2:35:28 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/common/backup.service.ts[0m:[93m3[0m:[93m23[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node-cron' or its corresponding type declarations.
+
+[7m3[0m import * as cron from 'node-cron';
+[7m [0m [91m                      ~~~~~~~~~~~[0m
+
+[[90m2:35:28 PM[0m] Found 1 error. Watching for file changes.
+
+[2J[3J[H[[90m2:35:30 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/common/backup.service.ts[0m:[93m3[0m:[93m23[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node-cron' or its corresponding type declarations.
+
+[7m3[0m import * as cron from 'node-cron';
+[7m [0m [91m                      ~~~~~~~~~~~[0m
+
+[[90m2:35:30 PM[0m] Found 1 error. Watching for file changes.
+
+[2J[3J[H[[90m2:39:47 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/common/backup.service.ts[0m:[93m3[0m:[93m23[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node-cron' or its corresponding type declarations.
+
+[7m3[0m import * as cron from 'node-cron';
+[7m [0m [91m                      ~~~~~~~~~~~[0m
+
+[[90m2:39:48 PM[0m] Found 1 error. Watching for file changes.
+
+ssportModule dependencies initialized[39m[38;5;3m +0ms[39m
 [32m[Nest] 70985  - [39m03/22/2026, 2:17:02 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mMailModule dependencies initialized[39m[38;5;3m +0ms[39m
 [32m[Nest] 70985  - [39m03/22/2026, 2:17:02 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mJwtModule dependencies initialized[39m[38;5;3m +4ms[39m
 [32m[Nest] 70985  - [39m03/22/2026, 2:17:02 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mThrottlerModule dependencies initialized[39m[38;5;3m +0ms[39m
@@ -1344,3 +1396,72 @@ Please make sure your database server is running at `localhost:5432`.
 }
 
 Node.js v24.14.0
+[2J[3J[H[[90m2:31:08 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/common/backup.service.ts[0m:[93m3[0m:[93m23[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node-cron' or its corresponding type declarations.
+
+[7m3[0m import * as cron from 'node-cron';
+[7m [0m [91m                      ~~~~~~~~~~~[0m
+
+[[90m2:31:08 PM[0m] Found 1 error. Watching for file changes.
+
+[2J[3J[H[[90m2:31:26 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/app.module.ts[0m:[93m25[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'PaymentsModule'.
+
+[7m25[0m     PaymentsModule,
+[7m  [0m [91m    ~~~~~~~~~~~~~~[0m
+
+[96msrc/app.module.ts[0m:[93m26[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'ThrottlerModule'.
+
+[7m26[0m     ThrottlerModule.forRoot([
+[7m  [0m [91m    ~~~~~~~~~~~~~~~[0m
+
+[96msrc/app.module.ts[0m:[93m50[0m:[93m17[0m - [91merror[0m[90m TS2304: [0mCannot find name 'ThrottlerGuard'.
+
+[7m50[0m       useClass: ThrottlerGuard,
+[7m  [0m [91m                ~~~~~~~~~~~~~~[0m
+
+[96msrc/common/backup.service.ts[0m:[93m3[0m:[93m23[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node-cron' or its corresponding type declarations.
+
+[7m3[0m import * as cron from 'node-cron';
+[7m [0m [91m                      ~~~~~~~~~~~[0m
+
+[[90m2:31:26 PM[0m] Found 4 errors. Watching for file changes.
+
+[2J[3J[H[[90m2:31:51 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/common/backup.service.ts[0m:[93m3[0m:[93m23[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node-cron' or its corresponding type declarations.
+
+[7m3[0m import * as cron from 'node-cron';
+[7m [0m [91m                      ~~~~~~~~~~~[0m
+
+[[90m2:31:51 PM[0m] Found 1 error. Watching for file changes.
+
+[2J[3J[H[[90m2:32:31 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/common/backup.service.ts[0m:[93m3[0m:[93m23[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node-cron' or its corresponding type declarations.
+
+[7m3[0m import * as cron from 'node-cron';
+[7m [0m [91m                      ~~~~~~~~~~~[0m
+
+[[90m2:32:31 PM[0m] Found 1 error. Watching for file changes.
+
+[2J[3J[H[[90m2:35:27 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/common/backup.service.ts[0m:[93m3[0m:[93m23[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node-cron' or its corresponding type declarations.
+
+[7m3[0m import * as cron from 'node-cron';
+[7m [0m [91m                      ~~~~~~~~~~~[0m
+
+[[90m2:35:27 PM[0m] Found 1 error. Watching for file changes.
+
+[2J[3J[H[[90m2:39:47 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/common/backup.service.ts[0m:[93m3[0m:[93m23[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node-cron' or its corresponding type declarations.
+
+[7m3[0m import * as cron from 'node-cron';
+[7m [0m [91m                      ~~~~~~~~~~~[0m
+
+[[90m2:39:48 PM[0m] Found 1 error. Watching for file changes.
+
