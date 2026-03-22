@@ -12,7 +12,9 @@ import {
     PiMagnifyingGlass,
     PiCaretRight,
     PiClock,
-    PiMoney
+    PiMoney,
+    PiWarning,
+    PiDotsThreeVertical
 } from "react-icons/pi";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { format } from "date-fns";
@@ -42,8 +44,11 @@ export default function AdminAccounts() {
     const [agentLedger, setAgentLedger] = useState<any[]>([]);
     const [agentPayments, setAgentPayments] = useState<any[]>([]);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [loadingLedger, setLoadingLedger] = useState(false);
     const [savingRecord, setSavingRecord] = useState(false);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
     const [formData, setFormData] = useState({ amount: "", type: "PAYMENT", reference: "", notes: "" });
     const { toast } = useToast();
 
@@ -137,15 +142,20 @@ export default function AdminAccounts() {
         }
     };
 
-    const handleDeletePayment = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this payment record? This will revert associated bookings to UNPAID status.")) return;
+    const handleDeletePayment = async () => {
+        if (!selectedPayment) return;
+        setDeletingId(selectedPayment.id);
         try {
-            await flyApi.payments.delete(id);
+            await flyApi.payments.delete(selectedPayment.id);
             toast({ title: "Deleted", description: "Payment record removed." });
+            setShowDeleteModal(false);
+            setSelectedPayment(null);
             fetchLedger(selectedAgent);
             fetchAgents();
         } catch (error: any) {
             toast({ title: "Error", description: error.message, variant: "destructive" });
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -332,7 +342,17 @@ export default function AdminAccounts() {
                                                                 {item.itemType === 'BOOKING' ? `+ SAR ${item.sellingPrice?.toLocaleString() || 0}` : `- SAR ${item.amount?.toLocaleString() || 0}`}
                                                             </p>
                                                             {item.itemType === 'PAYMENT' && (
-                                                                <button onClick={() => handleDeletePayment(item.id)} className="text-[10px] text-red-400 hover:underline">Delete Record</button>
+                                                                <button 
+                                                                    onClick={() => {
+                                                                        setSelectedPayment(item);
+                                                                        setShowDeleteModal(true);
+                                                                    }} 
+                                                                    className="text-[10px] text-red-400 hover:underline flex items-center justify-end gap-1 ml-auto"
+                                                                    disabled={deletingId === item.id}
+                                                                >
+                                                                    {deletingId === item.id ? <PiClock className="animate-spin" /> : null}
+                                                                    {deletingId === item.id ? "Deleting..." : "Delete Record"}
+                                                                </button>
                                                             )}
                                                             {item.itemType === 'BOOKING' && (
                                                                 <Badge variant="outline" className={`text-[8px] h-4 ${item.paymentStatus === 'PAID' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-red-50 text-red-600 border-red-100'}`}>
@@ -419,6 +439,44 @@ export default function AdminAccounts() {
                         >
                             {savingRecord ? <PiClock className="animate-spin mr-2" /> : null}
                             {savingRecord ? "Processing..." : "Save Record"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* DELETE CONFIRMATION MODAL */}
+            <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+                <DialogContent className="max-w-sm rounded-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="font-black text-red-600 flex items-center gap-2">
+                            <PiTrash className="h-5 w-5" /> Delete Payment Record
+                        </DialogTitle>
+                    </DialogHeader>
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="py-4 space-y-3"
+                    >
+                        <div className="bg-red-50 border border-red-100 rounded-xl p-3 flex gap-3">
+                            <PiWarning className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+                            <p className="text-sm text-red-700">
+                                This action will revert approximately **SAR {selectedPayment?.amount?.toLocaleString()}** worth of bookings back to **UNPAID**.
+                            </p>
+                        </div>
+                        <p className="text-sm text-gray-600">
+                            Are you sure you want to permanently remove this transaction from the ledger?
+                        </p>
+                    </motion.div>
+                    <DialogFooter className="gap-2">
+                        <Button variant="outline" className="rounded-xl" onClick={() => setShowDeleteModal(false)}>Cancel</Button>
+                        <Button 
+                            variant="destructive" 
+                            className="rounded-xl font-bold" 
+                            onClick={handleDeletePayment}
+                            disabled={!!deletingId}
+                        >
+                            {deletingId ? <PiClock className="animate-spin mr-2" /> : null}
+                            {deletingId ? "Deleting..." : "Delete Record"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
