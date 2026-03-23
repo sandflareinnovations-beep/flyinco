@@ -310,16 +310,18 @@ export class BookingsService {
     // If agent is logged in, use their agency name or name.
     let effectiveAgentDetails = dto.agentDetails;
     // Structured Agent Details for Better Searching
-    let structuredAgentDetails = effectiveAgentDetails;
+    let structuredAgentDetails = dto.agentDetails || '';
     if (user?.id) {
         const dbUser = await this.prisma.user.findUnique({ where: { id: user.id } });
-        if (dbUser) {
-            const agency = dbUser.agencyName || 'No Agency';
-            const person = dbUser.name || 'Unknown Agent';
-            // Formats as "Agency Name (Agent Name)" for robust string searching
+        if (dbUser && dbUser.role === 'AGENT') {
+            const agency = dbUser.agencyName || 'Direct Agent';
+            const person = dbUser.name || 'Unknown';
+            // Store as Agency - Person for visibility
             structuredAgentDetails = `${agency} (${person})`;
         }
     }
+
+    this.logger.log(`Booking Request: ${dto.email} [Agent: ${structuredAgentDetails}]`);
 
     // Atomic Booking Transaction (Seat Protection)
     const booking = await this.prisma.$transaction(async (tx) => {
@@ -375,6 +377,8 @@ export class BookingsService {
 
       return b;
     });
+
+    this.logger.log(`Booking Created! ID: ${booking.id} | Agent: ${booking.agentDetails}`);
 
     await this.prisma.route.update({
       where: { id: dto.routeId },
@@ -527,21 +531,25 @@ export class BookingsService {
         agentConditions.push({ agentDetails: { contains: agentEmail, mode: 'insensitive' } });
       }
 
-      // Robust check: Include both ID match and Name/Agency string match
-      where.OR = agentConditions;
+      // Initialize conditions
+      const andArr: any[] = [];
+      andArr.push({ OR: agentConditions });
 
       if (search) {
-        where.AND.push({
+        andArr.push({
           OR: [
             { passengerName: { contains: search, mode: 'insensitive' } },
             { email: { contains: search, mode: 'insensitive' } },
             { phone: { contains: search, mode: 'insensitive' } },
             { pnr: { contains: search, mode: 'insensitive' } },
+            { ticketNumber: { contains: search, mode: 'insensitive' } },
             { route: { origin: { contains: search, mode: 'insensitive' } } },
             { route: { destination: { contains: search, mode: 'insensitive' } } },
           ]
         });
       }
+
+      where.AND = andArr;
 
       const [bookings, total] = await Promise.all([
         this.prisma.booking.findMany({
