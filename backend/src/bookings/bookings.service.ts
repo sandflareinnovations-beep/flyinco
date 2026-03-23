@@ -315,7 +315,7 @@ export class BookingsService {
         phone: dto.phone,
         transactionId: dto.transactionId,
         paymentReceipt: dto.paymentReceipt,
-        status: dto.transactionId || dto.paymentReceipt ? 'PENDING' : 'HELD',
+        status: (dto.transactionId || dto.paymentReceipt || dto.paymentMethod === 'CREDIT') ? 'PENDING' : 'HELD',
         purchasePrice,
         sellingPrice,
         profit,

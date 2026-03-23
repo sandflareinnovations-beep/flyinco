@@ -11,7 +11,6 @@ import { useToast } from "@/hooks/use-toast";
 import { API_BASE } from "@/lib/api";
 import { BookingSummaryCard } from "@/components/booking/booking-summary-card";
 import Link from "next/link";
-
 function PaymentForm() {
     const router = useRouter();
     const { toast } = useToast();
@@ -20,8 +19,13 @@ function PaymentForm() {
     const [receiptFile, setReceiptFile] = useState<File | null>(null);
     const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState("BANK_TRANSFER");
+    const [user, setUser] = useState<any>(null);
 
     useEffect(() => {
+        const userStr = localStorage.getItem("user");
+        if (userStr) setUser(JSON.parse(userStr));
+        
         const stored = sessionStorage.getItem("pendingPayment");
         if (stored) {
             setBookingData(JSON.parse(stored));
@@ -44,7 +48,7 @@ function PaymentForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!transactionId.trim()) {
+        if (paymentMethod === "BANK_TRANSFER" && !transactionId.trim()) {
             toast({
                 title: "Required Field",
                 description: "Please enter your transaction ID or receipt number.",
@@ -60,7 +64,7 @@ function PaymentForm() {
 
             // 1) PiUploadSimple receipt if provided
             let receiptUrl: string | undefined = undefined;
-            if (receiptFile) {
+            if (paymentMethod === "BANK_TRANSFER" && receiptFile) {
                 const formData = new FormData();
                 formData.append("file", receiptFile);
                 try {
@@ -96,8 +100,9 @@ function PaymentForm() {
                             passportNumber: passenger.passportNumber,
                             email,
                             phone,
-                            transactionId,
+                            transactionId: paymentMethod === "CREDIT" ? "AGENT_CREDIT" : transactionId,
                             paymentReceipt: receiptUrl,
+                            paymentMethod: paymentMethod,
                         }),
                     });
 
@@ -177,50 +182,107 @@ function PaymentForm() {
                     {/* Main Content */}
                     <div className="lg:col-span-2 space-y-6">
 
-                        {/* Bank Info Card */}
-                        <Card className="rounded-2xl shadow-sm border-gray-100 overflow-hidden">
-                            <CardHeader className="bg-white border-b border-gray-100 pb-4">
-                                <CardTitle className="text-xl font-bold flex items-center gap-2">
-                                    <PiBuildings className="h-5 w-5" style={{ color: '#2E0A57' }} />
-                                    Bank Transfer Details
-                                </CardTitle>
-                                <CardDescription>
-                                    Please transfer the total amount to the following bank account to confirm your booking.
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="p-6 bg-gray-50/50">
-                                <div className="space-y-4">
-                                    <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-3">
-                                        <div className="flex justify-between items-center border-b border-gray-100 pb-3">
-                                            <span className="text-sm font-medium text-gray-500">Bank Name</span>
-                                            <span className="font-bold text-gray-900">AL Rajhi Bank</span>
-                                        </div>
-                                        <div className="flex justify-between items-center border-b border-gray-100 pb-3">
-                                            <span className="text-sm font-medium text-gray-500">Company Name</span>
-                                            <span className="font-bold text-gray-900 text-right max-w-xs">FLYINCO FOR TRAVEL AND TOURISM COMPANY</span>
-                                        </div>
-                                        <div className="flex justify-between items-center border-b border-gray-100 pb-3">
-                                            <span className="text-sm font-medium text-gray-500">Account Number</span>
-                                            <span className="font-mono font-bold tracking-widest text-[#6C2BD9]">321608010168341</span>
-                                        </div>
-                                        <div className="flex items-start justify-between pt-1">
-                                            <span className="text-sm font-medium text-gray-500 shrink-0">IBAN</span>
-                                            <span className="font-mono font-bold text-gray-900 text-right break-all ml-4">SA 2480000321608010168341</span>
+                        {user?.role === 'AGENT' && (
+                            <Card className="rounded-2xl border-2 border-[#6C2BD9]/20 bg-white overflow-hidden shadow-sm">
+                                <CardHeader className="bg-[#6C2BD9]/5 border-b border-[#6C2BD9]/10">
+                                    <CardTitle className="text-[#2E0A57] flex items-center gap-2">
+                                        <PiCheckCircle className="h-5 w-5 text-[#6C2BD9]" />
+                                        Agent Booking Options
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-6">
+                                    <div className="flex flex-col gap-4">
+                                        <p className="text-sm text-gray-600">As a certified agent, you can choose to book using your pre-allocated credit limit.</p>
+                                        <div className="flex gap-4">
+                                            <Button 
+                                                type="button"
+                                                variant={paymentMethod === "CREDIT" ? "default" : "outline"}
+                                                className={`flex-1 rounded-xl h-14 ${paymentMethod === "CREDIT" ? "bg-[#2E0A57] text-white shadow-md border-none" : "border-gray-200 text-gray-500"}`}
+                                                onClick={() => setPaymentMethod("CREDIT")}
+                                            >
+                                                Book on Credit
+                                            </Button>
+                                            <Button 
+                                                type="button"
+                                                variant={paymentMethod === "BANK_TRANSFER" ? "default" : "outline"}
+                                                className={`flex-1 rounded-xl h-14 ${paymentMethod === "BANK_TRANSFER" ? "bg-[#2E0A57] text-white shadow-md border-none" : "border-gray-200 text-gray-500"}`}
+                                                onClick={() => setPaymentMethod("BANK_TRANSFER")}
+                                            >
+                                                Bank Transfer
+                                            </Button>
                                         </div>
                                     </div>
+                                </CardContent>
+                            </Card>
+                        )}
 
-                                    <div className="p-4 rounded-xl text-sm border border-[#EDE9FE] bg-[#F5F3FF] flex gap-3" style={{ color: '#2E0A57' }}>
-                                        <PiCheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" style={{ color: '#6C2BD9' }} />
-                                        <p>
-                                            <strong>Amount to transfer: </strong>
-                                            <span className="font-black text-lg ml-1">SAR {bookingData.totalPrice.toLocaleString()}</span>
-                                            <br />
-                                            <span className="mt-1 inline-block" style={{ color: '#6C2BD9' }}>Please make the exact transfer amount. Include your name in the transfer notes.</span>
-                                        </p>
+                        {/* Bank Info Card - only show if bank transfer selected */}
+                        {paymentMethod === "BANK_TRANSFER" && (
+                            <Card className="rounded-2xl shadow-sm border-gray-100 overflow-hidden">
+                                <CardHeader className="bg-white border-b border-gray-100 pb-4">
+                                    <CardTitle className="text-xl font-bold flex items-center gap-2">
+                                        <PiBuildings className="h-5 w-5" style={{ color: '#2E0A57' }} />
+                                        Bank Transfer Details
+                                    </CardTitle>
+                                    <CardDescription>
+                                        Please transfer the total amount to the following bank account to confirm your booking.
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent className="p-6 bg-gray-50/50">
+                                    <div className="space-y-4">
+                                        <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-3">
+                                            <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+                                                <span className="text-sm font-medium text-gray-500">Bank Name</span>
+                                                <span className="font-bold text-gray-900">AL Rajhi Bank</span>
+                                            </div>
+                                            <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+                                                <span className="text-sm font-medium text-gray-500">Company Name</span>
+                                                <span className="font-bold text-gray-900 text-right max-w-xs">FLYINCO FOR TRAVEL AND TOURISM COMPANY</span>
+                                            </div>
+                                            <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+                                                <span className="text-sm font-medium text-gray-500">Account Number</span>
+                                                <span className="font-mono font-bold tracking-widest text-[#6C2BD9]">321608010168341</span>
+                                            </div>
+                                            <div className="flex items-start justify-between pt-1">
+                                                <span className="text-sm font-medium text-gray-500 shrink-0">IBAN</span>
+                                                <span className="font-mono font-bold text-gray-900 text-right break-all ml-4">SA 2480000321608010168341</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="p-4 rounded-xl text-sm border border-[#EDE9FE] bg-[#F5F3FF] flex gap-3" style={{ color: '#2E0A57' }}>
+                                            <PiCheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" style={{ color: '#6C2BD9' }} />
+                                            <p>
+                                                <strong>Amount to transfer: </strong>
+                                                <span className="font-black text-lg ml-1">SAR {bookingData.totalPrice.toLocaleString()}</span>
+                                                <br />
+                                                <span className="mt-1 inline-block" style={{ color: '#6C2BD9' }}>Please make the exact transfer amount. Include your name in the transfer notes.</span>
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                                </CardContent>
+                            </Card>
+                        )}
+
+                        {/* Credit Booking Info */}
+                        {paymentMethod === "CREDIT" && (
+                            <Card className="rounded-2xl border-emerald-100 bg-emerald-50/20 overflow-hidden shadow-sm">
+                                <CardHeader className="bg-emerald-50/50 border-b border-emerald-100">
+                                    <CardTitle className="text-emerald-800 flex items-center gap-2">
+                                        <PiCheckCircle className="h-5 w-5 text-emerald-600" />
+                                        Credit Booking Info
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-6">
+                                    <div className="flex flex-col gap-2">
+                                        <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-emerald-100">
+                                            <span className="text-sm text-gray-600 font-medium">Amount to be added to Dues:</span>
+                                            <span className="text-xl font-black text-emerald-700">SAR {bookingData.totalPrice.toLocaleString()}</span>
+                                        </div>
+                                        <p className="text-xs text-gray-400 mt-2 px-1 italic">Note: This booking will show up in your pending dues immediately. The admin will review and issue the ticket following their standard workflow.</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
 
                         {/* Confirm Payment Form */}
                         <form onSubmit={handleSubmit}>
@@ -228,78 +290,87 @@ function PaymentForm() {
                                 <CardHeader className="bg-white border-b border-gray-100 pb-4">
                                     <CardTitle className="text-xl font-bold flex items-center gap-2">
                                         <PiReceipt className="h-5 w-5" style={{ color: '#2E0A57' }} />
-                                        Confirm Payment
+                                        Confirm {paymentMethod === "CREDIT" ? "Credit Booking" : "Payment"}
                                     </CardTitle>
                                     <CardDescription>
-                                        PiUploadSimple your transfer receipt or provide the transaction ID below.
+                                        {paymentMethod === "CREDIT" 
+                                            ? "Confirm your reservation using your agent credit account." 
+                                            : "Upload your transfer receipt or provide the transaction ID below."}
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="p-6 space-y-6">
-                                    {/* Transaction ID */}
-                                    <div className="space-y-2">
-                                        <Label className="text-sm font-semibold text-gray-700">
-                                            Transaction ID / Reference Number <span className="text-red-500">*</span>
-                                        </Label>
-                                        <Input
-                                            placeholder="e.g. TR-98219030"
-                                            value={transactionId}
-                                            onChange={(e) => setTransactionId(e.target.value)}
-                                            required
-                                            className="h-12 rounded-xl"
-                                        />
-                                    </div>
+                                    {paymentMethod === "BANK_TRANSFER" ? (
+                                        <>
+                                            {/* Transaction ID */}
+                                            <div className="space-y-2">
+                                                <Label className="text-sm font-semibold text-gray-700">
+                                                    Transaction ID / Reference Number <span className="text-red-500">*</span>
+                                                </Label>
+                                                <Input
+                                                    placeholder="e.g. TR-98219030"
+                                                    value={transactionId}
+                                                    onChange={(e) => setTransactionId(e.target.value)}
+                                                    required
+                                                    className="h-12 rounded-xl"
+                                                />
+                                            </div>
 
-                                    {/* File PiUploadSimple */}
-                                    <div className="space-y-2">
-                                        <Label className="text-sm font-semibold text-gray-700">Upload Receipt Screenshot (Optional)</Label>
-                                        <label
-                                            htmlFor="receipt-upload"
-                                            className="border-2 border-dashed border-gray-200 rounded-xl p-6 flex flex-col items-center justify-center text-center hover:bg-gray-50 transition-colors cursor-pointer group block"
-                                        >
-                                            {receiptPreview ? (
-                                                <div className="w-full flex flex-col items-center gap-2">
-                                                    <img
-                                                        src={receiptPreview}
-                                                        alt="Receipt preview"
-                                                        className="max-h-48 rounded-lg object-contain border border-gray-200 shadow-sm"
+                                            {/* File PiUploadSimple */}
+                                            <div className="space-y-2">
+                                                <Label className="text-sm font-semibold text-gray-700">Upload Receipt Screenshot (Optional)</Label>
+                                                <label
+                                                    htmlFor="receipt-upload"
+                                                    className="border-2 border-dashed border-gray-200 rounded-xl p-6 flex flex-col items-center justify-center text-center hover:bg-gray-50 transition-colors cursor-pointer group block"
+                                                >
+                                                    {receiptPreview ? (
+                                                        <div className="w-full flex flex-col items-center gap-2">
+                                                            <img
+                                                                src={receiptPreview}
+                                                                alt="Receipt preview"
+                                                                className="max-h-48 rounded-lg object-contain border border-gray-200 shadow-sm"
+                                                            />
+                                                            <p className="text-xs font-semibold mt-2" style={{ color: '#2E0A57' }}>{receiptFile?.name}</p>
+                                                            <p className="text-xs text-gray-400">Click to change</p>
+                                                        </div>
+                                                    ) : (
+                                                        <>
+                                                            <div className="p-3 rounded-full mb-3 transition-colors" style={{ backgroundColor: '#F5F3FF', color: '#2E0A57' }}>
+                                                                {receiptFile ? <PiImage className="h-6 w-6" /> : <PiUploadSimple className="h-6 w-6" />}
+                                                            </div>
+                                                            <p className="text-sm font-medium text-gray-700">
+                                                                {receiptFile ? receiptFile.name : "Click to upload or drag and drop"}
+                                                            </p>
+                                                            <p className="text-xs text-gray-400 mt-1">PNG, JPG or PDF (Max. 5MB)</p>
+                                                        </>
+                                                    )}
+                                                    <input
+                                                        id="receipt-upload"
+                                                        type="file"
+                                                        className="hidden"
+                                                        accept="image/*,.pdf"
+                                                        onChange={handleFileChange}
                                                     />
-                                                    <p className="text-xs font-semibold mt-2" style={{ color: '#2E0A57' }}>{receiptFile?.name}</p>
-                                                    <p className="text-xs text-gray-400">Click to change</p>
-                                                </div>
-                                            ) : (
-                                                <>
-                                                    <div className="p-3 rounded-full mb-3 transition-colors" style={{ backgroundColor: '#F5F3FF', color: '#2E0A57' }}>
-                                                        {receiptFile ? <PiImage className="h-6 w-6" /> : <PiUploadSimple className="h-6 w-6" />}
-                                                    </div>
-                                                    <p className="text-sm font-medium text-gray-700">
-                                                        {receiptFile ? receiptFile.name : "Click to upload or drag and drop"}
-                                                    </p>
-                                                    <p className="text-xs text-gray-400 mt-1">PNG, JPG or PDF (Max. 5MB)</p>
-                                                </>
-                                            )}
-                                            <input
-                                                id="receipt-upload"
-                                                type="file"
-                                                className="hidden"
-                                                accept="image/*,.pdf"
-                                                onChange={handleFileChange}
-                                            />
-                                        </label>
-                                    </div>
+                                                </label>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100 flex items-center gap-3 text-emerald-800">
+                                            <PiCheckCircle className="h-6 w-6" />
+                                            <p className="font-semibold">Ready to confirm your credit booking.</p>
+                                        </div>
+                                    )}
                                 </CardContent>
                                 <CardFooter className="bg-gray-50 border-t border-gray-100 p-6">
                                     <Button
                                         type="submit"
                                         className="w-full text-white font-bold h-14 text-lg rounded-xl shadow-lg gap-2"
-                                        style={{ backgroundColor: '#2E0A57' }}
-                                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#3B0F70')}
-                                        onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#2E0A57')}
+                                        style={{ backgroundColor: paymentMethod === 'CREDIT' ? '#10B981' : '#2E0A57' }}
                                         disabled={isSubmitting}
                                     >
                                         {isSubmitting ? (
-                                            <><PiSpinner className="h-5 w-5 animate-spin" /> Processing Payment...</>
+                                            <><PiSpinner className="h-5 w-5 animate-spin" /> Processing...</>
                                         ) : (
-                                            <><PiCheckCircle className="h-5 w-5" /> Submit Payment &amp; Confirm Booking</>
+                                            <><PiCheckCircle className="h-5 w-5" /> {paymentMethod === "CREDIT" ? "Confirm Credit Booking" : "Submit & Confirm"}</>
                                         )}
                                     </Button>
                                 </CardFooter>
@@ -312,7 +383,6 @@ function PaymentForm() {
                         <BookingSummaryCard
                             flight={bookingData.flight}
                             passengerCounts={bookingData.passengerCounts}
-                            totalPrice={bookingData.totalPrice}
                         />
                     </div>
                 </div>
