@@ -143,10 +143,34 @@ export class AuthService {
     return { message: 'Email verified successfully' };
   }
 
-  private generateToken(user: any) {
+  async refreshToken(token: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { refreshToken: token }
+    });
+    
+    if (!user) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    // Optionally: check if token is expired if you want to store expiry in DB too
+    return this.generateToken(user);
+  }
+
+  private async generateToken(user: any) {
     const payload = { sub: user.id, email: user.email, role: user.role };
+    
+    const accessToken = this.jwtService.sign(payload);
+    const refreshToken = crypto.randomBytes(40).toString('hex');
+
+    // Securely store refresh token
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken }
+    });
+
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: accessToken,
+      refresh_token: refreshToken,
       user: {
         id: user.id,
         name: user.name,

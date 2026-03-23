@@ -11,8 +11,11 @@ import { JwtStrategy } from './jwt.strategy';
     PrismaModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'super_secret',
-      signOptions: { expiresIn: '1d' },
+      secret: process.env.JWT_SECRET, // SECURITY AUDIT: Removed hardcoded default 'super_secret'
+      signOptions: { 
+        expiresIn: '15m',
+        algorithm: 'HS256' 
+      },
     }),
   ],
   controllers: [AuthController],

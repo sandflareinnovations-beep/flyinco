@@ -1,11 +1,11 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { PrismaClientExceptionFilter } from './common/filters/prisma-client-exception.filter';
 import cookieParser from 'cookie-parser';
 import { join } from 'path';
-import { HttpAdapterHost } from '@nestjs/core';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -14,10 +14,21 @@ async function bootstrap() {
     prefix: '/uploads/',
   });
 
+  app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: false, // Set to true and configure for specialized production needs
+  }));
+
   app.use(cookieParser());
 
+  // SECURITY AUDIT FIX: Restrict origins in production. 
+  // currently reflects origin for development convenience but should be whitelisted.
   app.enableCors({
-    origin: true, // Reflects the request origin to allow any domain (crucial for dynamic Render previews)
+    origin: [
+      'http://localhost:3000',
+      'https://flyinco.vercel.app', // Example production domain
+      'https://admin.flyinco.com'   // Example production domain
+    ],
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type, Accept, Authorization',

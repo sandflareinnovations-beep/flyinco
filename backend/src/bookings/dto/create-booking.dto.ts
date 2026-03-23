@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsOptional, IsNumber } from 'class-validator';
+import { IsString, IsEmail, IsOptional, IsNumber, IsDateString, IsISO8601 } from 'class-validator';
 
 export class CreateBookingDto {
   @IsString()
@@ -73,6 +73,7 @@ export class CreateBookingDto {
   sector?: string;
 
   @IsOptional()
+  @IsDateString()
   travelDate?: Date;
 
   @IsOptional()
@@ -94,4 +95,24 @@ export class CreateBookingDto {
   @IsOptional()
   @IsString()
   request?: string;
+
+  @IsOptional()
+  @IsString()
+  agentDetails?: string;
+
+  @IsOptional()
+  @IsString()
+  gender?: string;
+
+  @IsOptional()
+  @IsString()
+  nationality?: string;
+
+  @IsOptional()
+  @IsDateString()
+  dateOfBirth?: Date;
+
+  @IsOptional()
+  @IsDateString()
+  passportExpiry?: Date;
 }

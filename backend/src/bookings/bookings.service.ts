@@ -8,6 +8,17 @@ import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { MailService } from '../mail/mail.service';
 import * as XLSX from 'xlsx';
+import * as FileType from 'file-type';
+
+function sanitizeCell(val: any): string {
+  if (typeof val !== 'string') return String(val || '');
+  // Prevent CSV/Excel formula injection (Cells starting with =, +, -, @)
+  const trimmed = val.trim();
+  if (['=', '+', '-', '@'].some(char => trimmed.startsWith(char))) {
+    return `'${trimmed}`; // Prepends a single quote to neutralize formula
+  }
+  return trimmed;
+}
 
 @Injectable()
 export class BookingsService {
@@ -19,12 +30,24 @@ export class BookingsService {
   async bulkImport(file: Express.Multer.File) {
     if (!file) throw new BadRequestException('No file uploaded');
 
+    // --- MAGIC BYTES CHECK (Audit Point 9) ---
+    const type = await FileType.fromBuffer(file.buffer);
+    const allowedTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'];
+    if (!type || !allowedTypes.includes(type.mime)) {
+      throw new BadRequestException('Invalid file format. Only true Excel files (.xlsx, .xls) are permitted.');
+    }
+
     const workbook = XLSX.read(file.buffer, { type: 'buffer' });
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
     
     // Use { header: 1 } to get raw arrays and then find the header row
     const rawRows: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+    
+    // --- ROW LIMIT (Audit Point 9) ---
+    if (rawRows.length > 1000) {
+      throw new BadRequestException('Bulk import limited to 1000 rows per file for system stability.');
+    }
     
     // Find the row that contains 'SL NO' or 'PNR'
     let headerRowIndex = -1;
@@ -101,34 +124,38 @@ export class BookingsService {
         const purchasePrice = parseFloat(nr['NET PRICE'] || nr['PURCHASE PRICE'] || nr['NETPRICE'] || 0);
         const sellingPrice = parseFloat(nr['SELLING PRICE'] || nr['SALE PRICE'] || nr['SELLINGPRICE'] || 0);
         
-        const airline = String(nr['AIRLINES'] || nr['AIRLINE'] || nr['CARRIER'] || '');
-        const sector = String(nr['SECTOR'] || nr['ROUTE'] || '');
+        const airline = sanitizeCell(nr['AIRLINES'] || nr['AIRLINE'] || nr['CARRIER'] || '');
+        const sector = sanitizeCell(nr['SECTOR'] || nr['ROUTE'] || '');
         const travelDate = parseExcelDate(nr['TRAVEL DATE'] || nr['FLIGHT DATE'] || nr['DATE'] || nr['DEPARTURE DATE']);
         
-        const supplier = String(nr['SUPPLYER'] || nr['SUPPLIER'] || nr['SOURCE'] || '');
-        const agencyEmail = String(nr['AGENCY EMAIL ID'] || nr['AGENCY EMAIL'] || nr['EMAIL'] || nr['EMAIL ID'] || '');
-        const paymentStatus = String(nr['PAYMENT STATUS'] || 'UNPAID');
-        const paymentMethod = String(nr['PAYMENT METHOD'] || nr['CASH OR BANK TRANSFER'] || '');
-        const requestField = String(nr['REQUEST'] || '');
-        const remarksField = String(nr['REMARKS'] || nr['REMARK'] || '');
+        const supplier = sanitizeCell(nr['SUPPLYER'] || nr['SUPPLIER'] || nr['SOURCE'] || '');
+        const agencyEmail = sanitizeCell(nr['AGENCY EMAIL ID'] || nr['AGENCY EMAIL'] || nr['EMAIL'] || nr['EMAIL ID'] || '');
+        const paymentStatus = sanitizeCell(nr['PAYMENT STATUS'] || 'UNPAID');
+        const paymentMethod = sanitizeCell(nr['PAYMENT METHOD'] || nr['CASH OR BANK TRANSFER'] || '');
+        const requestField = sanitizeCell(nr['REQUEST'] || '');
+        const remarksField = sanitizeCell(nr['REMARKS'] || nr['REMARK'] || '');
         
-        let status = nr['STATUS'] || 'CONFIRMED';
+        let status = sanitizeCell(nr['STATUS'] || 'CONFIRMED');
         if (typeof status === 'string' && status.includes('TICKET COPY GIVEN')) status = 'CONFIRMED';
 
         let routeId = row['Route ID'] || row['routeId'];
         if (!routeId) {
           // Robust Route Detection: Find by sector (contains origin-destination) and airline
-          const sectorStr = sector.toLowerCase();
+          const sectorStr = (sector || '').toLowerCase();
+          const parts = sectorStr.includes('-') ? sectorStr.split('-') : sectorStr.split(' ');
+          const originPart = parts[0]?.trim();
+          const destPart = parts[1]?.trim();
+
           const route = await this.prisma.route.findFirst({
             where: {
               AND: [
-                sectorStr ? {
+                (originPart || destPart) ? {
                   OR: [
-                    { origin: { contains: sectorStr.split('-')[0]?.trim(), mode: 'insensitive' } },
-                    { destination: { contains: sectorStr.split('-')[1]?.trim(), mode: 'insensitive' } },
-                  ]
+                    originPart ? { origin: { contains: originPart, mode: 'insensitive' as const } } : undefined,
+                    destPart ? { destination: { contains: destPart, mode: 'insensitive' as const } } : undefined,
+                  ].filter(Boolean) as any
                 } : {},
-                airline ? { airline: { contains: airline, mode: 'insensitive' } } : {},
+                airline ? { airline: { contains: airline, mode: 'insensitive' as const } } : {},
                 isCharterFormat ? { flightNumber: { contains: '3650' } } : {}
               ]
             },
@@ -139,7 +166,7 @@ export class BookingsService {
           } else if (isCharterFormat) {
             // Fallback for Charter as before
             const charter = await this.prisma.route.upsert({
-              where: { id: 'default-charter' }, // Using a fixed ID for the default charter import if necessary
+              where: { id: 'default-charter' },
               update: {},
               create: {
                 id: 'default-charter',
@@ -174,7 +201,7 @@ export class BookingsService {
 
         const profit = sellingPrice - purchasePrice;
 
-        const b = await (this.prisma.booking as any).create({
+        const b = await this.prisma.booking.create({
           data: {
             routeId,
             passengerName,
@@ -268,6 +295,16 @@ export class BookingsService {
     const purchasePrice = isAdmin ? (dto.purchasePrice || 0) : 0;
     const profit = sellingPrice - purchasePrice;
 
+    // Automatic Agent Details Mapping:
+    // If agent is logged in, use their agency name or name.
+    let effectiveAgentDetails = dto.agentDetails;
+    if (!effectiveAgentDetails && user?.id) {
+      const dbUser = await this.prisma.user.findUnique({ where: { id: user.id } });
+      if (dbUser && dbUser.role === 'AGENT') {
+        effectiveAgentDetails = dbUser.agencyName || dbUser.name;
+      }
+    }
+
     const booking = await this.prisma.booking.create({
       data: {
         userId: user?.id || undefined,
@@ -287,6 +324,23 @@ export class BookingsService {
         serviceFee: dto.serviceFee || 0,
         pnr: dto.pnr,
         ticketNumber: dto.ticketNumber,
+        // Added missing fields for engine consistency
+        prefix: dto.prefix,
+        givenName: dto.givenName,
+        surname: dto.surname,
+        airline: dto.airline,
+        sector: dto.sector,
+        travelDate: dto.travelDate ? new Date(dto.travelDate) : undefined,
+        supplier: dto.supplier,
+        agencyEmail: dto.agencyEmail,
+        paymentMethod: dto.paymentMethod,
+        remarks: dto.remarks,
+        request: dto.request,
+        agentDetails: effectiveAgentDetails,
+        gender: dto.gender,
+        nationality: dto.nationality,
+        dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
+        passportExpiry: dto.passportExpiry ? new Date(dto.passportExpiry) : undefined,
       },
       include: { route: true },
     });
@@ -294,11 +348,28 @@ export class BookingsService {
     await this.prisma.route.update({
       where: { id: dto.routeId },
       data: {
-        remainingSeats: route.remainingSeats - 1,
+        remainingSeats: { decrement: 1 },
       },
     });
 
-    if (user?.id) {
+    // Financial Sync for Manual Bookings
+    if (effectiveAgentDetails) {
+      const matchedAgent = await this.prisma.user.findFirst({
+        where: { OR: [{ name: { equals: effectiveAgentDetails, mode: 'insensitive' } }, { agencyName: { equals: effectiveAgentDetails, mode: 'insensitive' } }] }
+      });
+      if (matchedAgent && matchedAgent.role === 'AGENT') {
+        const owedAmount = sellingPrice || 0;
+        if (owedAmount > 0) {
+          await this.prisma.user.update({
+            where: { id: matchedAgent.id },
+            data: {
+              pendingDues: { increment: owedAmount },
+              outstanding: { increment: owedAmount }
+            }
+          });
+        }
+      }
+    } else if (user?.id) {
       const dbUser = await this.prisma.user.findUnique({ where: { id: user.id } });
       if (dbUser && dbUser.role === 'AGENT') {
         const owedAmount = sellingPrice || 0;
@@ -340,6 +411,9 @@ export class BookingsService {
             { email: { contains: search, mode: 'insensitive' } },
             { phone: { contains: search, mode: 'insensitive' } },
             { pnr: { contains: search, mode: 'insensitive' } },
+            { passportNumber: { contains: search, mode: 'insensitive' } },
+            { refNo: { contains: search, mode: 'insensitive' } },
+            { ticketNumber: { contains: search, mode: 'insensitive' } },
             { agentDetails: { contains: search, mode: 'insensitive' } },
             { route: { origin: { contains: search, mode: 'insensitive' } } },
             { route: { destination: { contains: search, mode: 'insensitive' } } },
@@ -639,6 +713,23 @@ export class BookingsService {
     const sellingPrice = dto.sellingPrice !== undefined ? dto.sellingPrice : current.sellingPrice;
     const profit = (sellingPrice || 0) - (purchasePrice || 0);
 
+    // Seat Management on Status Change
+    if (dto.status && dto.status !== current.status) {
+      if (dto.status === 'CANCELLED') {
+        // Just got cancelled, release seat
+        await this.prisma.route.update({
+          where: { id: current.routeId },
+          data: { remainingSeats: { increment: 1 } },
+        }).catch(() => {});
+      } else if (current.status === 'CANCELLED') {
+        // Was cancelled, now restored, re-consume seat
+        await this.prisma.route.update({
+          where: { id: current.routeId },
+          data: { remainingSeats: { decrement: 1 } },
+        }).catch(() => {});
+      }
+    }
+
     return this.prisma.booking.update({
       where: { id },
       data: {
@@ -653,8 +744,8 @@ export class BookingsService {
     const booking = await this.prisma.booking.findUnique({ where: { id } });
     if (!booking) throw new NotFoundException('Booking not found');
 
-    // Restore seat count if booking was confirmed/pending
-    if (booking.status === 'CONFIRMED' || booking.status === 'PENDING') {
+    // Restore seat count if booking was not cancelled
+    if (booking.status !== 'CANCELLED') {
       await this.prisma.route.update({
         where: { id: booking.routeId },
         data: { remainingSeats: { increment: 1 } },
@@ -665,6 +756,20 @@ export class BookingsService {
   }
 
   async removeMany(ids: string[]) {
+    // SECURITY AUDIT: Restoring seats for bulk delete
+    const bookings = await this.prisma.booking.findMany({
+      where: { id: { in: ids } }
+    });
+
+    for (const b of bookings) {
+      if (b.status !== 'CANCELLED') {
+        await this.prisma.route.update({
+          where: { id: b.routeId },
+          data: { remainingSeats: { increment: 1 } }
+        }).catch(() => {});
+      }
+    }
+
     return this.prisma.booking.deleteMany({
       where: { id: { in: ids } }
     });

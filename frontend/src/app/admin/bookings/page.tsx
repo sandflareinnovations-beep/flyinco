@@ -122,6 +122,7 @@ export default function AdminBookings() {
             agent: searchType === "agent" ? search : "",
             phone: searchType === "phone" ? search : ""
         }),
+        refetchInterval: 15000, // Refresh every 15 seconds to sync with latest bookings
     });
 
     const bookings = bookingData?.bookings || [];

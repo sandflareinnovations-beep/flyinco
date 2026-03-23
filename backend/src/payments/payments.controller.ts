@@ -4,6 +4,8 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 
+import { CreatePaymentDto } from './dto/create-payment.dto';
+
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN')
 @Controller('payments')
@@ -16,7 +18,7 @@ export class PaymentsController {
   }
 
   @Post()
-  create(@Body() createPaymentDto: any) {
+  create(@Body() createPaymentDto: CreatePaymentDto) {
     return this.paymentsService.create(createPaymentDto);
   }
 

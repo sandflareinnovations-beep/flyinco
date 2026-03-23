@@ -31,9 +31,14 @@ export class AuthController {
   ) {
     const data = await this.authService.register(registerDto);
     this.setCookie(res, data.access_token);
-    return { user: data.user, token: data.access_token };
+    return { 
+      user: data.user, 
+      token: data.access_token,
+      refresh_token: data.refresh_token 
+    };
   }
 
+  @Throttle({ short: { limit: 1, ttl: 5000 }, long: { limit: 5, ttl: 60000 } })
   @Post('login')
   async login(
     @Body() loginDto: LoginDto,
@@ -41,7 +46,24 @@ export class AuthController {
   ) {
     const data = await this.authService.login(loginDto);
     this.setCookie(res, data.access_token);
-    return { user: data.user, token: data.access_token };
+    return { 
+      user: data.user, 
+      token: data.access_token,
+      refresh_token: data.refresh_token 
+    };
+  }
+
+  @Post('refresh')
+  async refresh(
+    @Body('refresh_token') refreshToken: string,
+    @Res({ passthrough: true }) res: any
+  ) {
+    const data = await this.authService.refreshToken(refreshToken);
+    this.setCookie(res, data.access_token);
+    return { 
+      token: data.access_token,
+      refresh_token: data.refresh_token 
+    };
   }
 
   @Post('logout')

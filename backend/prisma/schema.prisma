@@ -104,6 +104,7 @@ model User {
   verificationToken  String?
   resetToken         String?
   resetTokenExpires  DateTime?
+  refreshToken       String?   @db.Text
   lastLogin          DateTime?
   
   createdAt DateTime  @default(now())

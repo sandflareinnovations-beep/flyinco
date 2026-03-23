@@ -13,6 +13,20 @@ export class PaymentsService {
   }
 
   async create(data: any) {
+    if (data.amount <= 0) {
+      throw new Error('Payment amount must be greater than zero');
+    }
+
+    // --- IDEMPOTENCY CHECK (Audit Point 11) ---
+    const recent = await this.prisma.payment.findFirst({
+      where: {
+        agentId: data.agentId,
+        amount: data.amount,
+        createdAt: { gte: new Date(Date.now() - 5000) } // Match same-agent, same-amount in last 5s
+      }
+    });
+    if (recent) throw new Error('Duplicate transaction detected (same agent/amount in last 5s). Please wait.');
+
     const payment = await this.prisma.payment.create({ data });
     if (data.type === 'PAYMENT' && payment.status === 'COMPLETED') {
       await this.prisma.user.update({
