@@ -96,6 +96,7 @@ model User {
   agencyName String?
   creditLimit Float   @default(0)
   totalPaid   Float   @default(0)
+  totalSales  Float   @default(0)
   outstanding Float   @default(0) // computed or updated based on bookings
   pendingDues Float   @default(0)
   

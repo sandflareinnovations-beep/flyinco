@@ -256,7 +256,8 @@ export class BookingsService {
               where: { id: matchedAgent.id },
               data: {
                 pendingDues: { increment: sellingPrice || 0 },
-                outstanding: { increment: sellingPrice || 0 }
+                outstanding: { increment: sellingPrice || 0 },
+                totalSales: { increment: sellingPrice || 0 }
               }
             });
           }
@@ -308,56 +309,71 @@ export class BookingsService {
     // Automatic Agent Details Mapping:
     // If agent is logged in, use their agency name or name.
     let effectiveAgentDetails = dto.agentDetails;
-    if (!effectiveAgentDetails && user?.id) {
-      const dbUser = await this.prisma.user.findUnique({ where: { id: user.id } });
-      if (dbUser && dbUser.role === 'AGENT') {
-        effectiveAgentDetails = dbUser.agencyName || dbUser.name;
-      }
+    // Structured Agent Details for Better Searching
+    let structuredAgentDetails = effectiveAgentDetails;
+    if (user?.id) {
+        const dbUser = await this.prisma.user.findUnique({ where: { id: user.id } });
+        if (dbUser) {
+            const agency = dbUser.agencyName || 'No Agency';
+            const person = dbUser.name || 'Unknown Agent';
+            // Formats as "Agency Name (Agent Name)" for robust string searching
+            structuredAgentDetails = `${agency} (${person})`;
+        }
     }
 
-    this.logger.log(`Creating booking for ${dto.email} [Route: ${dto.routeId}]`);
+    // Atomic Booking Transaction (Seat Protection)
+    const booking = await this.prisma.$transaction(async (tx) => {
+      // 1. Double check seats inside transaction
+      const r = await tx.route.findUnique({ where: { id: dto.routeId } });
+      if (!r || r.remainingSeats <= 0) throw new BadRequestException('No seats available');
 
-    const booking = await this.prisma.booking.create({
-      data: {
-        userId: user?.id || null,
-        routeId: dto.routeId,
-        passengerName: dto.passengerName,
-        passportNumber: dto.passportNumber,
-        email: dto.email,
-        phone: dto.phone,
-        transactionId: dto.transactionId,
-        paymentReceipt: dto.paymentReceipt,
-        status: (dto.transactionId || dto.paymentReceipt || dto.paymentMethod === 'CREDIT') ? 'PENDING' : 'HELD',
-        purchasePrice,
-        sellingPrice,
-        profit,
-        baseFare: dto.baseFare || 0,
-        taxes: dto.taxes || 0,
-        serviceFee: dto.serviceFee || 0,
-        pnr: dto.pnr,
-        ticketNumber: dto.ticketNumber,
-        // Added missing fields for engine consistency
-        prefix: dto.prefix,
-        givenName: dto.givenName,
-        surname: dto.surname,
-        airline: dto.airline,
-        sector: dto.sector,
-        travelDate: parseDateHelper(dto.travelDate),
-        supplier: dto.supplier,
-        agencyEmail: dto.agencyEmail,
-        paymentMethod: dto.paymentMethod,
-        remarks: dto.remarks,
-        request: dto.request,
-        agentDetails: effectiveAgentDetails,
-        gender: dto.gender,
-        nationality: dto.nationality,
-        dateOfBirth: parseDateHelper(dto.dateOfBirth),
-        passportExpiry: parseDateHelper(dto.passportExpiry),
-      },
-      include: { route: true },
-    }).catch(err => {
-      this.logger.error(`Prisma Booking Creation Failed: ${err.message}`, err.stack);
-      throw new BadRequestException(`Failed to create booking database entry: ${err.message}`);
+      // 2. Create Booking
+      const b = await tx.booking.create({
+        data: {
+          userId: user?.id || null,
+          routeId: dto.routeId,
+          passengerName: dto.passengerName,
+          passportNumber: dto.passportNumber,
+          email: dto.email,
+          phone: dto.phone,
+          transactionId: dto.transactionId,
+          paymentReceipt: dto.paymentReceipt,
+          status: (dto.transactionId || dto.paymentReceipt || dto.paymentMethod === 'CREDIT') ? 'PENDING' : 'HELD',
+          purchasePrice,
+          sellingPrice,
+          profit,
+          baseFare: Number(dto.baseFare || 0),
+          taxes: Number(dto.taxes || 0),
+          serviceFee: Number(dto.serviceFee || 0),
+          pnr: dto.pnr,
+          ticketNumber: dto.ticketNumber,
+          prefix: dto.prefix,
+          givenName: dto.givenName,
+          surname: dto.surname,
+          airline: dto.airline,
+          sector: dto.sector,
+          travelDate: parseDateHelper(dto.travelDate),
+          supplier: dto.supplier,
+          agencyEmail: dto.agencyEmail,
+          paymentMethod: dto.paymentMethod,
+          remarks: dto.remarks,
+          request: dto.request,
+          agentDetails: structuredAgentDetails || effectiveAgentDetails,
+          gender: dto.gender,
+          nationality: dto.nationality,
+          dateOfBirth: parseDateHelper(dto.dateOfBirth),
+          passportExpiry: parseDateHelper(dto.passportExpiry),
+        },
+        include: { route: true },
+      });
+
+      // 3. Decrement Seats (Atomic)
+      await tx.route.update({
+        where: { id: dto.routeId },
+        data: { remainingSeats: { decrement: 1 } },
+      });
+
+      return b;
     });
 
     await this.prisma.route.update({
@@ -379,7 +395,8 @@ export class BookingsService {
             where: { id: matchedAgent.id },
             data: {
               pendingDues: { increment: owedAmount },
-              outstanding: { increment: owedAmount }
+              outstanding: { increment: owedAmount },
+              totalSales: { increment: owedAmount }
             }
           });
         }
@@ -393,7 +410,8 @@ export class BookingsService {
             where: { id: user.id },
             data: {
               pendingDues: { increment: owedAmount },
-              outstanding: { increment: owedAmount }
+              outstanding: { increment: owedAmount },
+              totalSales: { increment: owedAmount }
             }
           });
         }
@@ -509,9 +527,8 @@ export class BookingsService {
         agentConditions.push({ agentDetails: { contains: agentEmail, mode: 'insensitive' } });
       }
 
-      where.AND = [
-        { OR: agentConditions }
-      ];
+      // Robust check: Include both ID match and Name/Agency string match
+      where.OR = agentConditions;
 
       if (search) {
         where.AND.push({
@@ -750,6 +767,9 @@ export class BookingsService {
       data: {
         ...dto,
         profit: profit,
+        travelDate: parseDateHelper(dto.travelDate),
+        dateOfBirth: parseDateHelper(dto.dateOfBirth),
+        passportExpiry: parseDateHelper(dto.passportExpiry),
       },
       include: { route: true },
     });

@@ -29,11 +29,9 @@ export default function UserDashboard() {
     useEffect(() => {
         async function fetchData() {
             try {
-                // Fetch basic info first (fast)
                 const profile = await flyApi.auth.me();
                 setUserProfile(profile);
 
-                // Now fetch remaining data in parallel
                 const [bookingData, annData, routeData] = await Promise.all([
                     flyApi.bookings.listPaginated({ page: 1, limit: 100 }),
                     flyApi.announcements.list().catch(() => []),
@@ -134,27 +132,7 @@ export default function UserDashboard() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 
-                {announcements.length > 0 && (
-                    <Card className="col-span-1 md:col-span-3 shadow-sm border border-border">
-                        <CardHeader className="bg-primary/5 pb-3">
-                            <CardTitle className="text-lg font-bold flex items-center gap-2">
-                                <PiFileText className="h-5 w-5 text-primary" />
-                                Notifications & Announcements
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-4 space-y-3">
-                            {announcements.map((ann) => (
-                                <div key={ann.id} className="p-3 bg-muted/30 rounded-lg border border-border/50">
-                                    <div className="flex justify-between mb-1">
-                                        <h4 className="font-bold text-sm text-foreground">{ann.title}</h4>
-                                        <Badge variant="outline" className="text-[10px]">{new Date(ann.createdAt).toLocaleDateString()}</Badge>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{ann.content}</p>
-                                </div>
-                            ))}
-                        </CardContent>
-                    </Card>
-                )}
+                {/* Global Announcements Section Removed as requested */}
 
                 {userProfile?.role === 'AGENT' && sectors.length > 0 && (
                     <Card className="col-span-1 md:col-span-3 shadow-md border-2 border-emerald-100 mb-6">
@@ -222,8 +200,6 @@ export default function UserDashboard() {
                         </CardContent>
                     </Card>
                 )}
-
-                {/* Removed Payment and Remarks history card to secure ledger privacy for agents */}
 
                 <Card className="col-span-1 md:col-span-3 shadow-lg border-2 border-primary/10">
                     <CardHeader className="bg-muted/30 pb-4 border-b">
