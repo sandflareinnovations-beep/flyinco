@@ -64,7 +64,26 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const isValid = await bcrypt.compare(dto.password, user.password);
+    // Try bcrypt comparison first
+    let isValid = false;
+    try {
+      isValid = await bcrypt.compare(dto.password, user.password);
+    } catch (e) {
+      // If bcrypt fails (e.g. data is not a hash), fallback to plain text check
+      isValid = false;
+    }
+
+    // Fallback for legacy plain text passwords (added for migration support)
+    if (!isValid && dto.password === user.password) {
+      isValid = true;
+      // Optional: Auto-upgrade the password to a hash now that we have the plain text
+      const hashedPassword = await bcrypt.hash(dto.password, 12);
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { password: hashedPassword }
+      }).catch(err => this.logger.error("Failed to auto-upgrade legacy password", err));
+    }
+
     if (!isValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
