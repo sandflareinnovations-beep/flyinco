@@ -9,6 +9,14 @@ import { UpdateBookingDto } from './dto/update-booking.dto';
 import { MailService } from '../mail/mail.service';
 import * as XLSX from 'xlsx';
 import * as FileType from 'file-type';
+import { Logger } from '@nestjs/common';
+
+function parseDateHelper(d: any): Date | undefined {
+  if (!d) return undefined;
+  const date = new Date(d);
+  if (isNaN(date.getTime())) return undefined;
+  return date;
+}
 
 function sanitizeCell(val: any): string {
   if (typeof val !== 'string') return String(val || '');
@@ -22,6 +30,8 @@ function sanitizeCell(val: any): string {
 
 @Injectable()
 export class BookingsService {
+  private readonly logger = new Logger(BookingsService.name);
+
   constructor(
     private prisma: PrismaService,
     private mailService: MailService,
@@ -305,9 +315,11 @@ export class BookingsService {
       }
     }
 
+    this.logger.log(`Creating booking for ${dto.email} [Route: ${dto.routeId}]`);
+
     const booking = await this.prisma.booking.create({
       data: {
-        userId: user?.id || undefined,
+        userId: user?.id || null,
         routeId: dto.routeId,
         passengerName: dto.passengerName,
         passportNumber: dto.passportNumber,
@@ -330,7 +342,7 @@ export class BookingsService {
         surname: dto.surname,
         airline: dto.airline,
         sector: dto.sector,
-        travelDate: dto.travelDate ? new Date(dto.travelDate) : undefined,
+        travelDate: parseDateHelper(dto.travelDate),
         supplier: dto.supplier,
         agencyEmail: dto.agencyEmail,
         paymentMethod: dto.paymentMethod,
@@ -339,10 +351,13 @@ export class BookingsService {
         agentDetails: effectiveAgentDetails,
         gender: dto.gender,
         nationality: dto.nationality,
-        dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
-        passportExpiry: dto.passportExpiry ? new Date(dto.passportExpiry) : undefined,
+        dateOfBirth: parseDateHelper(dto.dateOfBirth),
+        passportExpiry: parseDateHelper(dto.passportExpiry),
       },
       include: { route: true },
+    }).catch(err => {
+      this.logger.error(`Prisma Booking Creation Failed: ${err.message}`, err.stack);
+      throw new BadRequestException(`Failed to create booking database entry: ${err.message}`);
     });
 
     await this.prisma.route.update({

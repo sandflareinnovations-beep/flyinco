@@ -74,7 +74,7 @@ export class CreateBookingDto {
 
   @IsOptional()
   @IsDateString()
-  travelDate?: Date;
+  travelDate?: string;
 
   @IsOptional()
   @IsString()
@@ -110,9 +110,9 @@ export class CreateBookingDto {
 
   @IsOptional()
   @IsDateString()
-  dateOfBirth?: Date;
+  dateOfBirth?: string;
 
   @IsOptional()
   @IsDateString()
-  passportExpiry?: Date;
+  passportExpiry?: string;
 }

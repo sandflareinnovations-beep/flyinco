@@ -21,11 +21,11 @@ export class UpdateBookingDto extends PartialType(CreateBookingDto) {
 
   @IsOptional()
   @IsDateString()
-  dateOfBirth?: Date;
+  dateOfBirth?: string;
 
   @IsOptional()
   @IsDateString()
-  passportExpiry?: Date;
+  passportExpiry?: string;
 
   @IsOptional()
   @IsString()

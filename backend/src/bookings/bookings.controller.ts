@@ -22,13 +22,14 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Query } from '@nestjs/common';
+import { OptionalJwtAuthGuard } from '../auth/optional-jwt-auth.guard';
 
 @Controller('bookings')
 export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) { }
 
-  // ── Authenticated endpoint: user or agent can create a booking ──
-  @UseGuards(JwtAuthGuard)
+  // ── Flexible endpoint: user/agent or guest can create a booking ──
+  @UseGuards(OptionalJwtAuthGuard)
   @Post()
   create(@Body() createBookingDto: CreateBookingDto, @Req() req: any) {
     return this.bookingsService.create(createBookingDto, req.user);
