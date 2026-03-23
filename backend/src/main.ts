@@ -26,8 +26,9 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:3000',
-      'https://flyinco.vercel.app', // Example production domain
-      'https://admin.flyinco.com'   // Example production domain
+      'https://flyincobooking.com', // Active production domain
+      'https://flyinco.vercel.app',
+      'https://admin.flyinco.com'
     ],
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
