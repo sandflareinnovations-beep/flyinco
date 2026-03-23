@@ -309,27 +309,30 @@ export class BookingsService {
     // Automatic Agent Details Mapping:
     // If agent is logged in, use their agency name or name.
     let effectiveAgentDetails = dto.agentDetails;
-    // Structured Agent Details for Better Searching
+    // Robust Agent Identification & Details Mapping:
     let structuredAgentDetails = dto.agentDetails || '';
     if (user?.id) {
         const dbUser = await this.prisma.user.findUnique({ where: { id: user.id } });
         if (dbUser && dbUser.role === 'AGENT') {
-            const agency = dbUser.agencyName || 'Direct Agent';
-            const person = dbUser.name || 'Unknown';
-            // Store as Agency - Person for visibility
+            const agency = (dbUser.agencyName || dbUser.name || 'Direct Agent').trim();
+            const person = (dbUser.name || 'Unknown').trim();
+            // Unified identification format for cross-system mapping
             structuredAgentDetails = `${agency} (${person})`;
+        } else if (dbUser && !structuredAgentDetails) {
+            // Logged in passenger without agent association
+            structuredAgentDetails = (dbUser.name || 'Direct Passenger').trim();
         }
     }
 
-    this.logger.log(`Booking Request: ${dto.email} [Agent: ${structuredAgentDetails}]`);
+    this.logger.log(`Booking Processing: ${dto.email} [Identified Agent: ${structuredAgentDetails}]`);
 
-    // Atomic Booking Transaction (Seat Protection)
+    // Atomic Booking Transaction (Strict Seat count protection)
     const booking = await this.prisma.$transaction(async (tx) => {
-      // 1. Double check seats inside transaction
-      const r = await tx.route.findUnique({ where: { id: dto.routeId } });
-      if (!r || r.remainingSeats <= 0) throw new BadRequestException('No seats available');
+      // 1. Availability check inside the atomic operation
+      const r = await tx.route.findFirst({ where: { id: dto.routeId } });
+      if (!r || r.remainingSeats <= 0) throw new BadRequestException('Flight is fully booked (No seats left)');
 
-      // 2. Create Booking
+      // 2. Create the Booking entry
       const b = await tx.booking.create({
         data: {
           userId: user?.id || null,
@@ -360,7 +363,7 @@ export class BookingsService {
           paymentMethod: dto.paymentMethod,
           remarks: dto.remarks,
           request: dto.request,
-          agentDetails: structuredAgentDetails || effectiveAgentDetails,
+          agentDetails: structuredAgentDetails,
           gender: dto.gender,
           nationality: dto.nationality,
           dateOfBirth: parseDateHelper(dto.dateOfBirth),
@@ -369,7 +372,7 @@ export class BookingsService {
         include: { route: true },
       });
 
-      // 3. Decrement Seats (Atomic)
+      // 3. Update Inventory (Decrement seat atomicially)
       await tx.route.update({
         where: { id: dto.routeId },
         data: { remainingSeats: { decrement: 1 } },
@@ -378,14 +381,7 @@ export class BookingsService {
       return b;
     });
 
-    this.logger.log(`Booking Created! ID: ${booking.id} | Agent: ${booking.agentDetails}`);
-
-    await this.prisma.route.update({
-      where: { id: dto.routeId },
-      data: {
-        remainingSeats: { decrement: 1 },
-      },
-    });
+    this.logger.log(`Booking Finalized: ${booking.id} [Mapped Agent: ${booking.agentDetails}]`);
 
     // Financial Sync for Manual Bookings
     if (effectiveAgentDetails) {
@@ -679,14 +675,17 @@ export class BookingsService {
       agentMap[agent].unpaid += sale; // Initialize unpaid with total sales
     });
 
-    // Subtract payments from agentMap unpaid
+    // Subtract payments from agentMap unpaid using multiple key combinations
     allPayments.forEach(p => {
-      const names = [p.agent?.name, p.agent?.agencyName].filter(Boolean);
-      for (const name of names) {
-        const agentKey = (name || '').trim();
-        if (agentMap[agentKey]) {
-          agentMap[agentKey].unpaid -= (p.amount || 0);
-          break; // Found matching agent
+      const dbAgentName = (p.agent?.name || '').trim();
+      const dbAgencyName = (p.agent?.agencyName || '').trim();
+      const identifier = `${dbAgencyName || 'Direct Agent'} (${dbAgentName || 'Unknown'})`;
+      
+      const keys = [identifier, dbAgentName, dbAgencyName].filter(Boolean);
+      for (const key of keys) {
+        if (agentMap[key]) {
+          agentMap[key].unpaid -= (p.amount || 0);
+          break;
         }
       }
     });
