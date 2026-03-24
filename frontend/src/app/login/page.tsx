@@ -1,6 +1,6 @@
 "use client";
 import { PiEye, PiEyeClosed, PiSpinner, PiAirplaneTilt, PiShieldCheck } from "react-icons/pi";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,7 +22,7 @@ const formSchema = z.object({
     password: z.string().min(1, "Password is required"),
 });
 
-export default function LoginPage() {
+function LoginContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { toast } = useToast();
@@ -295,5 +295,17 @@ export default function LoginPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={
+            <div style={{ minHeight: "100vh", background: "#F7F7FB", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <PiSpinner className="animate-spin text-primary" stroke={B.primary} />
+            </div>
+        }>
+            <LoginContent />
+        </Suspense>
     );
 }
