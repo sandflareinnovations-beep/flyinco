@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { API_BASE } from "@/lib/api";
+import { API_BASE, fetchWithCreds } from "@/lib/api";
 import { BookingSummaryCard } from "@/components/booking/booking-summary-card";
 import Link from "next/link";
 function PaymentForm() {
@@ -23,6 +23,12 @@ function PaymentForm() {
     const [user, setUser] = useState<any>(null);
 
     useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            router.replace("/login");
+            return;
+        }
+
         const userStr = localStorage.getItem("user");
         if (userStr) setUser(JSON.parse(userStr));
         
@@ -68,14 +74,11 @@ function PaymentForm() {
                 const formData = new FormData();
                 formData.append("file", receiptFile);
                 try {
-                    const uploadRes = await fetch(`${API_BASE}/bookings/upload-receipt`, {
+                    const data = await fetchWithCreds(`/bookings/upload-receipt`, {
                         method: "POST",
                         body: formData,
                     });
-                    if (uploadRes.ok) {
-                        const data = await uploadRes.json();
-                        receiptUrl = data.url;
-                    }
+                    receiptUrl = data.url;
                 } catch (e) {
                     console.error("Failed to upload receipt:", e);
                 }
@@ -90,10 +93,8 @@ function PaymentForm() {
 
             if (routeId) {
                 try {
-                    const res = await fetch(`${API_BASE}/bookings`, {
+                    const booking = await fetchWithCreds(`/bookings`, {
                         method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        credentials: "include",
                         body: JSON.stringify({
                             routeId: routeId,
                             passengerName: `${passenger.title || "Mr"} ${passenger.firstName} ${passenger.lastName}`,
@@ -104,22 +105,23 @@ function PaymentForm() {
                             paymentReceipt: receiptUrl,
                             paymentMethod: paymentMethod,
                         }),
+                        credentials: "include",
                     });
 
-                    if (res.ok) {
-                        const booking = await res.json();
-                        dbBookingId = booking.id;
-                        bookingStatus = booking.status || "PENDING";
-                    } else {
-                        const err = await res.json().catch(() => ({}));
-                        throw new Error(err.message || "Booking failed at backend");
-                    }
+                    dbBookingId = booking.id;
+                    bookingStatus = booking.status || "PENDING";
                 } catch (apiErr: any) {
                     console.error("Failed to save booking to backend:", apiErr);
+                    if (apiErr.message?.includes("Authentication required")) {
+                        // Redirect already handled by fetchWithCreds via window.location.href
+                        return;
+                    }
                     toast({
-                        title: "Backend Sync Error",
-                        description: "Payment recorded, but sync failed. Our admin will process this manually.",
+                        title: "Booking Failed",
+                        description: apiErr.message || "An error occurred while creating your booking.",
+                        variant: "destructive",
                     });
+                    return; // Stop flow
                 }
             } else {
                 console.error("No flight ID found in booking data");
