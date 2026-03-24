@@ -322,6 +322,8 @@ export class BookingsService {
             // Logged in passenger without agent association
             structuredAgentDetails = (dbUser.name || 'Direct Passenger').trim();
         }
+    } else {
+        this.logger.warn(`UNAUTHENTICATED BOOKING ATTEMPT for ${dto.passengerName} (email: ${dto.email}). Expected a user object but none found.`);
     }
 
     this.logger.log(`Booking Processing: ${dto.email} [Identified Agent: ${structuredAgentDetails}]`);
@@ -399,6 +401,7 @@ export class BookingsService {
               totalSales: { increment: owedAmount }
             }
           });
+          this.logger.log(`Financial Sync: Incremented dues/sales for agent ${matchedAgent.name} by SAR ${owedAmount}`);
         }
       }
     } else if (user?.id) {
@@ -414,8 +417,11 @@ export class BookingsService {
               totalSales: { increment: owedAmount }
             }
           });
+          this.logger.log(`Financial Sync: Incremented dues/sales for logged-in agent ${dbUser.name} by SAR ${owedAmount}`);
         }
       }
+    } else {
+        this.logger.warn(`CRITICAL: Booking ${booking.id} created but no agent/user attribution was possible.`);
     }
 
     await this.mailService.sendBookingConfirmation(
