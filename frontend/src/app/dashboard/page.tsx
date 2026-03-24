@@ -27,6 +27,12 @@ export default function UserDashboard() {
     const router = useRouter();
 
     useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            router.replace("/login");
+            return;
+        }
+
         async function fetchData() {
             try {
                 const profile = await flyApi.auth.me();

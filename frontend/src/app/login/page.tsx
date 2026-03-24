@@ -1,7 +1,7 @@
 "use client";
 import { PiEye, PiEyeClosed, PiSpinner, PiAirplaneTilt, PiShieldCheck } from "react-icons/pi";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -24,12 +24,23 @@ const formSchema = z.object({
 
 export default function LoginPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { toast } = useToast();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [redirecting, setRedirecting] = useState(false);
     const [redirectTarget, setRedirectTarget] = useState<"admin" | "dashboard">("dashboard");
     const [initializing, setInitializing] = useState(true);
+
+    useEffect(() => {
+        if (searchParams.get('expired') === 'true') {
+            toast({
+                title: "Session Expired",
+                description: "Your session expired. Please log in to continue booking.",
+                variant: "destructive",
+            });
+        }
+    }, [searchParams, toast]);
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");

@@ -27,7 +27,9 @@ const getApiBase = () => {
 
 export const API_BASE = getApiBase();
 
-export const fetchWithCreds = async (url: string, options: RequestInit = {}) => {
+export const fetchWithCreds = async (url: string, options: any = {}) => {
+    const { requiresAuth = true, ...fetchOptions } = options;
+
     // Try to get token from localStorage or cookie
     let token = '';
     if (typeof window !== 'undefined') {
@@ -36,6 +38,14 @@ export const fetchWithCreds = async (url: string, options: RequestInit = {}) => 
             const match = document.cookie.match(/(^| )token=([^;]+)/);
             if (match) token = match[2];
         }
+    }
+
+    if (!token && requiresAuth !== false) {
+        // Redirect to login immediately
+        if (typeof window !== 'undefined') {
+            window.location.href = '/login?expired=true';
+        }
+        throw new Error('Authentication required. Please log in.');
     }
 
     const headers: Record<string, string> = {
@@ -48,7 +58,7 @@ export const fetchWithCreds = async (url: string, options: RequestInit = {}) => 
     }
 
     const res = await fetch(`${API_BASE}${url}`, {
-        ...options,
+        ...fetchOptions,
         headers,
         credentials: "include",
     });
@@ -103,7 +113,7 @@ export const flyApi = {
             if (params?.availableOnly) query.append('availableOnly', 'true');
             if (!params) query.append('t', Date.now().toString());
 
-            const data = await fetchWithCreds(`/routes?${query.toString()}`);
+            const data = await fetchWithCreds(`/routes?${query.toString()}`, { requiresAuth: false });
             
             // Handle both legacy array response and new paginated response
             const routesArray = Array.isArray(data) ? data : (data.routes || []);
@@ -147,7 +157,7 @@ export const flyApi = {
             if (params.search) query.append('search', params.search);
             if (params.availableOnly) query.append('availableOnly', 'true');
 
-            const data = await fetchWithCreds(`/routes?${query.toString()}`);
+            const data = await fetchWithCreds(`/routes?${query.toString()}`, { requiresAuth: false });
             const routesArray = data.routes || [];
             
             const mapped = routesArray.map((d: any) => ({
@@ -179,7 +189,7 @@ export const flyApi = {
             return { ...data, routes: mapped };
         },
         get: async (id: string): Promise<FareSector | undefined> => {
-            const d = await fetchWithCreds(`/routes/${id}?t=${Date.now()}`);
+            const d = await fetchWithCreds(`/routes/${id}?t=${Date.now()}`, { requiresAuth: false });
             return {
                 id: d.id,
                 originCode: d.origin,
@@ -433,7 +443,7 @@ export const flyApi = {
     },
     announcements: {
         list: async () => {
-            return await fetchWithCreds('/announcements');
+            return await fetchWithCreds('/announcements', { requiresAuth: false });
         },
         create: async (data: any) => {
             return await fetchWithCreds('/announcements', {

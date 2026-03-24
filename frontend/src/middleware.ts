@@ -31,7 +31,7 @@ export function middleware(request: NextRequest) {
     } catch (e) {
         if (url.pathname.startsWith('/admin') || url.pathname.startsWith('/dashboard')) {
             // Clear invalid token string
-            const response = NextResponse.redirect(new URL('/login', request.url));
+            const response = NextResponse.redirect(new URL('/login?expired=true', request.url));
             response.cookies.delete('token');
             return response;
         }

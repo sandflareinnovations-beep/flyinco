@@ -74,13 +74,14 @@ export function BookingModal({ sector, isOpen, onClose }: BookingModalProps) {
             queryClient.invalidateQueries({ queryKey: ["bookings"] });
         },
         onError: (error: Error) => {
-            if (error.message.includes("Unauthorized") || error.message.includes("401")) {
+            if (error.message.includes("Unauthorized") || error.message.includes("401") || error.message.includes("Authentication required")) {
                 toast({
-                    title: "Authentication Required",
-                    description: "Please log in to hold a ticket.",
+                    title: "Session Expired",
+                    description: "Your session has expired. Please log in again to continue booking.",
+                    variant: "destructive",
                 });
                 onClose();
-                router.push("/login");
+                router.push("/login?expired=true");
                 return;
             }
 
