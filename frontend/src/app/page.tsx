@@ -62,7 +62,7 @@ export default function Home() {
   }, [sectors]);
 
   // Show only truly open sectors on the home page
-  const openSectors = (sectors || []).filter(s => 
+  const openSectors = (sectors || []).filter((s: any) => 
     s.bookingStatus !== "CLOSED" && 
     s.bookingStatus !== "SOLD" && 
     s.remainingSeats > 0
@@ -306,7 +306,7 @@ export default function Home() {
                           </div>
                         ) : (
                           <div style={{ maxHeight: 340, overflowY: "auto" }}>
-                            {openSectors.map((s, i) => {
+                            {openSectors.map((s: any, i: number) => {
                               const isSelected = activeSector?.id === s.id;
                               return (
                                 <div
@@ -501,7 +501,7 @@ export default function Home() {
           {/* All Sector Cards */}
           {openSectors.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 860, margin: "0 auto 48px" }}>
-              {openSectors.map((s, idx) => (
+              {openSectors.map((s: any, idx: number) => (
                 <motion.div
                   key={s.id}
                   initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}

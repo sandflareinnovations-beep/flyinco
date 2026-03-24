@@ -34,3 +34,4 @@ yarn-error.log*
 
 # Prisma
 /backend/prisma/*.db
+.claude/

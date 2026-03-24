@@ -28,8 +28,8 @@ import { OptionalJwtAuthGuard } from '../auth/optional-jwt-auth.guard';
 export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) { }
 
-  // ── Flexible endpoint: user/agent or guest can create a booking ──
-  @UseGuards(OptionalJwtAuthGuard)
+  // ── Protected endpoint: agents/users must be logged in to hold a ticket ──
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createBookingDto: CreateBookingDto, @Req() req: any) {
     return this.bookingsService.create(createBookingDto, req.user);
