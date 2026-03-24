@@ -27,6 +27,7 @@ export class RoutesService {
       layover: dto.layover,
       flightRules: dto.flightRules,
       flightDetails: dto.flightDetails,
+      supplier: dto.supplier,
     };
 
     if (dto.arrivalDate && dto.arrivalDate !== '') {

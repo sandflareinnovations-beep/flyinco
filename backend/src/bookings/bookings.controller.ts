@@ -126,6 +126,28 @@ export class BookingsController {
     return this.bookingsService.findAll(req.user, { page, limit, search, agent, phone, supplier });
   }
 
+  // ── Admin: Route-wise passenger report ──
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Get('report/by-route/:routeId')
+  getRoutePassengerReport(@Param('routeId') routeId: string) {
+    return this.bookingsService.getRoutePassengerReport(routeId);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Get('report/route-summary')
+  getRouteSummaryReport() {
+    return this.bookingsService.getRouteSummaryReport();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Get('report/supplier-summary')
+  getSupplierSummary() {
+    return this.bookingsService.getSupplierSummary();
+  }
+
   // ── User/Admin: view one booking ──
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('USER', 'ADMIN', 'AGENT')

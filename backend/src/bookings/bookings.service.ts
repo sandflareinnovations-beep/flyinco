@@ -201,6 +201,13 @@ export class BookingsService {
           }
         }
 
+        // Auto-inherit supplier from route if not set in Excel row
+        let resolvedSupplier = supplier;
+        if (!resolvedSupplier && routeId) {
+          const foundRoute = await this.prisma.route.findUnique({ where: { id: routeId }, select: { supplier: true } });
+          if (foundRoute?.supplier) resolvedSupplier = foundRoute.supplier;
+        }
+
         if (!routeId) throw new Error('Route ID is missing and no default route found');
         if (!passengerName || passengerName === 'Unknown' || passengerName === ' ') throw new Error('Passenger Name is missing');
         if (!passportNumber || passportNumber === 'undefined' || passportNumber === '') throw new Error('Passport Number is missing');
@@ -225,7 +232,7 @@ export class BookingsService {
             airline,
             sector,
             travelDate: travelDate || undefined,
-            supplier,
+            supplier: resolvedSupplier,
             agencyEmail,
             paymentMethod,
             request: requestField,
@@ -299,6 +306,9 @@ export class BookingsService {
       throw new BadRequestException('No remaining seats');
     }
 
+    // Auto-inherit supplier from route if not provided in DTO
+    const bookingSupplier = dto.supplier || route.supplier || '';
+
     // SECURITY AUDIT FIX: Only admin can set custom prices or purchase costs.
     // Regular users MUST use the route's current price.
     const isAdmin = user?.role === 'ADMIN';
@@ -360,7 +370,7 @@ export class BookingsService {
           airline: dto.airline,
           sector: dto.sector,
           travelDate: parseDateHelper(dto.travelDate),
-          supplier: dto.supplier,
+          supplier: bookingSupplier,
           agencyEmail: dto.agencyEmail,
           paymentMethod: dto.paymentMethod,
           remarks: dto.remarks,
@@ -595,6 +605,143 @@ export class BookingsService {
       .map((b) => b.supplier)
       .filter((s) => s && s.trim() !== '')
       .sort();
+  }
+
+  // ── Route-wise Passenger Report ──
+  async getRoutePassengerReport(routeId: string) {
+    const route = await this.prisma.route.findUnique({ where: { id: routeId } });
+    if (!route) throw new NotFoundException('Route not found');
+
+    const bookings = await this.prisma.booking.findMany({
+      where: { routeId, status: { not: 'CANCELLED' } },
+      orderBy: { createdAt: 'asc' },
+      include: { user: { select: { name: true, agencyName: true } } },
+    });
+
+    const totalRevenue = bookings.reduce((s, b) => s + (b.sellingPrice || 0), 0);
+    const totalCost = bookings.reduce((s, b) => s + (b.purchasePrice || 0), 0);
+    const totalProfit = bookings.reduce((s, b) => s + (b.profit || 0), 0);
+
+    return {
+      route: {
+        id: route.id,
+        origin: route.origin,
+        originCity: route.originCity,
+        destination: route.destination,
+        destinationCity: route.destinationCity,
+        airline: route.airline,
+        flightNumber: route.flightNumber,
+        departureDate: route.departureDate,
+        price: route.price,
+        totalSeats: route.totalSeats,
+        remainingSeats: route.remainingSeats,
+        supplier: route.supplier,
+      },
+      passengers: bookings.map((b, i) => ({
+        slNo: i + 1,
+        id: b.id,
+        passengerName: b.passengerName,
+        passportNumber: b.passportNumber,
+        pnr: b.pnr || '',
+        ticketNumber: b.ticketNumber || '',
+        status: b.status,
+        paymentStatus: b.paymentStatus,
+        sellingPrice: b.sellingPrice || 0,
+        purchasePrice: b.purchasePrice || 0,
+        profit: b.profit || 0,
+        agentDetails: b.agentDetails || '',
+        phone: b.phone,
+        email: b.email,
+        gender: b.gender || '',
+        nationality: b.nationality || '',
+        createdAt: b.createdAt,
+      })),
+      summary: {
+        totalPassengers: bookings.length,
+        confirmedCount: bookings.filter(b => b.status === 'CONFIRMED').length,
+        heldCount: bookings.filter(b => b.status === 'HELD' || b.status === 'PENDING').length,
+        totalRevenue,
+        totalCost,
+        totalProfit,
+      },
+    };
+  }
+
+  // ── Route Summary Report (all routes with financial aggregates) ──
+  async getRouteSummaryReport() {
+    const routes = await this.prisma.route.findMany({
+      include: {
+        bookings: {
+          where: { status: { not: 'CANCELLED' } },
+          select: { sellingPrice: true, purchasePrice: true, profit: true, status: true },
+        },
+      },
+      orderBy: { departureDate: 'desc' },
+    });
+
+    return routes.map(r => {
+      const totalRevenue = r.bookings.reduce((s, b) => s + (b.sellingPrice || 0), 0);
+      const totalCost = r.bookings.reduce((s, b) => s + (b.purchasePrice || 0), 0);
+      const totalProfit = r.bookings.reduce((s, b) => s + (b.profit || 0), 0);
+      const confirmedCount = r.bookings.filter(b => b.status === 'CONFIRMED').length;
+      const heldCount = r.bookings.filter(b => b.status === 'HELD' || b.status === 'PENDING').length;
+
+      return {
+        routeId: r.id,
+        origin: r.origin,
+        originCity: r.originCity,
+        destination: r.destination,
+        destinationCity: r.destinationCity,
+        airline: r.airline,
+        flightNumber: r.flightNumber,
+        departureDate: r.departureDate,
+        price: r.price,
+        supplier: r.supplier || '',
+        totalSeats: r.totalSeats,
+        remainingSeats: r.remainingSeats,
+        soldSeats: r.totalSeats - r.remainingSeats,
+        totalBookings: r.bookings.length,
+        confirmedBookings: confirmedCount,
+        heldBookings: heldCount,
+        totalRevenue,
+        totalCost,
+        totalProfit,
+      };
+    });
+  }
+
+  // ── Supplier Financial Summary ──
+  async getSupplierSummary() {
+    const supplierNames = await this.getSuppliers();
+
+    const results = await Promise.all(
+      (supplierNames as string[]).map(async (supplierName: string) => {
+        const [bookingAgg, paymentAgg] = await Promise.all([
+          this.prisma.booking.aggregate({
+            where: { supplier: supplierName, status: { not: 'CANCELLED' } },
+            _sum: { purchasePrice: true },
+            _count: { _all: true },
+          }),
+          this.prisma.supplierPayment.aggregate({
+            where: { supplierName },
+            _sum: { amount: true },
+          }),
+        ]);
+
+        const totalPurchase = (bookingAgg._sum?.purchasePrice) || 0;
+        const totalPaid = (paymentAgg._sum?.amount) || 0;
+
+        return {
+          supplierName,
+          totalBookings: bookingAgg._count._all,
+          totalPurchase,
+          totalPaid,
+          outstanding: totalPurchase - totalPaid,
+        };
+      }),
+    );
+
+    return results.sort((a, b) => b.outstanding - a.outstanding);
   }
 
   async getMetrics(user: any) {

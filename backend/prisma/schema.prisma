@@ -30,6 +30,7 @@ model Route {
   flightDetails  String?
   bookingStatus  String    @default("OPEN")
   isCharter      Boolean   @default(false)
+  supplier       String?
   createdAt      DateTime  @default(now())
   bookings       Booking[]
 }
