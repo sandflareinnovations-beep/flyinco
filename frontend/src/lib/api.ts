@@ -132,6 +132,7 @@ export const flyApi = {
                 flightRules: d.flightRules || "",
                 flightDetails: d.flightDetails || "",
                 bookingStatus: d.bookingStatus || "OPEN",
+                supplier: d.supplier || "",
             }));
 
             if (params?.page || params?.limit || params?.search || params?.availableOnly) {
@@ -173,6 +174,7 @@ export const flyApi = {
                 flightRules: d.flightRules || "",
                 flightDetails: d.flightDetails || "",
                 bookingStatus: d.bookingStatus || "OPEN",
+                supplier: d.supplier || "",
             }));
             return { ...data, routes: mapped };
         },
@@ -202,6 +204,7 @@ export const flyApi = {
                 flightRules: d.flightRules || "",
                 flightDetails: d.flightDetails || "",
                 bookingStatus: d.bookingStatus || "OPEN",
+                supplier: d.supplier || "",
             };
         },
         create: async (data: any) => {
@@ -285,6 +288,7 @@ export const flyApi = {
                 agentDetails: d.agentDetails || "",
                 createdAt: d.createdAt,
                 route: d.route,
+                user: d.user || null,
             }));
 
             if (params?.page || params?.limit || params?.search || params?.agent || params?.phone) {
@@ -340,6 +344,7 @@ export const flyApi = {
                 agentDetails: d.agentDetails || "",
                 createdAt: d.createdAt,
                 route: d.route,
+                user: d.user || null,
             }));
             return { ...data, bookings: mapped };
         },
@@ -349,6 +354,15 @@ export const flyApi = {
         getMetrics: async () => {
             return await fetchWithCreds('/bookings/metrics');
         },
+        getRoutePassengerReport: async (routeId: string) => {
+            return await fetchWithCreds(`/bookings/report/by-route/${routeId}`);
+        },
+        getRouteSummaryReport: async () => {
+            return await fetchWithCreds('/bookings/report/route-summary');
+        },
+        getSupplierSummary: async () => {
+            return await fetchWithCreds('/bookings/report/supplier-summary');
+        },
         create: async (data: { sectorId: string; passengerName: string; passportNumber: string; nationality: string; phone: string; email: string }) => {
             return await fetchWithCreds('/bookings', {
                 method: 'POST',
@@ -356,6 +370,7 @@ export const flyApi = {
                     routeId: data.sectorId,
                     passengerName: data.passengerName,
                     passportNumber: data.passportNumber,
+                    nationality: data.nationality,
                     phone: data.phone,
                     email: data.email,
                 }),

@@ -1,17 +1,18 @@
 "use client";
 import { 
-    PiShieldCheck, 
-    PiBookOpen, 
-    PiAirplaneTilt, 
-    PiSquaresFour, 
-    PiUsers, 
-    PiSignOut, 
-    PiMegaphone, 
-    PiCurrencyDollar, 
-    PiTruck, 
-    PiIdentificationCard, 
-    PiUserList, 
-    PiGearSix
+    PiShieldCheck,
+    PiBookOpen,
+    PiAirplaneTilt,
+    PiSquaresFour,
+    PiUsers,
+    PiSignOut,
+    PiMegaphone,
+    PiCurrencyDollar,
+    PiTruck,
+    PiIdentificationCard,
+    PiUserList,
+    PiGearSix,
+    PiChartBar
 } from "react-icons/pi";
 import React from "react";
 import Link from "next/link";
@@ -32,6 +33,7 @@ const navigation = [
         links: [
             { href: "/admin/sectors", label: "Sector Setup", icon: PiAirplaneTilt, exact: false },
             { href: "/admin/bookings", label: "Operational Bookings", icon: PiBookOpen, exact: false },
+            { href: "/admin/reports", label: "Route Reports", icon: PiChartBar, exact: false },
         ]
     },
     {

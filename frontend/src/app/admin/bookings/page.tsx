@@ -294,7 +294,7 @@ export default function AdminBookings() {
             Airline: b.airline || b.route?.airline || 'N/A',
             Sector: b.sector || (b.route ? `${b.route.origin}-${b.route.destination}` : 'N/A'),
             Travel_Date: b.travelDate ? format(new Date(b.travelDate), 'dd-MM-yyyy') : (b.route?.departureDate ? format(new Date(b.route.departureDate), 'dd-MM-yyyy') : 'N/A'),
-            Agent: b.agentDetails || 'N/A',
+            Agent: b.agentDetails || b.user?.name || 'N/A',
             Status: b.status,
             Payment: b.paymentStatus,
             Sale_Price: b.sellingPrice || b.route?.price || 0,
@@ -485,9 +485,9 @@ export default function AdminBookings() {
                                                 <p className="font-semibold text-sm text-gray-900">{booking.passengerName}</p>
                                             </div>
                                             <p className="text-xs text-gray-400 font-mono">{booking.passportNumber}</p>
-                                            {booking.agentDetails && (
+                                            {(booking.agentDetails || booking.user?.name) && (
                                                 <Badge variant="outline" className="mt-1 border-violet-200 text-violet-600 bg-violet-50 text-[10px] py-0">
-                                                    Agent: {booking.agentDetails}
+                                                    Agent: {booking.agentDetails || booking.user?.name || 'Unknown'}
                                                 </Badge>
                                             )}
                                         </TableCell>
@@ -756,10 +756,10 @@ export default function AdminBookings() {
                                             </span>
                                         </div>
                                     </div>
-                                    {selected.agentDetails && (
+                                    {(selected.agentDetails || selected.user?.name) && (
                                         <div className="flex items-center gap-2 text-sm mt-2 pt-2 border-t border-gray-200">
                                             <Badge className="bg-violet-100 text-violet-700 hover:bg-violet-200">
-                                                Agent: {selected.agentDetails}
+                                                Agent: {selected.agentDetails || selected.user?.name || 'Unknown'}
                                             </Badge>
                                         </div>
                                     )}

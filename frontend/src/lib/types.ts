@@ -24,6 +24,7 @@ export type FareSector = {
     flightRules?: string;
     flightDetails?: string;
     bookingStatus?: string;
+    supplier?: string;
 };
 
 export type Booking = {

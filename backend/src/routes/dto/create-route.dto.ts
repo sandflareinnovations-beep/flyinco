@@ -67,4 +67,8 @@ export class CreateRouteDto {
   @IsOptional()
   @IsString()
   flightDetails?: string;
+
+  @IsOptional()
+  @IsString()
+  supplier?: string;
 }

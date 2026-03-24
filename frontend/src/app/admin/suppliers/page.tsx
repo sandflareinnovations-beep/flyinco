@@ -34,6 +34,7 @@ const B = { primary: "#2E0A57", accent: "#6C2BD9" };
 
 export default function SupplierManagement() {
     const [suppliers, setSuppliers] = useState<string[]>([]);
+    const [supplierSummary, setSupplierSummary] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [search, setSearch] = useState("");
     const [selectedSupplier, setSelectedSupplier] = useState<string | null>(null);
@@ -47,8 +48,12 @@ export default function SupplierManagement() {
     const fetchSuppliers = useCallback(async () => {
         setIsLoading(true);
         try {
-            const data = await flyApi.bookings.listSuppliers();
-            setSuppliers(data || []);
+            const [namesData, summaryData] = await Promise.all([
+                flyApi.bookings.listSuppliers(),
+                flyApi.bookings.getSupplierSummary().catch(() => []),
+            ]);
+            setSuppliers(namesData || []);
+            setSupplierSummary(summaryData || []);
         } catch (error: any) {
             toast({ title: "Error", description: error.message, variant: "destructive" });
         } finally { setIsLoading(false); }
@@ -140,6 +145,19 @@ export default function SupplierManagement() {
         XLSX.writeFile(wb, `${selectedSupplier}_Statement.xlsx`);
     };
 
+    const globalTotals = useMemo(() => {
+        return supplierSummary.reduce(
+            (acc, s) => ({
+                totalPurchase: acc.totalPurchase + (s.totalPurchase || 0),
+                totalPaid: acc.totalPaid + (s.totalPaid || 0),
+                totalOutstanding: acc.totalOutstanding + (s.outstanding || 0),
+            }),
+            { totalPurchase: 0, totalPaid: 0, totalOutstanding: 0 }
+        );
+    }, [supplierSummary]);
+
+    const getSummaryFor = (name: string) => supplierSummary.find(s => s.supplierName === name);
+
     if (isLoading) return <LoadingLogo fullPage text="Loading Supplier Records..." />;
 
     return (
@@ -160,6 +178,39 @@ export default function SupplierManagement() {
                 </div>
             </div>
 
+            {/* Global Summary Cards */}
+            {supplierSummary.length > 0 && (
+                <div className="grid grid-cols-3 gap-4">
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+                        <div className="h-11 w-11 rounded-xl flex items-center justify-center bg-violet-50 text-violet-600">
+                            <PiBriefcase className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Total Purchase</p>
+                            <p className="text-lg font-black text-gray-900">SAR {globalTotals.totalPurchase.toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+                        <div className="h-11 w-11 rounded-xl flex items-center justify-center bg-emerald-50 text-emerald-600">
+                            <PiCheckCircle className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Total Paid</p>
+                            <p className="text-lg font-black text-emerald-700">SAR {globalTotals.totalPaid.toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-2xl border border-red-100 shadow-sm p-5 flex items-center gap-4">
+                        <div className="h-11 w-11 rounded-xl flex items-center justify-center bg-red-50 text-red-600">
+                            <PiCurrencyDollar className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Total Outstanding</p>
+                            <p className="text-lg font-black text-red-600">SAR {globalTotals.totalOutstanding.toLocaleString()}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Left: Suppliers List */}
                 <Card className="border-gray-200 shadow-none rounded-2xl overflow-hidden">
@@ -170,22 +221,41 @@ export default function SupplierManagement() {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Supplier Name</TableHead>
+                                <TableHead className="text-center">Outstanding</TableHead>
                                 <TableHead></TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {filteredSuppliers.map((s) => (
-                                <TableRow key={s} className={selectedSupplier === s ? "bg-purple-50" : ""}>
-                                    <TableCell>
-                                        <p className="font-bold text-gray-800 uppercase text-xs">{s}</p>
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <Button variant="ghost" size="sm" onClick={() => fetchLedger(s)}>
-                                            <PiCaretRight className="h-4 w-4" />
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
+                            {filteredSuppliers.map((s) => {
+                                const sum = getSummaryFor(s);
+                                return (
+                                    <TableRow key={s} className={selectedSupplier === s ? "bg-purple-50" : ""}>
+                                        <TableCell>
+                                            <p className="font-bold text-gray-800 uppercase text-xs">{s}</p>
+                                            {sum && sum.totalBookings > 0 && (
+                                                <p className="text-[10px] text-gray-400 mt-0.5">{sum.totalBookings} bookings</p>
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                            {sum && sum.outstanding > 0 && (
+                                                <Badge className="bg-red-50 text-red-600 border-red-200 text-[10px] font-bold" variant="outline">
+                                                    Due: SAR {sum.outstanding.toLocaleString()}
+                                                </Badge>
+                                            )}
+                                            {sum && sum.outstanding <= 0 && sum.totalPurchase > 0 && (
+                                                <Badge className="bg-emerald-50 text-emerald-600 border-emerald-200 text-[10px] font-bold" variant="outline">
+                                                    Settled
+                                                </Badge>
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <Button variant="ghost" size="sm" onClick={() => fetchLedger(s)}>
+                                                <PiCaretRight className="h-4 w-4" />
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                );
+                            })}
                         </TableBody>
                     </Table>
                 </Card>

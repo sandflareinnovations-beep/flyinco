@@ -1,5 +1,6 @@
 "use client";
-import { PiPlus, PiDotsThreeVertical, PiTrash, PiLockKey, PiWarning, PiPencilSimple, PiListNumbers, PiCheckCircle, PiGear } from "react-icons/pi";
+import { PiPlus, PiDotsThreeVertical, PiTrash, PiLockKey, PiWarning, PiPencilSimple, PiListNumbers, PiCheckCircle, PiGear, PiFileArrowDown } from "react-icons/pi";
+import * as XLSX from "xlsx";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { flyApi } from "@/lib/api";
@@ -135,6 +136,7 @@ export default function SectorManagement() {
             layover: form.layover,
             flightRules: form.flightRules,
             flightDetails: form.flightDetails,
+            supplier: form.supplier,
         });
     };
 
@@ -158,7 +160,8 @@ export default function SectorManagement() {
                 layover: form.layover,
                 flightRules: form.flightRules,
                 flightDetails: form.flightDetails,
-                airlineLogo: form.airlineLogo
+                airlineLogo: form.airlineLogo,
+                supplier: form.supplier,
             }
         });
     };
@@ -181,6 +184,53 @@ export default function SectorManagement() {
             closeModal();
         } catch (error: any) {
             toast({ title: "Error", description: error.message, variant: "destructive" });
+        }
+    };
+
+    const handleExportPassengers = async (routeId: string, sector: FareSector) => {
+        try {
+            const report = await flyApi.bookings.getRoutePassengerReport(routeId);
+            const rows = report.passengers.map((p: any, i: number) => ({
+                "SL NO": i + 1,
+                "Passenger Name": p.passengerName,
+                "Passport": p.passportNumber,
+                "PNR": p.pnr || "",
+                "Ticket No": p.ticketNumber || "",
+                "Gender": p.gender || "",
+                "Nationality": p.nationality || "",
+                "Status": p.status,
+                "Payment": p.paymentStatus,
+                "Selling Price": p.sellingPrice,
+                "Purchase Price": p.purchasePrice,
+                "Profit": p.profit,
+                "Agent": p.agentDetails || "",
+                "Phone": p.phone,
+                "Email": p.email,
+            }));
+            rows.push({
+                "SL NO": "",
+                "Passenger Name": "TOTAL",
+                "Passport": "",
+                "PNR": `${report.summary.totalPassengers} pax`,
+                "Ticket No": "",
+                "Gender": "",
+                "Nationality": "",
+                "Status": `${report.summary.confirmedCount} confirmed`,
+                "Payment": "",
+                "Selling Price": report.summary.totalRevenue,
+                "Purchase Price": report.summary.totalCost,
+                "Profit": report.summary.totalProfit,
+                "Agent": "",
+                "Phone": "",
+                "Email": "",
+            });
+            const ws = XLSX.utils.json_to_sheet(rows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Passengers");
+            XLSX.writeFile(wb, `${sector.originCode}-${sector.destinationCode}_${sector.flightNumber}_Passengers.xlsx`);
+            toast({ title: "Export Complete", description: `${report.summary.totalPassengers} passengers exported.` });
+        } catch (error: any) {
+            toast({ title: "Export Failed", description: error.message, variant: "destructive" });
         }
     };
 
@@ -354,6 +404,10 @@ export default function SectorManagement() {
                                         <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-lg border-gray-100">
                                             <DropdownMenuLabel className="text-xs text-gray-400">Actions</DropdownMenuLabel>
                                             <DropdownMenuSeparator />
+                                            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleExportPassengers(sector.id, sector)}>
+                                                <PiFileArrowDown className="h-3.5 w-3.5" /> Export Passengers
+                                            </DropdownMenuItem>
+                                            <DropdownMenuSeparator />
                                             <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => openModal("edit", sector)}>
                                                 <PiPencilSimple className="h-3.5 w-3.5" /> Edit Fare
                                             </DropdownMenuItem>
@@ -476,6 +530,9 @@ export default function SectorManagement() {
                                 <Label className="text-xs font-semibold text-gray-600">Flight Details</Label>
                                 <Input name="flightDetails" placeholder="e.g. Boeing 777" className="rounded-xl border-gray-200 focus-visible:ring-violet-400 text-sm" value={form.flightDetails || ""} onChange={e => setForm({ ...form, flightDetails: e.target.value })} />
                             </div>
+                            <div className="col-span-4">
+                                <InputField label="Supplier" name="supplier" placeholder="e.g. Al Rajhi Travel, Saudi Airlines" value={form.supplier || ""} onChange={e => setForm({ ...form, supplier: e.target.value })} />
+                            </div>
                         </div>
                         <DialogFooter className="gap-2 pt-2">
                             <Button type="button" variant="outline" className="rounded-xl" onClick={closeModal}>Cancel</Button>
@@ -541,6 +598,9 @@ export default function SectorManagement() {
                             <div className="col-span-2 space-y-1.5">
                                 <Label className="text-xs font-semibold text-gray-600">Flight Details</Label>
                                 <Input name="flightDetails" placeholder="e.g. Economy Class" className="rounded-xl border-gray-200 focus-visible:ring-violet-400 text-sm" value={form.flightDetails || ""} onChange={e => setForm({ ...form, flightDetails: e.target.value })} />
+                            </div>
+                            <div className="col-span-4">
+                                <InputField label="Supplier" name="supplier" placeholder="e.g. Al Rajhi Travel" value={form.supplier || ""} onChange={e => setForm({ ...form, supplier: e.target.value })} />
                             </div>
                         </div>
                         <DialogFooter className="gap-2">

@@ -30,6 +30,7 @@ model Route {
   flightDetails  String?
   bookingStatus  String    @default("OPEN")
   isCharter      Boolean   @default(false)
+  supplier       String?
   createdAt      DateTime  @default(now())
   bookings       Booking[]
 }
@@ -75,7 +76,7 @@ model Booking {
   createdAt      DateTime  @default(now())
   
   route          Route     @relation(fields: [routeId], references: [id], onDelete: Cascade)
-  user           User?     @relation(fields: [userId], references: [id])
+  user           User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([passengerName])
