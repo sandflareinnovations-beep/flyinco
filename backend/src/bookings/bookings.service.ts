@@ -306,13 +306,11 @@ export class BookingsService {
     const purchasePrice = isAdmin ? (dto.purchasePrice || 0) : 0;
     const profit = sellingPrice - purchasePrice;
 
-    // Automatic Agent Details Mapping:
-    // If agent is logged in, use their agency name or name.
-    let effectiveAgentDetails = dto.agentDetails;
     // Robust Agent Identification & Details Mapping:
     let structuredAgentDetails = dto.agentDetails || '';
+    let dbUser: any = null;
     if (user?.id) {
-        const dbUser = await this.prisma.user.findUnique({ where: { id: user.id } });
+        dbUser = await this.prisma.user.findUnique({ where: { id: user.id } });
         if (dbUser && dbUser.role === 'AGENT') {
             const agency = (dbUser.agencyName || dbUser.name || 'Direct Agent').trim();
             const person = (dbUser.name || 'Unknown').trim();
@@ -322,6 +320,10 @@ export class BookingsService {
             // Logged in passenger without agent association
             structuredAgentDetails = (dbUser.name || 'Direct Passenger').trim();
         }
+    }
+
+    if (user?.id && user?.role === 'AGENT' && !structuredAgentDetails) {
+        this.logger.warn(`Agent booking by user ${user.id} has empty agentDetails - agent DB record may be incomplete`);
     }
 
     this.logger.log(`Booking Processing: ${dto.email} [Identified Agent: ${structuredAgentDetails}]`);
@@ -383,10 +385,11 @@ export class BookingsService {
 
     this.logger.log(`Booking Finalized: ${booking.id} [Mapped Agent: ${booking.agentDetails}]`);
 
-    // Financial Sync for Manual Bookings
-    if (effectiveAgentDetails) {
+    // Financial Sync: Update agent's financial metrics
+    if (dto.agentDetails) {
+      // Manual/admin booking with agent name string — match by name or agencyName
       const matchedAgent = await this.prisma.user.findFirst({
-        where: { OR: [{ name: { equals: effectiveAgentDetails, mode: 'insensitive' } }, { agencyName: { equals: effectiveAgentDetails, mode: 'insensitive' } }] }
+        where: { OR: [{ name: { equals: dto.agentDetails, mode: 'insensitive' } }, { agencyName: { equals: dto.agentDetails, mode: 'insensitive' } }] }
       });
       if (matchedAgent && matchedAgent.role === 'AGENT') {
         const owedAmount = sellingPrice || 0;
@@ -401,20 +404,18 @@ export class BookingsService {
           });
         }
       }
-    } else if (user?.id) {
-      const dbUser = await this.prisma.user.findUnique({ where: { id: user.id } });
-      if (dbUser && dbUser.role === 'AGENT') {
-        const owedAmount = sellingPrice || 0;
-        if (owedAmount > 0) {
-          await this.prisma.user.update({
-            where: { id: user.id },
-            data: {
-              pendingDues: { increment: owedAmount },
-              outstanding: { increment: owedAmount },
-              totalSales: { increment: owedAmount }
-            }
-          });
-        }
+    } else if (dbUser && dbUser.role === 'AGENT') {
+      // Authenticated agent booking — reuse dbUser from earlier lookup
+      const owedAmount = sellingPrice || 0;
+      if (owedAmount > 0) {
+        await this.prisma.user.update({
+          where: { id: dbUser.id },
+          data: {
+            pendingDues: { increment: owedAmount },
+            outstanding: { increment: owedAmount },
+            totalSales: { increment: owedAmount }
+          }
+        });
       }
     }
 

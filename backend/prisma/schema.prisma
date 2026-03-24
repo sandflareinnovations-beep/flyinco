@@ -75,7 +75,7 @@ model Booking {
   createdAt      DateTime  @default(now())
   
   route          Route     @relation(fields: [routeId], references: [id], onDelete: Cascade)
-  user           User?     @relation(fields: [userId], references: [id])
+  user           User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([passengerName])

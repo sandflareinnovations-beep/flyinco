@@ -285,6 +285,7 @@ export const flyApi = {
                 agentDetails: d.agentDetails || "",
                 createdAt: d.createdAt,
                 route: d.route,
+                user: d.user || null,
             }));
 
             if (params?.page || params?.limit || params?.search || params?.agent || params?.phone) {
@@ -340,6 +341,7 @@ export const flyApi = {
                 agentDetails: d.agentDetails || "",
                 createdAt: d.createdAt,
                 route: d.route,
+                user: d.user || null,
             }));
             return { ...data, bookings: mapped };
         },
@@ -356,6 +358,7 @@ export const flyApi = {
                     routeId: data.sectorId,
                     passengerName: data.passengerName,
                     passportNumber: data.passportNumber,
+                    nationality: data.nationality,
                     phone: data.phone,
                     email: data.email,
                 }),
