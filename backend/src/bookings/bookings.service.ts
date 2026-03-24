@@ -632,6 +632,8 @@ export class BookingsService {
           status: true,
           agentDetails: true,
           paymentStatus: true,
+          userId: true,
+          user: { select: { id: true, name: true, agencyName: true } },
           route: { select: { price: true } }
         }
       }),
@@ -666,45 +668,55 @@ export class BookingsService {
     const totalUnpaidDues = Math.max(0, totalRevenue - globalPaymentsSum);
 
     const agentMap: Record<string, { totalSales: number; profit: number; count: number; unpaid: number }> = {};
+    
+    // 1. Process Bookings
     activeFinancials.forEach(b => {
-      const agent = (b.agentDetails || 'Direct').trim();
-      if (!agentMap[agent]) agentMap[agent] = { totalSales: 0, profit: 0, count: 0, unpaid: 0 };
+      // Determine the canonical agent name (Agency Name preferred)
+      let agentName = 'Direct';
+      
+      if (b.user && b.user.id) {
+          agentName = (b.user.agencyName || b.user.name || 'Direct Agent').trim();
+      } else if (b.agentDetails) {
+          // Fallback to agentDetails, but try to clean it up
+          // If it's in format "Agency (Person)", take the "Agency" part
+          const match = b.agentDetails.match(/^(.*?)\s*\(/);
+          agentName = (match ? match[1] : b.agentDetails).trim();
+      }
+
+      if (!agentMap[agentName]) agentMap[agentName] = { totalSales: 0, profit: 0, count: 0, unpaid: 0 };
       
       const sale = (b.sellingPrice || b.route?.price || 0);
       const p = (b.profit !== 0 && b.profit !== null && b.profit !== undefined) 
                 ? b.profit 
                 : (sale - (b.purchasePrice || 0));
                 
-      agentMap[agent].totalSales += sale;
-      agentMap[agent].profit += p;
-      agentMap[agent].count += 1;
-      agentMap[agent].unpaid += sale; // Initialize unpaid with total sales
+      agentMap[agentName].totalSales += sale;
+      agentMap[agentName].profit += p;
+      agentMap[agentName].count += 1;
+      agentMap[agentName].unpaid += sale; 
     });
 
-    // Subtract payments from agentMap unpaid using multiple key combinations
+    // 2. Process Payments
     allPayments.forEach(p => {
-      const dbAgentName = (p.agent?.name || '').trim();
-      const dbAgencyName = (p.agent?.agencyName || '').trim();
-      const identifier = `${dbAgencyName || 'Direct Agent'} (${dbAgentName || 'Unknown'})`;
+      const agentName = (p.agent?.agencyName || p.agent?.name || 'Direct Agent').trim();
       
-      const keys = [identifier, dbAgentName, dbAgencyName].filter(Boolean);
-      for (const key of keys) {
-        if (agentMap[key]) {
-          agentMap[key].unpaid -= (p.amount || 0);
-          break;
-        }
+      if (agentMap[agentName]) {
+        agentMap[agentName].unpaid -= (p.amount || 0);
+      } else {
+        // If agent has no bookings in this period but has payments, we could track them
+        // but for "Sales by Agent" they won't show anyway
       }
     });
 
-    // Ensure unpaid doesn't go below 0
-    Object.values(agentMap).forEach(stats => {
-      stats.unpaid = Math.max(0, stats.unpaid);
-    });
-
+    // 3. Finalize & Transform
     const agentPerformance = Object.entries(agentMap)
-      .map(([name, stats]) => ({ name, ...stats }))
+      .map(([name, stats]) => ({ 
+        name, 
+        ...stats,
+        unpaid: Math.max(0, stats.unpaid) 
+      }))
       .sort((a, b) => b.totalSales - a.totalSales)
-      .filter(a => a.name !== 'Direct') // Only show actual agents if possible
+      .filter(a => a.name !== 'Direct')
       .slice(0, 10);
 
     return {
