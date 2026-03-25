@@ -1078,6 +1078,13 @@ export default function AdminBookings() {
                                         }
                                     });
 
+                                    // Clean email fields to prevent 400 Bad Request from empty strings
+                                    ['email', 'agencyEmail'].forEach(f => {
+                                        if ((cleanedData as any)[f] === "") {
+                                            (cleanedData as any)[f] = null;
+                                        }
+                                    });
+
                                     updateMutation.mutate({ 
                                         id: selected.id, 
                                         data: cleanedData 
