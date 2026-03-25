@@ -47,7 +47,7 @@ import { flyApi } from "@/lib/api";
 export default function Home() {
   const router = useRouter();
 
-  const { data: sectors } = useQuery({
+  const { data: sectors, isLoading: sectorsLoading } = useQuery({
     queryKey: ["sectors"],
     queryFn: () => flyApi.sectors.list(),
   });
@@ -403,6 +403,28 @@ export default function Home() {
                 >
                 </button>
               </div>
+              ) : sectorsLoading ? (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 4, padding: "6px" }}>
+                  {/* Loading skeleton for search card */}
+                  <div style={{ flex: "1 1 320px", display: "flex", gap: 4 }}>
+                    <div style={{ flex: 1, padding: "16px 20px", borderRadius: 14, background: "#F9FAFB" }}>
+                      <div style={{ width: 40, height: 10, background: "#E5E7EB", borderRadius: 4, marginBottom: 8 }} />
+                      <div style={{ width: 60, height: 24, background: "#E5E7EB", borderRadius: 6, marginBottom: 4 }} />
+                      <div style={{ width: 80, height: 12, background: "#E5E7EB", borderRadius: 4 }} />
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", padding: "0 2px" }}>
+                      <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#E5E7EB" }} />
+                    </div>
+                    <div style={{ flex: 1, padding: "16px 20px", borderRadius: 14, background: "#F9FAFB" }}>
+                      <div style={{ width: 40, height: 10, background: "#E5E7EB", borderRadius: 4, marginBottom: 8 }} />
+                      <div style={{ width: 60, height: 24, background: "#E5E7EB", borderRadius: 6, marginBottom: 4 }} />
+                      <div style={{ width: 80, height: 12, background: "#E5E7EB", borderRadius: 4 }} />
+                    </div>
+                  </div>
+                  <div style={{ flex: "0 0 140px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ width: "100%", height: 48, background: `${B.primary}22`, borderRadius: 14 }} />
+                  </div>
+                </div>
               ) : (
                 <div style={{ padding: "40px 20px", textAlign: "center" }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: B.primary, marginBottom: 4, letterSpacing: "0.05em", textTransform: "uppercase" }}>
@@ -489,8 +511,37 @@ export default function Home() {
             </p>
           </motion.div>
 
+          {/* Loading skeleton for fare cards */}
+          {sectorsLoading && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 860, margin: "0 auto 48px" }}>
+              {[1, 2].map((i) => (
+                <div key={i} style={{
+                  background: "#F9FAFB", borderRadius: 4, border: "1px solid #E5E7EB",
+                  padding: "24px 22px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16
+                }}>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 100 }}>
+                    <div style={{ width: 60, height: 40, background: "#E5E7EB", borderRadius: 8, marginBottom: 8 }} />
+                    <div style={{ width: 80, height: 12, background: "#E5E7EB", borderRadius: 4 }} />
+                  </div>
+                  <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 20 }}>
+                    <div>
+                      <div style={{ width: 100, height: 12, background: "#E5E7EB", borderRadius: 4, marginBottom: 8 }} />
+                      <div style={{ width: 70, height: 28, background: "#E5E7EB", borderRadius: 6 }} />
+                    </div>
+                    <div style={{ width: 60, height: 2, background: "#E5E7EB" }} />
+                    <div>
+                      <div style={{ width: 100, height: 12, background: "#E5E7EB", borderRadius: 4, marginBottom: 8 }} />
+                      <div style={{ width: 70, height: 28, background: "#E5E7EB", borderRadius: 6 }} />
+                    </div>
+                  </div>
+                  <div style={{ width: 80, height: 32, background: "#E5E7EB", borderRadius: 6 }} />
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* All Sector Cards */}
-          {openSectors.length > 0 && (
+          {!sectorsLoading && openSectors.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 860, margin: "0 auto 48px" }}>
               {openSectors.map((s: any, idx: number) => (
                 <motion.div
