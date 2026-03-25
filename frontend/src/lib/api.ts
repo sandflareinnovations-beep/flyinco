@@ -77,32 +77,6 @@ export const fetchWithCreds = async (url: string, options: any = {}) => {
     return data;
 };
 
-// Helper to check if backend is reachable
-const isBackendUp = async (): Promise<boolean> => {
-    try {
-        let token = '';
-        if (typeof window !== 'undefined') {
-            token = localStorage.getItem('token') || '';
-            if (!token) {
-                const match = document.cookie.match(/(^| )token=([^;]+)/);
-                if (match) token = match[2];
-            }
-        }
-
-        const headers: Record<string, string> = {};
-        if (token) headers["Authorization"] = `Bearer ${token}`;
-
-        const res = await fetch(`${API_BASE}/routes`, {
-            headers,
-            credentials: "include",
-            signal: AbortSignal.timeout(60000), // 60 second timeout for Render cold start
-        });
-        return res.ok || res.status === 401;
-    } catch {
-        return false;
-    }
-};
-
 export const flyApi = {
     sectors: {
         list: async (params?: { page?: number; limit?: number; search?: string; availableOnly?: boolean }): Promise<any> => {
@@ -111,7 +85,6 @@ export const flyApi = {
             if (params?.limit) query.append('limit', params.limit.toString());
             if (params?.search) query.append('search', params.search);
             if (params?.availableOnly) query.append('availableOnly', 'true');
-            if (!params) query.append('t', Date.now().toString());
 
             const data = await fetchWithCreds(`/routes?${query.toString()}`, { requiresAuth: false });
             

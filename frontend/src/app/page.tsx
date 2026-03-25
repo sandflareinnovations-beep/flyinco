@@ -52,13 +52,6 @@ export default function Home() {
     queryFn: () => flyApi.sectors.list(),
   });
 
-  // Debug: Log fetched sectors to console
-  useEffect(() => {
-    if (sectors) {
-      console.log("[Home] Fetched Sectors:", sectors);
-    }
-  }, [sectors]);
-
   // Show only truly open sectors on the home page
   const openSectors = (sectors || []).filter((s: any) => 
     s.bookingStatus !== "CLOSED" && 
