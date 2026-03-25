@@ -35,14 +35,13 @@ export default function UserDashboard() {
 
         async function fetchData() {
             try {
-                const profile = await flyApi.auth.me();
-                setUserProfile(profile);
-
-                const [bookingData, annData, routeData] = await Promise.all([
+                const [profile, bookingData, annData, routeData] = await Promise.all([
+                    flyApi.auth.me(),
                     flyApi.bookings.listPaginated({ page: 1, limit: 100 }),
                     flyApi.announcements.list().catch(() => []),
                     flyApi.sectors.listPaginated({ page: 1, limit: 20, availableOnly: true }).catch(() => ({ routes: [] }))
                 ]);
+                setUserProfile(profile);
 
                 setBookings(bookingData.bookings || []);
                 setAnnouncements(annData.filter((a: any) => a.active));

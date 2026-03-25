@@ -8,7 +8,7 @@ export function Providers({ children, ...props }: ThemeProviderProps) {
     const [queryClient] = useState(() => new QueryClient({
         defaultOptions: {
             queries: {
-                staleTime: 60 * 1000,
+                staleTime: 5 * 60 * 1000, // 5 minutes
             },
         },
     }));

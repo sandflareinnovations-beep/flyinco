@@ -18,7 +18,6 @@ const nextConfig = {
             },
         ],
         // Allow all domains
-        unoptimized: true,
     },
     async headers() {
         return [

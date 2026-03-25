@@ -50,8 +50,8 @@ function LoginContent() {
             try {
                 const user = JSON.parse(storedUser);
                 router.replace(user.role === "ADMIN" ? "/admin" : "/dashboard");
-                // Fallback: If we're still here after 1.5s, something is wrong
-                const timer = setTimeout(() => setInitializing(false), 1500);
+                // Fallback: If redirect hasn't happened yet, show the form
+                const timer = setTimeout(() => setInitializing(false), 300);
                 return () => clearTimeout(timer);
             } catch {
                 localStorage.removeItem("user");
