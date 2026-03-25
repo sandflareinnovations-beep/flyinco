@@ -1,5 +1,5 @@
 "use client";
-import { PiShieldCheck, PiAirplaneTilt, PiClock, PiBriefcase, PiArrowRight, PiStar, PiCaretRight, PiCaretDown, PiMagnifyingGlass, PiDownloadSimple, PiAirplaneTakeoff, PiAirplaneLanding, PiCalendarBlank, PiFireFill } from "react-icons/pi";
+import { PiShieldCheck, PiAirplaneTilt, PiClock, PiBriefcase, PiArrowRight, PiCaretRight, PiCaretDown, PiMagnifyingGlass, PiDownloadSimple, PiAirplaneTakeoff, PiAirplaneLanding, PiCalendarBlank } from "react-icons/pi";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
@@ -452,7 +452,7 @@ export default function Home() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "10px 28px", marginTop: 36 }}>
               {[
-                { label: "4.9/5 Rated Agency", icon: <PiStar size={13} fill="#FBBF24" color="#FBBF24" /> },
+                { label: "4.9/5 Rated Agency", icon: <PiShieldCheck size={13} color="#FBBF24" /> },
                 { label: "Instant Approval", icon: <PiShieldCheck size={13} color="#86EFAC" /> },
                 { label: "Verified B2B Fares", icon: <PiShieldCheck size={13} color="#93C5FD" /> },
               ].map(({ label, icon }) => (
@@ -498,7 +498,7 @@ export default function Home() {
             viewport={{ once: true }} transition={{ duration: 0.4 }}
             style={{ textAlign: "center", marginBottom: 48 }}
           >
-            <Pill><PiFireFill size={12} color="#D97706" style={{marginRight: 2}}/> {openSectors.length > 0 ? `${openSectors.length} Available Route${openSectors.length > 1 ? "s" : ""}` : "Limited Time Offer"}</Pill>
+            <Pill>{openSectors.length > 0 ? `${openSectors.length} Available Route${openSectors.length > 1 ? "s" : ""}` : "Limited Time Offer"}</Pill>
             <h2 style={{
               fontSize: "clamp(24px, 4vw, 36px)", fontWeight: 900,
               color: "#0F0A1A", letterSpacing: "-0.04em",
