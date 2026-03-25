@@ -54,9 +54,14 @@ export class BookingsService {
     // Use { header: 1 } to get raw arrays and then find the header row
     const rawRows: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
     
+    // Filter Ghost Rows: Only count rows that actually contain data
+    const nonBlankRows = rawRows.filter(row => row && row.some(cell => cell !== null && cell !== undefined && String(cell).trim() !== ''));
+
+    this.logger.log(`Bulk Import Request: Found ${nonBlankRows.length} data rows among ${rawRows.length} total rows in Excel sheet.`);
+
     // --- ROW LIMIT (Audit Point 9) ---
-    if (rawRows.length > 1000) {
-      throw new BadRequestException('Bulk import limited to 1000 rows per file for system stability.');
+    if (nonBlankRows.length > 2000) {
+      throw new BadRequestException(`Bulk import limited to 2000 rows per file for system stability. (Detected ${nonBlankRows.length} rows)`);
     }
     
     // Find the row that contains 'SL NO' or 'PNR'
@@ -101,6 +106,12 @@ export class BookingsService {
 
     let rowIndex = headerRowIndex + 2; 
     for (const row of data as any[]) {
+      // Skip completely empty "ghost rows" to prevent false processing errors
+      const hasValue = row && Object.values(row).some(v => v !== null && v !== undefined && String(v).trim() !== '');
+      if (!hasValue) {
+        rowIndex++;
+        continue;
+      }
       let passengerName = 'Unknown';
       let pnr = '';
       try {
