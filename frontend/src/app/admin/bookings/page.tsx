@@ -1065,29 +1065,30 @@ export default function AdminBookings() {
                             disabled={updateMutation.isPending}
                             onClick={() => {
                                 if (selected) {
-                                    // Clean date fields to prevent 400 Bad Request from empty strings
-                                    const cleanedData = { ...accData };
-                                    const dateFields: (keyof typeof cleanedData)[] = ['travelDate', 'dateOfBirth', 'passportExpiry'];
-                                    
+                                    // Clean payload to prevent 400 Bad Request from empty/invalid values
+                                    const cleanedData: Record<string, any> = { ...accData };
+
+                                    // Convert empty date strings to null (optional DateTime fields in Prisma)
+                                    const dateFields = ['travelDate', 'dateOfBirth', 'passportExpiry'];
                                     dateFields.forEach(f => {
                                         if (cleanedData[f] === "" || !cleanedData[f]) {
-                                            (cleanedData as any)[f] = null;
+                                            cleanedData[f] = null;
                                         } else {
-                                            // Handle potential format issues
-                                            try { (cleanedData as any)[f] = new Date(cleanedData[f] as string).toISOString(); } catch(e) {}
+                                            try { cleanedData[f] = new Date(cleanedData[f] as string).toISOString(); } catch(e) {}
                                         }
                                     });
 
-                                    // Clean email fields to prevent 400 Bad Request from empty strings
+                                    // Remove empty email fields — email is required in Prisma (can't be null),
+                                    // and empty string fails @IsEmail() validation
                                     ['email', 'agencyEmail'].forEach(f => {
-                                        if ((cleanedData as any)[f] === "") {
-                                            (cleanedData as any)[f] = null;
+                                        if (cleanedData[f] === "") {
+                                            delete cleanedData[f];
                                         }
                                     });
 
-                                    updateMutation.mutate({ 
-                                        id: selected.id, 
-                                        data: cleanedData 
+                                    updateMutation.mutate({
+                                        id: selected.id,
+                                        data: cleanedData
                                     });
                                 }
                             }}
