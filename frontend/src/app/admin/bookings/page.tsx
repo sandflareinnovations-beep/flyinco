@@ -999,13 +999,31 @@ export default function AdminBookings() {
                                         </div>
                                     </div>
 
-                                    <Button 
+                                    <Button
                                         className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold h-9 mt-4"
                                         disabled={updateMutation.isPending}
                                         onClick={() => {
+                                            const cleanedData: Record<string, any> = { ...accData, pnr: pnrInput };
+
+                                            // Convert empty date strings to null (optional DateTime fields)
+                                            ['travelDate', 'dateOfBirth', 'passportExpiry'].forEach(f => {
+                                                if (cleanedData[f] === "" || !cleanedData[f]) {
+                                                    cleanedData[f] = null;
+                                                } else {
+                                                    try { cleanedData[f] = new Date(cleanedData[f] as string).toISOString(); } catch(e) {}
+                                                }
+                                            });
+
+                                            // Remove empty email fields (required in Prisma, fails @IsEmail)
+                                            ['email', 'agencyEmail'].forEach(f => {
+                                                if (cleanedData[f] === "") {
+                                                    delete cleanedData[f];
+                                                }
+                                            });
+
                                             updateMutation.mutate({
                                                 id: selected.id,
-                                                data: { ...accData, pnr: pnrInput, travelDate: accData.travelDate ? new Date(accData.travelDate).toISOString() : undefined }
+                                                data: cleanedData
                                             });
                                         }}
                                     >
