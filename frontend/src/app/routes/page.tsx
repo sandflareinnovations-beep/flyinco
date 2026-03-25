@@ -1,5 +1,5 @@
 "use client";
-import { PiAirplaneTilt, PiSparkle } from "react-icons/pi";
+import { PiAirplaneTilt } from "react-icons/pi";
 import { motion } from "framer-motion";
 import { mockRoutes } from "@/lib/mock";
 import { RouteCard } from "@/components/routes/route-card";
@@ -22,7 +22,6 @@ export default function RoutesPage() {
                     className="max-w-3xl mx-auto"
                 >
                     <div className="flex items-center justify-center gap-2 mb-4">
-                        <PiSparkle className="h-5 w-5 text-yellow-300" />
                         <span className="text-yellow-300 text-sm font-semibold uppercase tracking-widest">Exclusive Fares</span>
                     </div>
                     <h1 className="text-4xl md:text-5xl font-black mb-4 tracking-tight">
