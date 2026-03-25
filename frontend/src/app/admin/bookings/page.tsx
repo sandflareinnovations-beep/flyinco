@@ -8,7 +8,7 @@ import {
     Table, TableBody, TableCell, TableHead, TableHeader, TableRow
 } from "@/components/ui/table";
 import {
-    Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
+    Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -92,26 +92,31 @@ export default function AdminBookings() {
 
     // Accounting states
     const [accData, setAccData] = useState({
-        purchasePrice: 0,
+        prefix: "",
+        email: "",
         sellingPrice: 0,
+        purchasePrice: 0,
         baseFare: 0,
         taxes: 0,
         serviceFee: 0,
         ticketNumber: "",
-        paymentStatus: "UNPAID",
-        prefix: "",
+        paymentStatus: "",
         givenName: "",
         surname: "",
         airline: "",
         sector: "",
         travelDate: "",
+        pnr: "",
+        paymentMethod: "",
+        remarks: "",
+        request: "",
+        agentDetails: "",
+        gender: "",
+        nationality: "",
+        dateOfBirth: "",
+        passportExpiry: "",
         supplier: "",
         agencyEmail: "",
-        paymentMethod: "",
-        request: "",
-        remarks: "",
-        agentDetails: "",
-        email: "",
     });
 
     const { data: bookingData, isLoading, refetch, isError } = useQuery({
@@ -559,13 +564,18 @@ export default function AdminBookings() {
                                                             airline: booking.airline || "",
                                                             sector: booking.sector || "",
                                                             travelDate: booking.travelDate ? new Date(booking.travelDate).toISOString().split('T')[0] : "",
-                                                            supplier: booking.supplier || "",
-                                                            agencyEmail: booking.agencyEmail || "",
+                                                            pnr: booking.pnr || "",
                                                             paymentMethod: booking.paymentMethod || "",
-                                                            request: booking.request || "",
                                                             remarks: booking.remarks || "",
+                                                            request: booking.request || "",
                                                             agentDetails: booking.agentDetails || "",
                                                             email: booking.email || "",
+                                                            gender: booking.gender || "",
+                                                            nationality: booking.nationality || "",
+                                                            dateOfBirth: booking.dateOfBirth ? new Date(booking.dateOfBirth).toISOString().split('T')[0] : "",
+                                                            passportExpiry: booking.passportExpiry ? new Date(booking.passportExpiry).toISOString().split('T')[0] : "",
+                                                            supplier: booking.supplier || "",
+                                                            agencyEmail: booking.agencyEmail || "",
                                                         });
                                                         setShowDetail(true);
                                                     }}
@@ -710,6 +720,9 @@ export default function AdminBookings() {
                 <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-black text-lg">Booking Details</DialogTitle>
+                        <DialogDescription className="text-xs text-gray-500">
+                            View and edit flight, passenger, and accounting details.
+                        </DialogDescription>
                         {selected && (
                             <p className="text-xs text-gray-400 font-mono mt-0.5">
                                 #{selected.id.slice(0, 8).toUpperCase()} · {selected.status}
@@ -1052,9 +1065,22 @@ export default function AdminBookings() {
                             disabled={updateMutation.isPending}
                             onClick={() => {
                                 if (selected) {
+                                    // Clean date fields to prevent 400 Bad Request from empty strings
+                                    const cleanedData = { ...accData };
+                                    const dateFields: (keyof typeof cleanedData)[] = ['travelDate', 'dateOfBirth', 'passportExpiry'];
+                                    
+                                    dateFields.forEach(f => {
+                                        if (cleanedData[f] === "" || !cleanedData[f]) {
+                                            (cleanedData as any)[f] = null;
+                                        } else {
+                                            // Handle potential format issues
+                                            try { (cleanedData as any)[f] = new Date(cleanedData[f] as string).toISOString(); } catch(e) {}
+                                        }
+                                    });
+
                                     updateMutation.mutate({ 
                                         id: selected.id, 
-                                        data: accData 
+                                        data: cleanedData 
                                     });
                                 }
                             }}
@@ -1065,7 +1091,6 @@ export default function AdminBookings() {
                 </DialogContent>
             </Dialog>
 
-            {/* ── Delete Confirmation Modal ── */}
             <Dialog open={showDelete} onOpenChange={setShowDelete}>
                 <DialogContent className="max-w-sm rounded-2xl">
                     <DialogHeader>
@@ -1073,9 +1098,9 @@ export default function AdminBookings() {
                             <PiWarning className="h-6 w-6 text-red-600" />
                         </div>
                         <DialogTitle className="font-black text-xl">Delete Booking?</DialogTitle>
-                        <p className="text-gray-500 text-sm py-2">
+                        <DialogDescription className="text-gray-500 text-sm py-2">
                             This will permanently remove the booking record from the database. This action cannot be undone.
-                        </p>
+                        </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="flex gap-2 sm:gap-0 mt-4">
                         <Button
@@ -1096,7 +1121,6 @@ export default function AdminBookings() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-            {/* ── Bulk Delete Confirmation Modal ── */}
             <Dialog open={showBulkDelete} onOpenChange={setShowBulkDelete}>
                 <DialogContent className="max-w-sm rounded-2xl">
                     <DialogHeader>
@@ -1104,9 +1128,9 @@ export default function AdminBookings() {
                             <PiWarning className="h-6 w-6 text-red-600" />
                         </div>
                         <DialogTitle className="font-black text-xl">Delete {selectedIds.length} Bookings?</DialogTitle>
-                        <p className="text-gray-500 text-sm py-2">
+                        <DialogDescription className="text-gray-500 text-sm py-2">
                             This will permanently remove the selected {selectedIds.length} booking(s) from the database. This action cannot be undone.
-                        </p>
+                        </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="flex gap-2 sm:gap-0 mt-4">
                         <Button
@@ -1416,9 +1440,9 @@ export default function AdminBookings() {
                             <PiEnvelopeSimple className="h-6 w-6 text-blue-600" />
                         </div>
                         <DialogTitle className="font-black text-xl">Email Itinerary</DialogTitle>
-                        <p className="text-gray-500 text-sm py-2">
+                        <DialogDescription className="text-gray-500 text-sm py-2">
                             Send the flight itinerary to the customer. You can change the email address below if needed.
-                        </p>
+                        </DialogDescription>
                     </DialogHeader>
                     
                     <div className="space-y-4 py-2">

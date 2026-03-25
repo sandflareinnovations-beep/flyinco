@@ -248,7 +248,7 @@ export const flyApi = {
         }
     },
     bookings: {
-        list: async (params?: { page?: number; limit?: number; search?: string; agent?: string; phone?: string; supplier?: string }): Promise<any> => {
+        list: async (params?: { page?: number; limit?: number; search?: string; agent?: string; phone?: string; supplier?: string; agentId?: string; userId?: string }): Promise<any> => {
             const query = new URLSearchParams();
             if (params?.page) query.append('page', params.page.toString());
             if (params?.limit) query.append('limit', params.limit.toString());
@@ -256,6 +256,8 @@ export const flyApi = {
             if (params?.agent) query.append('agent', params.agent);
             if (params?.phone) query.append('phone', params.phone);
             if (params?.supplier) query.append('supplier', params.supplier);
+            if (params?.agentId) query.append('agentId', params.agentId);
+            if (params?.userId) query.append('userId', params.userId);
             
             const data = await fetchWithCreds(`/bookings?${query.toString()}`);
             

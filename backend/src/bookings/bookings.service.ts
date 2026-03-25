@@ -499,7 +499,7 @@ export class BookingsService {
   }
 
   async findAll(user: any, query: { page?: number; limit?: number; search?: string; agent?: string; phone?: string; supplier?: string; agentId?: string } = {}) {
-    const { page = 1, limit = 50, search = '', agent = '', phone = '', supplier = '', agentId = '' } = query;
+    const { page = 1, limit = 50, search = '', agent = '', phone = '', supplier = '', agentId = '', userId = '' } = query as any;
     const skip = (page - 1) * limit;
     const take = Number(limit);
 
@@ -508,6 +508,12 @@ export class BookingsService {
     if (user.role === 'ADMIN') {
       // Use AND array to combine conditions without overwriting
       const andConditions: any[] = [];
+
+      // Support direct agent/user ID filtering first
+      const targetUserId = userId || agentId;
+      if (targetUserId) {
+        andConditions.push({ userId: targetUserId });
+      }
 
       if (search) {
         andConditions.push({
