@@ -68,9 +68,10 @@ export class BookingsService {
     let headerRowIndex = -1;
     let isCharterFormat = false;
 
-    // Check row 0 for charter markers
-    if (rawRows[0] && rawRows[0].some(cell => typeof cell === 'string' && cell.includes('MARCH') && cell.includes('SV-3650'))) {
+    // Check row 0 for charter markers (More flexible detection for any SV March file)
+    if (rawRows[0] && rawRows[0].some(cell => typeof cell === 'string' && (cell.toUpperCase().includes('MARCH') || cell.toUpperCase().includes('MAR-')) && cell.toUpperCase().includes('SV'))) {
       isCharterFormat = true;
+      this.logger.log('Bulk Import: SV March Charter format detected based on sheet headers.');
     }
 
     for (let i = 0; i < Math.min(rawRows.length, 5); i++) {
@@ -138,8 +139,9 @@ export class BookingsService {
         let agentDetails = String(nr['AGENT'] || nr['AGENT DETAILS'] || nr['AGENT NAME'] || nr['AGENTS'] || nr['AGENCY'] || nr['AGENCY NAME'] || nr['BOOKED BY'] || '');
 
         if (isCharterFormat) {
-          pnr = '7EAMRW';
-          refNo = 'FLRUHCOKMAR18SV';
+          // Use provided PNR/RefNo if available in the row, otherwise use defaults
+          if (!pnr || pnr === 'undefined' || pnr === '') pnr = '7EAMRW';
+          if (!refNo || refNo === 'undefined' || refNo === '') refNo = 'FLRUHCOKMAR18SV';
         }
 
         const purchasePrice = parseFloat(nr['NET PRICE'] || nr['PURCHASE PRICE'] || nr['NETPRICE'] || 0);
@@ -161,54 +163,74 @@ export class BookingsService {
 
         let routeId = row['Route ID'] || row['routeId'];
         if (!routeId) {
-          // Robust Route Detection: Find by sector (contains origin-destination) and airline
-          const sectorStr = (sector || '').toLowerCase();
-          const parts = sectorStr.includes('-') ? sectorStr.split('-') : sectorStr.split(' ');
-          const originPart = parts[0]?.trim();
-          const destPart = parts[1]?.trim();
+          // --- SMART AUTO-MATCH LOGIC ---
+          const sectorStr = (sector || '').toUpperCase();
+          const parts = sectorStr.includes('-') ? sectorStr.split('-') : sectorStr.split(/[\s/]+/);
+          const originPart = parts[0]?.trim()?.toUpperCase();
+          const destPart = parts[1]?.trim()?.toUpperCase();
 
-          const route = await this.prisma.route.findFirst({
-            where: {
-              AND: [
-                (originPart || destPart) ? {
-                  OR: [
-                    originPart ? { origin: { contains: originPart, mode: 'insensitive' as const } } : undefined,
-                    destPart ? { destination: { contains: destPart, mode: 'insensitive' as const } } : undefined,
-                  ].filter(Boolean) as any
-                } : {},
-                airline ? { airline: { contains: airline, mode: 'insensitive' as const } } : {},
-                isCharterFormat ? { flightNumber: { contains: '3650' } } : {}
-              ]
-            },
+          const searchConditions: any[] = [];
+          if (originPart) searchConditions.push({ origin: { contains: originPart, mode: 'insensitive' } });
+          if (destPart) searchConditions.push({ destination: { contains: destPart, mode: 'insensitive' } });
+          if (airline) searchConditions.push({ airline: { contains: airline, mode: 'insensitive' } });
+          
+          if (travelDate) {
+              const startOfDay = new Date(travelDate);
+              startOfDay.setHours(0, 0, 0, 0);
+              const endOfDay = new Date(travelDate);
+              endOfDay.setHours(23, 59, 59, 999);
+              searchConditions.push({ departureDate: { gte: startOfDay, lte: endOfDay } });
+          }
+
+          let matchedRoute = await this.prisma.route.findFirst({
+            where: { AND: searchConditions },
             orderBy: { createdAt: 'desc' }
           });
-          if (route) {
-            routeId = route.id;
-          } else if (isCharterFormat) {
-            // Fallback for Charter as before
-            const charter = await this.prisma.route.upsert({
-              where: { id: 'default-charter' },
+
+          // Secondary Fallback: Just Sector (Origin + Destination) without Date/Airline constraint
+          if (!matchedRoute && (originPart || destPart)) {
+            matchedRoute = await this.prisma.route.findFirst({
+                where: {
+                    AND: [
+                        originPart ? { origin: { contains: originPart, mode: 'insensitive' } } : {},
+                        destPart ? { destination: { contains: destPart, mode: 'insensitive' } } : {}
+                    ]
+                },
+                orderBy: { departureDate: 'desc' }
+            });
+          }
+
+          if (matchedRoute) {
+            routeId = matchedRoute.id;
+          } else if (isCharterFormat || (originPart && destPart)) {
+            // --- AUTO-ROUTE DRAFTING ---
+            // Create a draft route so the import can proceed even if the flight isn't in DB yet
+            const dateStr = travelDate ? travelDate.toISOString().split('T')[0] : 'nodate';
+            const autoRouteId = `auto-${originPart || 'ORI'}-${destPart || 'DST'}-${(airline || 'SV').slice(0,3)}-${dateStr}`.toLowerCase();
+            
+            const autoRoute = await this.prisma.route.upsert({
+              where: { id: autoRouteId },
               update: {},
               create: {
-                id: 'default-charter',
-                origin: 'RUH',
-                originCity: 'Riyadh',
-                destination: 'COK',
-                destinationCity: 'Kochi',
-                departureDate: new Date('2026-03-18T00:00:00Z'),
-                arrivalDate: new Date('2026-03-19T00:00:00Z'),
-                departureTime: '19:15',
-                arrivalTime: '03:15',
-                flightNumber: 'SV 3650 (Charter Flight)',
-                airline: 'Saudi Airlines',
-                totalSeats: 42,
-                remainingSeats: 42,
-                price: 750,
-                isCharter: true,
-                bookingStatus: 'CLOSED'
+                id: autoRouteId,
+                origin: originPart || 'RUH',
+                originCity: originPart || 'Riyadh',
+                destination: destPart || 'CCJ',
+                destinationCity: destPart || 'Destination Flight',
+                departureDate: travelDate || new Date(),
+                arrivalDate: travelDate || new Date(),
+                departureTime: '00:00',
+                arrivalTime: '00:00',
+                flightNumber: `${airline || 'SV'} (Auto-Selected)`,
+                airline: airline || 'Saudi Airlines',
+                totalSeats: 200,
+                remainingSeats: 200,
+                price: 0,
+                isCharter: isCharterFormat,
+                bookingStatus: 'OPEN'
               }
             });
-            routeId = charter.id;
+            routeId = autoRoute.id;
           }
         }
 
@@ -219,7 +241,10 @@ export class BookingsService {
           if (foundRoute?.supplier) resolvedSupplier = foundRoute.supplier;
         }
 
-        if (!routeId) throw new Error('Route ID is missing and no default route found');
+        if (!routeId) {
+            this.logger.error(`Import Error: Could not match or create route for ${sector} [${airline}]`);
+            throw new Error(`Could not find or match a flight for ${sector || 'Unknown'}. Please create the Route first.`);
+        }
         if (!passengerName || passengerName === 'Unknown' || passengerName === ' ') throw new Error('Passenger Name is missing');
         if (!passportNumber || passportNumber === 'undefined' || passportNumber === '') throw new Error('Passport Number is missing');
         if (!pnr || pnr === 'undefined' || pnr === '') throw new Error('PNR is missing');
