@@ -111,6 +111,7 @@ export default function AdminBookings() {
         request: "",
         remarks: "",
         agentDetails: "",
+        email: "",
     });
 
     const { data: bookingData, isLoading, refetch, isError } = useQuery({
@@ -295,11 +296,15 @@ export default function AdminBookings() {
             Sector: b.sector || (b.route ? `${b.route.origin}-${b.route.destination}` : 'N/A'),
             Travel_Date: b.travelDate ? format(new Date(b.travelDate), 'dd-MM-yyyy') : (b.route?.departureDate ? format(new Date(b.route.departureDate), 'dd-MM-yyyy') : 'N/A'),
             Agent: b.agentDetails || b.user?.name || 'N/A',
+            Supplier: b.supplier || 'N/A',
             Status: b.status,
             Payment: b.paymentStatus,
             Sale_Price: b.sellingPrice || b.route?.price || 0,
             Net_Price: b.purchasePrice || 0,
-            Profit: b.profit || 0
+            Profit: b.profit || 0,
+            PNR_Reservation: b.pnr || 'N/A', // Re-adding with clearer header
+            Ticket_No: b.ticketNumber || 'N/A',
+            Remarks: b.remarks || 'N/A'
         }));
 
         const ws = XLSX.utils.json_to_sheet(data);
@@ -560,6 +565,7 @@ export default function AdminBookings() {
                                                             request: booking.request || "",
                                                             remarks: booking.remarks || "",
                                                             agentDetails: booking.agentDetails || "",
+                                                            email: booking.email || "",
                                                         });
                                                         setShowDetail(true);
                                                     }}
@@ -728,7 +734,12 @@ export default function AdminBookings() {
                                     </div>
                                     <div className="flex items-center gap-2 text-sm">
                                         <PiEnvelopeSimple className="h-4 w-4 text-violet-500" />
-                                        <span className="text-gray-600">{selected.email}</span>
+                                        <Input
+                                            className="h-7 text-sm rounded-lg flex-1"
+                                            value={accData.email}
+                                            placeholder="passenger@email.com"
+                                            onChange={e => setAccData({...accData, email: e.target.value})}
+                                        />
                                     </div>
                                     <div className="flex items-center gap-2 text-sm">
                                         <PiPhone className="h-4 w-4 text-violet-500" />
@@ -1028,9 +1039,27 @@ export default function AdminBookings() {
                         </div>
                     )}
 
-                    <DialogFooter>
-                        <Button variant="outline" className="rounded-xl" onClick={() => setShowDetail(false)}>
+                    <DialogFooter className="gap-2">
+                        <Button 
+                            variant="outline" 
+                            className="rounded-xl" 
+                            onClick={() => setShowDetail(false)}
+                        >
                             Close
+                        </Button>
+                        <Button 
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold px-6"
+                            disabled={updateMutation.isPending}
+                            onClick={() => {
+                                if (selected) {
+                                    updateMutation.mutate({ 
+                                        id: selected.id, 
+                                        data: accData 
+                                    });
+                                }
+                            }}
+                        >
+                            {updateMutation.isPending ? "Saving..." : "Save Changes"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

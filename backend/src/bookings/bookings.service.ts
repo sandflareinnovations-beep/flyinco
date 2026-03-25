@@ -136,7 +136,7 @@ export class BookingsService {
         
         pnr = String(nr['PNR'] || nr['PNR NO'] || nr['PNR '] || nr['CONFIRMATION'] || '');
         let refNo = String(nr['REF NO'] || nr['REFERENCE NUMBER'] || nr['REFERENCE'] || '');
-        let agentDetails = String(nr['AGENT'] || nr['AGENT DETAILS'] || nr['AGENT NAME'] || nr['AGENTS'] || nr['AGENCY'] || nr['AGENCY NAME'] || nr['BOOKED BY'] || '');
+        let agentDetails = String(nr['AGENT'] || nr['AGENT NAME'] || nr['AGENTS'] || nr['AGENCY'] || nr['AGENCY NAME'] || nr['BOOKED BY'] || nr['OFFICE'] || nr['SOURCE'] || nr['COUNTER'] || '').trim();
 
         if (isCharterFormat) {
           // Use provided PNR/RefNo if available in the row, otherwise use defaults
@@ -144,8 +144,8 @@ export class BookingsService {
           if (!refNo || refNo === 'undefined' || refNo === '') refNo = 'FLRUHCOKMAR18SV';
         }
 
-        const purchasePrice = parseFloat(nr['NET PRICE'] || nr['PURCHASE PRICE'] || nr['NETPRICE'] || 0);
-        const sellingPrice = parseFloat(nr['SELLING PRICE'] || nr['SALE PRICE'] || nr['SELLINGPRICE'] || 0);
+        const purchasePrice = parseFloat(nr['NET PRICE'] || nr['PURCHASE PRICE'] || nr['NETPRICE'] || nr['COST'] || nr['NET'] || 0);
+        const sellingPrice = parseFloat(nr['SELLING PRICE'] || nr['SALE PRICE'] || nr['SELLINGPRICE'] || nr['PRICE'] || nr['SELL'] || nr['FARE'] || 0);
         
         const airline = sanitizeCell(nr['AIRLINES'] || nr['AIRLINE'] || nr['CARRIER'] || '');
         const sector = sanitizeCell(nr['SECTOR'] || nr['ROUTE'] || '');
@@ -254,8 +254,42 @@ export class BookingsService {
 
         const profit = sellingPrice - purchasePrice;
 
+        // --- AGENT MATCHING & FINANCIAL SYNC PREP ---
+        let matchedUserId: string | null = null;
+        if (agentDetails) {
+          const matchedAgent = await this.prisma.user.findFirst({
+            where: { 
+              OR: [
+                { name: { equals: agentDetails, mode: 'insensitive' } }, 
+                { agencyName: { equals: agentDetails, mode: 'insensitive' } },
+                { email: { equals: agentDetails, mode: 'insensitive' } },
+                { email: { equals: agencyEmail, mode: 'insensitive' } } // Fallback to Agency Email column
+              ] 
+            }
+          });
+
+          if (matchedAgent) {
+            matchedUserId = matchedAgent.id;
+            
+            // Financial Sync: Increment dues/sales if unpaid AND not cancelled
+            if (matchedAgent.role === 'AGENT' && (paymentStatus === 'UNPAID' || !paymentStatus) && status !== 'CANCELLED') {
+              await this.prisma.user.update({
+                where: { id: matchedAgent.id },
+                data: {
+                  pendingDues: { increment: sellingPrice || 0 },
+                  outstanding: { increment: sellingPrice || 0 },
+                  totalSales: { increment: sellingPrice || 0 }
+                }
+              });
+            }
+          } else if (agentDetails.toLowerCase() !== 'direct' && agentDetails !== '') {
+            this.logger.warn(`Bulk Import Accounting: No matching agent found for "${agentDetails}" on row ${rowIndex}. Balance was NOT updated.`);
+          }
+        }
+
         const b = await this.prisma.booking.create({
           data: {
+            userId: matchedUserId, // Link to account for visibility
             routeId,
             passengerName,
             prefix,
@@ -289,22 +323,7 @@ export class BookingsService {
           },
         });
 
-        // Financial Sync: Upate agent user balance if matched
-        if (agentDetails) {
-          const matchedAgent = await this.prisma.user.findFirst({
-            where: { OR: [{ name: agentDetails }, { agencyName: agentDetails }] }
-          });
-          if (matchedAgent && matchedAgent.role === 'AGENT' && (paymentStatus === 'UNPAID' || !paymentStatus)) {
-            await this.prisma.user.update({
-              where: { id: matchedAgent.id },
-              data: {
-                pendingDues: { increment: sellingPrice || 0 },
-                outstanding: { increment: sellingPrice || 0 },
-                totalSales: { increment: sellingPrice || 0 }
-              }
-            });
-          }
-        }
+        // Financial sync handled before creation to ensure atomicity and userId linkage
 
         if (!isCharterFormat && (status === 'CONFIRMED' || status === 'PENDING')) {
           await this.prisma.route.update({
@@ -479,8 +498,8 @@ export class BookingsService {
     return booking;
   }
 
-  async findAll(user: any, query: { page?: number; limit?: number; search?: string; agent?: string; phone?: string; supplier?: string } = {}) {
-    const { page = 1, limit = 50, search = '', agent = '', phone = '', supplier = '' } = query;
+  async findAll(user: any, query: { page?: number; limit?: number; search?: string; agent?: string; phone?: string; supplier?: string; agentId?: string } = {}) {
+    const { page = 1, limit = 50, search = '', agent = '', phone = '', supplier = '', agentId = '' } = query;
     const skip = (page - 1) * limit;
     const take = Number(limit);
 
@@ -512,7 +531,8 @@ export class BookingsService {
         const agentUser = await this.prisma.user.findFirst({
           where: { OR: [
             { name: { contains: agent, mode: 'insensitive' } },
-            { agencyName: { contains: agent, mode: 'insensitive' } }
+            { agencyName: { contains: agent, mode: 'insensitive' } },
+            { email: { contains: agent, mode: 'insensitive' } }
           ]}
         });
 
@@ -540,6 +560,10 @@ export class BookingsService {
 
       if (supplier) {
         andConditions.push({ supplier: { contains: supplier, mode: 'insensitive' } });
+      }
+
+      if (agentId) {
+        andConditions.push({ userId: agentId });
       }
 
       if (andConditions.length > 0) {
@@ -954,6 +978,39 @@ export class BookingsService {
     const sellingPrice = dto.sellingPrice !== undefined ? dto.sellingPrice : current.sellingPrice;
     const profit = (sellingPrice || 0) - (purchasePrice || 0);
 
+    // ── Bug 2: Financial Re-Sync on Update ──
+    const priceDiff = (sellingPrice || 0) - (current.sellingPrice || 0);
+    const userId = current.userId;
+
+    if (userId && (priceDiff !== 0 || (dto.status && dto.status !== current.status))) {
+      const user = await this.prisma.user.findUnique({ where: { id: userId } });
+      if (user && user.role === 'AGENT') {
+        let duesAdjustment = priceDiff;
+        let salesAdjustment = priceDiff;
+
+        // If status changing to/from CANCELLED, handle the full amount
+        if (dto.status === 'CANCELLED' && current.status !== 'CANCELLED') {
+           duesAdjustment = -(current.sellingPrice || 0);
+           salesAdjustment = -(current.sellingPrice || 0);
+        } else if (dto.status !== 'CANCELLED' && current.status === 'CANCELLED') {
+           duesAdjustment = (sellingPrice || 0);
+           salesAdjustment = (sellingPrice || 0);
+        }
+
+        if (duesAdjustment !== 0 || salesAdjustment !== 0) {
+          await this.prisma.user.update({
+            where: { id: userId },
+            data: {
+              pendingDues: { increment: duesAdjustment },
+              outstanding: { increment: duesAdjustment },
+              totalSales: { increment: salesAdjustment }
+            }
+          });
+          this.logger.log(`Account Re-Sync: Adjusted agent ${user.name} balance by SAR ${duesAdjustment} due to booking update.`);
+        }
+      }
+    }
+
     // Seat Management on Status Change
     if (dto.status && dto.status !== current.status) {
       if (dto.status === 'CANCELLED') {
@@ -996,11 +1053,27 @@ export class BookingsService {
       }).catch(() => {}); // Ignore if route was deleted
     }
 
+    // Bug 2 Fix: Decrement agent balance on deletion
+    if (booking.userId && booking.status !== 'CANCELLED') {
+        const agent = await this.prisma.user.findUnique({ where: { id: booking.userId } });
+        if (agent && agent.role === 'AGENT') {
+            await this.prisma.user.update({
+                where: { id: agent.id },
+                data: {
+                    pendingDues: { decrement: booking.sellingPrice || 0 },
+                    outstanding: { decrement: booking.sellingPrice || 0 },
+                    totalSales: { decrement: booking.sellingPrice || 0 }
+                }
+            });
+            this.logger.log(`Account Re-Sync: Deducted SAR ${booking.sellingPrice} from agent ${agent.name} for deleted booking ${booking.id}.`);
+        }
+    }
+
     return this.prisma.booking.delete({ where: { id } });
   }
 
   async removeMany(ids: string[]) {
-    // SECURITY AUDIT: Restoring seats for bulk delete
+    // SECURITY AUDIT: Restoring seats and correcting accounting for bulk delete
     const bookings = await this.prisma.booking.findMany({
       where: { id: { in: ids } }
     });
@@ -1011,6 +1084,21 @@ export class BookingsService {
           where: { id: b.routeId },
           data: { remainingSeats: { increment: 1 } }
         }).catch(() => {});
+
+        // Bug 2 Fix: Decrement agent balance on bulk delete
+        if (b.userId) {
+            const agent = await this.prisma.user.findUnique({ where: { id: b.userId } });
+            if (agent && agent.role === 'AGENT') {
+                await this.prisma.user.update({
+                    where: { id: agent.id },
+                    data: {
+                        pendingDues: { decrement: b.sellingPrice || 0 },
+                        outstanding: { decrement: b.sellingPrice || 0 },
+                        totalSales: { decrement: b.sellingPrice || 0 }
+                    }
+                });
+            }
+        }
       }
     }
 
@@ -1072,7 +1160,7 @@ export class BookingsService {
                 <td style="padding: 4px 0;"><span style="color: #64748b;">Airline:</span> <b>${route.airline}</b></td>
               </tr>
               <tr>
-                <td style="padding: 4px 0;"><span style="color: #64748b;">Departure:</span> <b>${route.departureTime} (${new Date(route.departureDate).toLocaleDateString()})</b></td>
+                <td style="padding: 4px 0;"><span style="color: #64748b;">Departure:</span> <b>${route.departureTime} (${new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(booking.travelDate || route.departureDate))})</b></td>
                 <td style="padding: 4px 0;"><span style="color: #64748b;">Arrival:</span> <b>${route.arrivalTime}</b></td>
               </tr>
             </table>

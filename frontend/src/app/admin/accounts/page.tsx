@@ -80,14 +80,17 @@ export default function AdminAccounts() {
         setAgentPayments([]);
         setLoadingLedger(true);
         try {
-            // Fetch bookings by BOTH name AND agencyName, then merge + deduplicate
+            // Fetch bookings by name, agencyName, AND agentId to catch all bookings
             const fetchPromises: Promise<any>[] = [];
 
-            // Primary: fetch by agent name
+            // Primary: fetch by agentId (userId) — catches bookings even if agentDetails is empty
+            fetchPromises.push(flyApi.bookings.list({ limit: 5000, agentId: agent.id }));
+
+            // Secondary: fetch by agent name (catches legacy bookings matched by agentDetails string)
             if (agent.name) {
                 fetchPromises.push(flyApi.bookings.list({ limit: 5000, agent: agent.name }));
             }
-            // Secondary: fetch by agency name (if different from name)
+            // Tertiary: fetch by agency name (if different from name)
             if (agent.agencyName && agent.agencyName.toLowerCase() !== agent.name?.toLowerCase()) {
                 fetchPromises.push(flyApi.bookings.list({ limit: 5000, agent: agent.agencyName }));
             }

@@ -122,8 +122,9 @@ export class BookingsController {
     @Query('agent') agent?: string,
     @Query('phone') phone?: string,
     @Query('supplier') supplier?: string,
+    @Query('agentId') agentId?: string,
   ) {
-    return this.bookingsService.findAll(req.user, { page, limit, search, agent, phone, supplier });
+    return this.bookingsService.findAll(req.user, { page, limit, search, agent, phone, supplier, agentId });
   }
 
   // ── Admin: Route-wise passenger report ──
