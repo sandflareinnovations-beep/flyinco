@@ -150,7 +150,7 @@ export default function AdminBookings() {
             qc.invalidateQueries({ queryKey: ["admin-bookings"] });
             toast({ title: "Booking Updated", description: "All changes saved successfully." });
         },
-        onError: () => toast({ title: "Error", description: "Failed to update booking.", variant: "destructive" }),
+        onError: (err: any) => toast({ title: "Error", description: err?.message || "Failed to update booking.", variant: "destructive" }),
     });
 
     const createMutation = useMutation({
