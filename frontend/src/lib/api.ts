@@ -27,54 +27,136 @@ const getApiBase = () => {
 
 export const API_BASE = getApiBase();
 
-export const fetchWithCreds = async (url: string, options: any = {}) => {
-    const { requiresAuth = true, ...fetchOptions } = options;
+let isRefreshing = false;
+let refreshSubscribers: ((token: string) => void)[] = [];
 
-    // Try to get token from localStorage or cookie
-    let token = '';
-    if (typeof window !== 'undefined') {
-        token = localStorage.getItem('token') || '';
-        if (!token) {
-            const match = document.cookie.match(/(^| )token=([^;]+)/);
-            if (match) token = match[2];
-        }
+const subscribeTokenRefresh = (cb: (token: string) => void) => {
+    refreshSubscribers.push(cb);
+};
+
+const onTokenRefreshed = (token: string) => {
+    refreshSubscribers.map((cb) => cb(token));
+    refreshSubscribers = [];
+};
+
+export const fetchWithCreds = async (url: string, options: any = {}): Promise<any> => {
+    const { requiresAuth = true, retryCount = 0, ...fetchOptions } = options;
+
+    if (typeof window === 'undefined') return {};
+
+    // Get active token
+    let token = localStorage.getItem('token') || '';
+    if (!token) {
+        const match = document.cookie.match(/(^| )token=([^;]+)/);
+        if (match) token = match[2];
     }
 
     if (!token && requiresAuth !== false) {
-        // Redirect to login immediately
-        if (typeof window !== 'undefined') {
+        // Redirect if auth required but no token found
+        if (!url.includes('/auth/login')) {
             window.location.href = '/login?expired=true';
+            throw new Error('Authentication required');
         }
-        throw new Error('Authentication required. Please log in.');
     }
 
     const headers: Record<string, string> = {
-        ...(options.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
-        ...(options.headers as any),
+        ...(fetchOptions.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
+        ...(fetchOptions.headers as any),
+        ...(token ? { "Authorization": `Bearer ${token}` } : {}),
     };
 
-    if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-    }
-
-    const res = await fetch(`${API_BASE}${url}`, {
-        ...fetchOptions,
-        headers,
-        credentials: "include",
-    });
-
-    let data;
     try {
-        data = await res.json();
-    } catch {
-        data = null;
-    }
+        const res = await fetch(`${API_BASE}${url}`, {
+            ...fetchOptions,
+            headers,
+            credentials: "include",
+        });
 
-    if (!res.ok) {
-        throw new Error(data?.message || "An API error occurred");
-    }
+        // 1. Handle 401 Unauthorized - Trigger Refresh Flow
+        if (res.status === 401 && requiresAuth !== false && !url.includes('/auth/login') && !url.includes('/auth/refresh')) {
+            if (!isRefreshing) {
+                isRefreshing = true;
+                const refreshToken = localStorage.getItem('refresh_token');
+                
+                if (!refreshToken) {
+                    window.location.href = '/login?expired=true';
+                    return;
+                }
 
-    return data;
+                try {
+                    const refreshRes = await fetch(`${API_BASE}/auth/refresh`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ refresh_token: refreshToken }),
+                    });
+
+                    if (refreshRes.ok) {
+                        const data = await refreshRes.json();
+                        const newToken = data.token || data.access_token;
+                        
+                        // Save new tokens
+                        localStorage.setItem('token', newToken);
+                        if (data.refresh_token) {
+                            localStorage.setItem('refresh_token', data.refresh_token);
+                        }
+                        
+                        // Sync cookie for Next.js middleware
+                        const isSecure = window.location.protocol === "https:";
+                        document.cookie = `token=${newToken}; path=/; max-age=86400; SameSite=Lax${isSecure ? "; Secure" : ""}`;
+                        
+                        isRefreshing = false;
+                        onTokenRefreshed(newToken);
+                    } else {
+                        // Refresh failed (token likely revoked or expired)
+                        isRefreshing = false;
+                        localStorage.clear();
+                        document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+                        window.location.href = '/login?expired=true';
+                        throw new Error('Session expired');
+                    }
+                } catch (e) {
+                    isRefreshing = false;
+                    throw e;
+                }
+            }
+
+            // Await the refresh already in progress
+            return new Promise((resolve) => {
+                subscribeTokenRefresh((newToken: string) => {
+                    // Re-run with the new token
+                    resolve(fetchWithCreds(url, { ...options, headers: { ...options.headers, "Authorization": `Bearer ${newToken}` } }));
+                });
+            });
+        }
+
+        // 2. Parse Data
+        let data;
+        try {
+            data = await res.json();
+        } catch {
+            data = null;
+        }
+
+        // 3. Handle non-2xx failures
+        if (!res.ok) {
+            // Special Case: Server is starting up (cold start on Render)
+            if (res.status >= 500 && retryCount < 2) {
+                await new Promise(r => setTimeout(r, 2000));
+                return fetchWithCreds(url, { ...options, retryCount: retryCount + 1 });
+            }
+            throw new Error(data?.message || `API error (${res.status})`);
+        }
+
+        return data;
+    } catch (error: any) {
+        // 4. Handle Network Errors (like DNS or connection refused)
+        // Usually happens if backend is sleeping or networking is unstable
+        if (error.name === 'TypeError' && (error.message.includes('fetch') || error.message.includes('NetworkError')) && retryCount < 2) {
+             await new Promise(r => setTimeout(r, 3000));
+             return fetchWithCreds(url, { ...options, retryCount: retryCount + 1 });
+        }
+        throw error;
+    }
 };
 
 export const flyApi = {

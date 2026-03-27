@@ -86,11 +86,15 @@ function LoginContent() {
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || "Failed to log in");
 
-            const tokenKey = data.access_token || data.token;
+            const tokenKey = data.token || data.access_token;
+            const refreshToken = data.refresh_token;
             if (!tokenKey) throw new Error("No token received from server");
 
             localStorage.setItem("user", JSON.stringify(data.user));
             localStorage.setItem("token", tokenKey);
+            if (refreshToken) {
+                localStorage.setItem("refresh_token", refreshToken);
+            }
 
             // Set token cookie with Secure on HTTPS (crucial for Render)
             const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";

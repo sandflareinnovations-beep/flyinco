@@ -70,11 +70,14 @@ export default function UserDashboard() {
                 headers: { "Content-Type": "application/json" },
                 credentials: "include"
             });
-            localStorage.removeItem("user");
-            router.push("/login");
-        } catch {
-            router.push("/login");
+        } catch (e) {
+            console.error("Logout fetch failed:", e);
         }
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        localStorage.removeItem("refresh_token");
+        document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        router.push("/login");
     };
 
     if (isLoading) return <LoadingLogo fullPage text="Preparing Dashboard..." />;

@@ -13,7 +13,7 @@ import { JwtStrategy } from './jwt.strategy';
     JwtModule.register({
       secret: process.env.JWT_SECRET, // SECURITY AUDIT: Removed hardcoded default 'super_secret'
       signOptions: { 
-        expiresIn: '15m',
+        expiresIn: '2h', // More reasonable session length for travel booking
         algorithm: 'HS256' 
       },
     }),
