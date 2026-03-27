@@ -43,14 +43,24 @@ function LoginContent() {
     }, [searchParams, toast]);
 
     useEffect(() => {
+        const isExpired = searchParams.get('expired') === 'true';
         const storedUser = localStorage.getItem("user");
         const token = localStorage.getItem("token");
+
+        // If we arrived here because of an expiration, clear everything to break loops
+        if (isExpired) {
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+            localStorage.removeItem("refresh_token");
+            document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+            setInitializing(false);
+            return;
+        }
 
         if (storedUser && token && token !== "undefined") {
             try {
                 const user = JSON.parse(storedUser);
                 router.replace(user.role === "ADMIN" ? "/admin" : "/dashboard");
-                // Fallback: If redirect hasn't happened yet, show the form
                 const timer = setTimeout(() => setInitializing(false), 300);
                 return () => clearTimeout(timer);
             } catch {
@@ -59,14 +69,13 @@ function LoginContent() {
                 setInitializing(false);
             }
         } else {
-            // Clear bad token if it exists
             if (token === "undefined") {
                 localStorage.removeItem("token");
                 document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
             }
             setInitializing(false);
         }
-    }, [router]);
+    }, [router, searchParams]);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
