@@ -1,5 +1,5 @@
 "use client";
-import { PiAirplaneTilt, PiUsers, PiWallet, PiPulse, PiTrendUp, PiCalendarBlank, PiCaretLeft, PiCaretRight, PiMoney } from "react-icons/pi";
+import { PiAirplaneTilt, PiUsers, PiWallet, PiPulse, PiTrendUp, PiCalendarBlank, PiCaretLeft, PiCaretRight, PiMoney, PiEye, PiEyeClosed } from "react-icons/pi";
 import { useQuery } from "@tanstack/react-query";
 import { flyApi } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,16 +15,17 @@ import { startOfMonth, endOfMonth, eachDayOfInterval, format, isSameMonth, isTod
 import { LoadingLogo } from "@/components/ui/loading-logo";
 
 const statCards = (totalRevenue: number, totalProfit: number, totalBookings: number, seatsSold: number, remainingSeats: number, totalUnpaidDues: number, topAgent: string) => [
-    { label: "Total Revenue", value: `SAR ${totalRevenue.toLocaleString()}`, icon: PiMoney, color: "text-emerald-600", bg: "bg-emerald-50", sub: "From selling prices" },
-    { label: "Total Profit", value: `SAR ${totalProfit.toLocaleString()}`, icon: PiTrendUp, color: "text-violet-600", bg: "bg-violet-50", sub: "Net margin" },
-    { label: "Payments Due", value: `SAR ${totalUnpaidDues.toLocaleString()}`, icon: PiPulse, color: "text-red-600", bg: "bg-red-50", sub: "Total unpaid dues" },
-    { label: "Top Performer", value: topAgent || "None", icon: PiUsers, color: "text-indigo-600", bg: "bg-indigo-50", sub: "Highest selling agent" },
-    { label: "Seats Sold/Held", value: seatsSold, icon: PiPulse, color: "text-indigo-600", bg: "bg-indigo-50", sub: "Across all sectors" },
-    { label: "Remaining", value: remainingSeats, icon: PiAirplaneTilt, color: "text-amber-600", bg: "bg-amber-50", sub: "Available seats" },
+    { label: "Total Revenue", value: `SAR ${totalRevenue.toLocaleString()}`, icon: PiMoney, color: "text-emerald-600", bg: "bg-emerald-50", sub: "From selling prices", sensitive: false },
+    { label: "Total Profit", value: `SAR ${totalProfit.toLocaleString()}`, icon: PiTrendUp, color: "text-violet-600", bg: "bg-violet-50", sub: "Net margin", sensitive: true },
+    { label: "Payments Due", value: `SAR ${totalUnpaidDues.toLocaleString()}`, icon: PiPulse, color: "text-red-600", bg: "bg-red-50", sub: "Total unpaid dues", sensitive: false },
+    { label: "Top Performer", value: topAgent || "None", icon: PiUsers, color: "text-indigo-600", bg: "bg-indigo-50", sub: "Highest selling agent", sensitive: false },
+    { label: "Seats Sold/Held", value: seatsSold, icon: PiPulse, color: "text-indigo-600", bg: "bg-indigo-50", sub: "Across all sectors", sensitive: false },
+    { label: "Remaining", value: remainingSeats, icon: PiAirplaneTilt, color: "text-amber-600", bg: "bg-amber-50", sub: "Available seats", sensitive: false },
 ];
 
 export default function AdminDashboard() {
     const [currentMonth, setCurrentMonth] = useState(new Date());
+    const [showProfit, setShowProfit] = useState(false);
 
     const monthStart = startOfMonth(currentMonth);
     const monthEnd = endOfMonth(currentMonth);
@@ -104,14 +105,27 @@ export default function AdminDashboard() {
                 {isLoading ? (
                     [...Array(6)].map((_, i) => <Skeleton key={i} className="h-28 w-full rounded-2xl" />)
                 ) : (
-                    statCards(totalRevenue, totalProfit, totalBookings, seatsSold, remainingSeats, totalUnpaidDues, topAgent).map(({ label, value, icon: Icon, color, bg, sub }, i) => (
+                    statCards(totalRevenue, totalProfit, totalBookings, seatsSold, remainingSeats, totalUnpaidDues, topAgent).map(({ label, value, icon: Icon, color, bg, sub, sensitive }, i) => (
                         <motion.div key={label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
                             <Card className="border-gray-100 shadow-sm hover:shadow-md transition-shadow">
                                 <CardContent className="p-4">
-                                    <div className={`w-8 h-8 rounded-lg ${bg} flex items-center justify-center mb-3`}>
-                                        <Icon className={`h-4 w-4 ${color}`} />
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className={`w-8 h-8 rounded-lg ${bg} flex items-center justify-center`}>
+                                            <Icon className={`h-4 w-4 ${color}`} />
+                                        </div>
+                                        {sensitive && (
+                                            <button
+                                                onClick={() => setShowProfit(!showProfit)}
+                                                className="w-7 h-7 rounded-lg bg-gray-50 hover:bg-gray-100 flex items-center justify-center transition-colors"
+                                                title={showProfit ? "Hide profit" : "Show profit"}
+                                            >
+                                                {showProfit ? <PiEye className="h-3.5 w-3.5 text-gray-500" /> : <PiEyeClosed className="h-3.5 w-3.5 text-gray-400" />}
+                                            </button>
+                                        )}
                                     </div>
-                                    <p className="text-lg font-black text-gray-900 truncate">{value}</p>
+                                    <p className="text-lg font-black text-gray-900 truncate">
+                                        {sensitive && !showProfit ? "•••••••" : value}
+                                    </p>
                                     <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mt-0.5">{label}</p>
                                     <p className="text-[10px] text-gray-400 mt-0.5 truncate">{sub}</p>
                                 </CardContent>
