@@ -75,23 +75,37 @@ export class RoutesService {
         take: limit === -1 ? undefined : take, // Support fetching all if limit is -1
         orderBy: { departureDate: "asc" },
         include: {
-          bookings: {
-            select: { status: true },
+          _count: {
+            select: {
+              bookings: {
+                where: { status: { in: ["CONFIRMED", "COMPLETED"] } },
+              },
+            },
           },
         },
       }),
       this.prisma.route.count({ where }),
     ]);
 
+    // Second pass: get held counts (Prisma doesn't support multiple _count filters in one query)
+    const routeIds = routes.map((r: any) => r.id);
+    const heldCounts = await this.prisma.booking.groupBy({
+      by: ["routeId"],
+      where: {
+        routeId: { in: routeIds },
+        status: { in: ["HELD", "PENDING"] },
+      },
+      _count: { id: true },
+    });
+    const heldMap = new Map(
+      heldCounts.map((h) => [h.routeId, h._count.id]),
+    );
+
     const mappedRoutes = routes.map((r: any) => ({
       ...r,
-      soldSeats: r.bookings.filter(
-        (b: any) => b.status === "CONFIRMED" || b.status === "COMPLETED",
-      ).length,
-      heldSeats: r.bookings.filter(
-        (b: any) => b.status === "HELD" || b.status === "PENDING",
-      ).length,
-      bookings: undefined, // Remove detailed bookings if not needed to keep response clean
+      soldSeats: r._count?.bookings ?? 0,
+      heldSeats: heldMap.get(r.id) ?? 0,
+      _count: undefined, // Clean up internal field
     }));
 
     return { routes: mappedRoutes, total, page, limit };

@@ -4,6 +4,7 @@ import { AppModule } from "./app.module";
 import { ValidationPipe } from "@nestjs/common";
 import { PrismaClientExceptionFilter } from "./common/filters/prisma-client-exception.filter";
 import cookieParser from "cookie-parser";
+import compression from "compression";
 import { join } from "path";
 import helmet from "helmet";
 
@@ -20,6 +21,9 @@ async function bootstrap() {
       contentSecurityPolicy: false, // Set to true and configure for specialized production needs
     }),
   );
+
+  // Compress all HTTP responses (gzip) — reduces payload sizes by ~60-70%
+  app.use(compression());
 
   app.use(cookieParser());
 

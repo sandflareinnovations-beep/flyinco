@@ -35,12 +35,14 @@ export default function AdminDashboard() {
     const { data: metricsData, isLoading: loadingMetrics } = useQuery({
         queryKey: ["admin-metrics"],
         queryFn: () => flyApi.bookings.getMetrics(),
-        refetchInterval: 30000,
+        staleTime: 60000, // Cache for 1 minute — prevents refetch on tab switch
+        refetchInterval: 60000, // Poll every 60s instead of 30s
     });
 
     const { data: sectors, isLoading: loadingSectors } = useQuery({
         queryKey: ["sectors"],
         queryFn: () => flyApi.sectors.list(),
+        staleTime: 60000, // Cache sectors for 1 minute
     });
 
     const isLoading = loadingMetrics;

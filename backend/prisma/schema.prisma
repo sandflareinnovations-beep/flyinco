@@ -33,6 +33,10 @@ model Route {
   supplier       String?
   createdAt      DateTime  @default(now())
   bookings       Booking[]
+
+  @@index([departureDate])
+  @@index([origin, destination])
+  @@index([bookingStatus, remainingSeats])
 }
 
 model Booking {
@@ -85,6 +89,9 @@ model Booking {
   @@index([paymentStatus])
   @@index([status])
   @@index([createdAt])
+  @@index([routeId, status])
+  @@index([supplier])
+  @@index([travelDate])
 }
 
 model User {

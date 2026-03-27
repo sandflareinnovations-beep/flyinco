@@ -141,7 +141,7 @@ export const fetchWithCreds = async (url: string, options: any = {}): Promise<an
         if (!res.ok) {
             // Special Case: Server is starting up (cold start on Render)
             if (res.status >= 500 && retryCount < 2) {
-                await new Promise(r => setTimeout(r, 2000));
+                await new Promise(r => setTimeout(r, 1000));
                 return fetchWithCreds(url, { ...options, retryCount: retryCount + 1 });
             }
             throw new Error(data?.message || `API error (${res.status})`);
@@ -152,7 +152,7 @@ export const fetchWithCreds = async (url: string, options: any = {}): Promise<an
         // 4. Handle Network Errors (like DNS or connection refused)
         // Usually happens if backend is sleeping or networking is unstable
         if (error.name === 'TypeError' && (error.message.includes('fetch') || error.message.includes('NetworkError')) && retryCount < 2) {
-             await new Promise(r => setTimeout(r, 3000));
+             await new Promise(r => setTimeout(r, 1500));
              return fetchWithCreds(url, { ...options, retryCount: retryCount + 1 });
         }
         throw error;
