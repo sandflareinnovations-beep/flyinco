@@ -1,4 +1,10 @@
-import { IsString, IsNotEmpty, IsBoolean, IsOptional, IsIn } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsBoolean,
+  IsOptional,
+  IsIn,
+} from "class-validator";
 
 export class CreateAnnouncementDto {
   @IsString()
@@ -11,7 +17,7 @@ export class CreateAnnouncementDto {
 
   @IsString()
   @IsOptional()
-  @IsIn(['INFO', 'WARNING', 'ALERT', 'SUCCESS'])
+  @IsIn(["INFO", "WARNING", "ALERT", "SUCCESS"])
   type?: string;
 
   @IsBoolean()

@@ -1,21 +1,23 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { exec } from 'child_process';
-import * as cron from 'node-cron';
-import * as path from 'path';
-import * as fs from 'fs';
+import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
+import { exec } from "child_process";
+import * as cron from "node-cron";
+import * as path from "path";
+import * as fs from "fs";
 
 @Injectable()
 export class BackupService implements OnModuleInit {
   private readonly logger = new Logger(BackupService.name);
-  private readonly backupDir = path.resolve(process.cwd(), 'backups');
+  private readonly backupDir = path.resolve(process.cwd(), "backups");
 
   onModuleInit() {
     this.ensureBackupDir();
     // Schedule backup every day at midnight Saudi Time (00:00)
-    cron.schedule('0 0 * * *', () => {
+    cron.schedule("0 0 * * *", () => {
       this.handleBackup();
     });
-    this.logger.log('💿 Automated Daily Backup Service Initialized (Scheduled: 00:00)');
+    this.logger.log(
+      "💿 Automated Daily Backup Service Initialized (Scheduled: 00:00)",
+    );
   }
 
   private ensureBackupDir() {
@@ -24,20 +26,22 @@ export class BackupService implements OnModuleInit {
         fs.mkdirSync(this.backupDir, { recursive: true });
         this.logger.log(`📁 Backup directory created: ${this.backupDir}`);
       } catch (err) {
-        this.logger.error(`❌ Failed to create backup directory: ${err.message}`);
+        this.logger.error(
+          `❌ Failed to create backup directory: ${err.message}`,
+        );
       }
     }
   }
 
   async handleBackup() {
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const filename = `flyinco-backup-${timestamp}.sql`;
     const filePath = path.join(this.backupDir, filename);
 
     // Get Database URL from env
     const dbUrl = process.env.DATABASE_URL;
     if (!dbUrl) {
-      this.logger.error('❌ DATABASE_URL missing. Backup failed.');
+      this.logger.error("❌ DATABASE_URL missing. Backup failed.");
       return;
     }
 

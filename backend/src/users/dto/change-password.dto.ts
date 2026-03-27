@@ -1,10 +1,10 @@
-import { IsString, MinLength } from 'class-validator';
+import { IsString, MinLength } from "class-validator";
 
 export class ChangePasswordDto {
-    @IsString()
-    userId: string;
+  @IsString()
+  userId: string;
 
-    @IsString()
-    @MinLength(6)
-    newPassword: string;
+  @IsString()
+  @MinLength(6)
+  newPassword: string;
 }

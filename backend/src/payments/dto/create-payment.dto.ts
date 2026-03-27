@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional, Min, IsIn } from 'class-validator';
+import { IsString, IsNumber, IsOptional, Min, IsIn } from "class-validator";
 
 export class CreatePaymentDto {
   @IsString()
@@ -9,7 +9,7 @@ export class CreatePaymentDto {
   amount: number;
 
   @IsString()
-  @IsIn(['PAYMENT', 'DUES'])
+  @IsIn(["PAYMENT", "DUES"])
   type: string;
 
   @IsOptional()

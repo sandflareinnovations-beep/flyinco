@@ -1,7 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateRouteDto } from './dto/create-route.dto';
-import { UpdateRouteDto } from './dto/update-route.dto';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import { CreateRouteDto } from "./dto/create-route.dto";
+import { UpdateRouteDto } from "./dto/update-route.dto";
 
 @Injectable()
 export class RoutesService {
@@ -30,7 +30,7 @@ export class RoutesService {
       supplier: dto.supplier,
     };
 
-    if (dto.arrivalDate && dto.arrivalDate !== '') {
+    if (dto.arrivalDate && dto.arrivalDate !== "") {
       const date = new Date(dto.arrivalDate);
       if (!isNaN(date.getTime())) {
         data.arrivalDate = date;
@@ -40,24 +40,31 @@ export class RoutesService {
     return this.prisma.route.create({ data });
   }
 
-  async findAll(query: { page?: number; limit?: number; search?: string; availableOnly?: boolean } = {}) {
-    const { page = 1, limit = 50, search = '', availableOnly = false } = query;
+  async findAll(
+    query: {
+      page?: number;
+      limit?: number;
+      search?: string;
+      availableOnly?: boolean;
+    } = {},
+  ) {
+    const { page = 1, limit = 50, search = "", availableOnly = false } = query;
     const skip = (page - 1) * limit;
     const take = Number(limit);
 
     const where: any = {};
 
     if (availableOnly) {
-      where.bookingStatus = 'OPEN';
+      where.bookingStatus = "OPEN";
       where.remainingSeats = { gt: 0 };
     }
 
     if (search) {
       where.OR = [
-        { origin: { contains: search, mode: 'insensitive' } },
-        { destination: { contains: search, mode: 'insensitive' } },
-        { airline: { contains: search, mode: 'insensitive' } },
-        { flightNumber: { contains: search, mode: 'insensitive' } },
+        { origin: { contains: search, mode: "insensitive" } },
+        { destination: { contains: search, mode: "insensitive" } },
+        { airline: { contains: search, mode: "insensitive" } },
+        { flightNumber: { contains: search, mode: "insensitive" } },
       ];
     }
 
@@ -66,29 +73,33 @@ export class RoutesService {
         where,
         skip,
         take: limit === -1 ? undefined : take, // Support fetching all if limit is -1
-        orderBy: { departureDate: 'asc' },
+        orderBy: { departureDate: "asc" },
         include: {
           bookings: {
-            select: { status: true }
-          }
-        }
+            select: { status: true },
+          },
+        },
       }),
       this.prisma.route.count({ where }),
     ]);
 
     const mappedRoutes = routes.map((r: any) => ({
       ...r,
-      soldSeats: r.bookings.filter((b: any) => b.status === 'CONFIRMED' || b.status === 'COMPLETED').length,
-      heldSeats: r.bookings.filter((b: any) => b.status === 'HELD' || b.status === 'PENDING').length,
-      bookings: undefined // Remove detailed bookings if not needed to keep response clean
+      soldSeats: r.bookings.filter(
+        (b: any) => b.status === "CONFIRMED" || b.status === "COMPLETED",
+      ).length,
+      heldSeats: r.bookings.filter(
+        (b: any) => b.status === "HELD" || b.status === "PENDING",
+      ).length,
+      bookings: undefined, // Remove detailed bookings if not needed to keep response clean
     }));
-    
+
     return { routes: mappedRoutes, total, page, limit };
   }
 
   async findOne(id: string) {
     const route = await this.prisma.route.findUnique({ where: { id } });
-    if (!route) throw new NotFoundException('Route not found');
+    if (!route) throw new NotFoundException("Route not found");
     return route;
   }
 
@@ -101,7 +112,7 @@ export class RoutesService {
       }
     }
     if (dto.arrivalDate !== undefined) {
-      if (dto.arrivalDate === '' || dto.arrivalDate === null) {
+      if (dto.arrivalDate === "" || dto.arrivalDate === null) {
         updateData.arrivalDate = null;
       } else {
         const date = new Date(dto.arrivalDate);

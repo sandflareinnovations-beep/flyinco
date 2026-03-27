@@ -1,19 +1,19 @@
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { PrismaModule } from './prisma/prisma.module';
-import { RoutesModule } from './routes/routes.module';
-import { BookingsModule } from './bookings/bookings.module';
-import { UsersModule } from './users/users.module';
-import { AuthModule } from './auth/auth.module';
-import { MailModule } from './mail/mail.module';
-import { MailService } from './mail/mail.service';
-import { AnnouncementsModule } from './announcements/announcements.module';
-import { PaymentsModule } from './payments/payments.module';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { BackupService } from './common/backup.service';
-import { SecurityLoggerMiddleware } from './common/middleware/security-logger.middleware';
+import { Module, NestModule, MiddlewareConsumer } from "@nestjs/common";
+import { APP_GUARD } from "@nestjs/core";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
+import { PrismaModule } from "./prisma/prisma.module";
+import { RoutesModule } from "./routes/routes.module";
+import { BookingsModule } from "./bookings/bookings.module";
+import { UsersModule } from "./users/users.module";
+import { AuthModule } from "./auth/auth.module";
+import { MailModule } from "./mail/mail.module";
+import { MailService } from "./mail/mail.service";
+import { AnnouncementsModule } from "./announcements/announcements.module";
+import { PaymentsModule } from "./payments/payments.module";
+import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
+import { BackupService } from "./common/backup.service";
+import { SecurityLoggerMiddleware } from "./common/middleware/security-logger.middleware";
 
 @Module({
   imports: [
@@ -27,17 +27,17 @@ import { SecurityLoggerMiddleware } from './common/middleware/security-logger.mi
     PaymentsModule,
     ThrottlerModule.forRoot([
       {
-        name: 'short',
+        name: "short",
         ttl: 1000,
         limit: 3,
       },
       {
-        name: 'medium',
+        name: "medium",
         ttl: 10000,
         limit: 20,
       },
       {
-        name: 'long',
+        name: "long",
         ttl: 60000,
         limit: 100,
       },
@@ -45,7 +45,7 @@ import { SecurityLoggerMiddleware } from './common/middleware/security-logger.mi
   ],
   controllers: [AppController],
   providers: [
-    AppService, 
+    AppService,
     BackupService,
     {
       provide: APP_GUARD,
@@ -55,6 +55,6 @@ import { SecurityLoggerMiddleware } from './common/middleware/security-logger.mi
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(SecurityLoggerMiddleware).forRoutes('*');
+    consumer.apply(SecurityLoggerMiddleware).forRoutes("*");
   }
 }

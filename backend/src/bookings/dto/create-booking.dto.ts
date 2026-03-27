@@ -1,4 +1,11 @@
-import { IsString, IsEmail, IsOptional, IsNumber, IsDateString, IsISO8601 } from 'class-validator';
+import {
+  IsString,
+  IsEmail,
+  IsOptional,
+  IsNumber,
+  IsDateString,
+  IsISO8601,
+} from "class-validator";
 
 export class CreateBookingDto {
   @IsString()
