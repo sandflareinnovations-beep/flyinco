@@ -401,6 +401,8 @@ export default function Home() {
                     e.currentTarget.style.boxShadow = `0 8px 24px ${B.primary}55`;
                   }}
                 >
+                  <PiMagnifyingGlass size={20} />
+                  <span>SEARCH</span>
                 </button>
               </div>
               ) : sectorsLoading ? (
@@ -422,7 +424,7 @@ export default function Home() {
                     </div>
                   </div>
                   <div style={{ flex: "0 0 140px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <div style={{ width: "100%", height: 48, background: `${B.primary}22`, borderRadius: 14 }} />
+                    <div style={{ width: "100%", height: 72, background: `${B.primary}22`, borderRadius: 14 }} />
                   </div>
                 </div>
               ) : (
