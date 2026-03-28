@@ -112,8 +112,10 @@ function LoginContent() {
 
             const target: "admin" | "dashboard" = data.user.role === "ADMIN" ? "admin" : "dashboard";
 
-            // Use window.location.href for absolute certainty on cookie propagation
-            window.location.href = `/${target}`;
+            // Show redirect overlay first, then navigate after animation renders
+            setRedirectTarget(target);
+            setRedirecting(true);
+            setTimeout(() => { window.location.href = `/${target}`; }, 300);
         } catch (error: any) {
             setIsLoading(false);
             toast({ title: "Login Failed", description: error.message, variant: "destructive" });

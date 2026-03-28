@@ -1,15 +1,15 @@
 "use client";
-import { PiShieldCheck, PiAirplaneTilt, PiClock, PiBriefcase, PiArrowRight, PiCaretRight, PiCaretDown, PiMagnifyingGlass, PiDownloadSimple, PiAirplaneTakeoff, PiAirplaneLanding, PiCalendarBlank } from "react-icons/pi";
+import { PiShieldCheck, PiAirplaneTilt, PiClock, PiBriefcase, PiArrowRight, PiCaretRight, PiCaretDown, PiMagnifyingGlass, PiDownloadSimple, PiAirplaneTakeoff, PiAirplaneLanding, PiCalendarBlank, PiUsers, PiLightning, PiLock, PiKey, PiCheckCircle, PiGlobe } from "react-icons/pi";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { BookingReceipt } from "@/components/admin/booking-receipt";
 
 // ── Flyinco Brand ──
-const B = { primary: "#2E0A57", accent: "#6C2BD9", light: "#EDE9FE" };
+const B = { primary: "#0A0E1A", accent: "#7C3AED", light: "rgba(124,58,237,0.12)" };
+const GRADIENT = "linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)";
 
 const ROUTE = {
   from: { code: "RUH", city: "Riyadh", country: "Saudi Arabia" },
@@ -28,13 +28,13 @@ const ROUTE = {
   arrivalTime: "18:50 PM",
 };
 
-function Pill({ children, bg = B.light, color = B.primary }: any) {
+function Pill({ children, bg = B.light, color = "#C084FC" }: any) {
   return (
     <span style={{
       background: bg, color, fontSize: 11, fontWeight: 700,
-      padding: "4px 12px", borderRadius: 999,
-      display: "inline-flex", alignItems: "center", gap: 5,
-      letterSpacing: "0.02em", border: `1px solid ${color}22`
+      padding: "4px 14px 4px 8px", borderRadius: 999,
+      display: "inline-flex", alignItems: "center", gap: 6,
+      letterSpacing: "0.02em", border: "1px solid rgba(124,58,237,0.3)"
     }}>
       {children}
     </span>
@@ -73,7 +73,7 @@ export default function Home() {
     if (openSectors.length > 0 && !selectedSector) {
       setSelectedSector(openSectors[0]);
     }
-  }, [openSectors.length]);
+  }, [openSectors, selectedSector]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -108,7 +108,7 @@ export default function Home() {
   } : null;
 
   return (
-    <div style={{ fontFamily: "'Inter', sans-serif", background: "#fff", minHeight: "100vh" }}>
+    <div style={{ fontFamily: "'Inter', sans-serif", background: "#0A0E1A", minHeight: "100vh" }}>
 
       {/* ═══════════════════════════════════════════
                 HERO — full viewport with layered depth
@@ -124,17 +124,17 @@ export default function Home() {
             background: `
                             linear-gradient(
                                 135deg,
-                                rgba(46,10,87,0.90) 0%,
-                                rgba(46,10,87,0.75) 40%,
-                                rgba(108,43,217,0.55) 75%,
-                                rgba(46,10,87,0.85) 100%
+                                rgba(10,14,26,0.88) 0%,
+                                rgba(10,14,26,0.70) 40%,
+                                rgba(124,58,237,0.45) 75%,
+                                rgba(10,14,26,0.82) 100%
                             )
                         `
           }} />
-          {/* Bottom fade to white for section transition */}
+          {/* Bottom fade to dark for section transition */}
           <div style={{
             position: "absolute", bottom: 0, left: 0, right: 0, height: 160,
-            background: "linear-gradient(to bottom, transparent, rgba(255,255,255,0.08) 60%, rgba(255,255,255,0.35) 100%)"
+            background: "linear-gradient(to bottom, transparent, rgba(10,14,26,0.4) 60%, #0A0E1A 100%)"
           }} />
         </div>
 
@@ -157,8 +157,8 @@ export default function Home() {
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
             <div style={{
               display: "inline-flex", alignItems: "center", gap: 8,
-              background: "rgba(255,255,255,0.12)", backdropFilter: "blur(12px)",
-              border: "1px solid rgba(255,255,255,0.22)", borderRadius: 999,
+              background: "rgba(124,58,237,0.22)", backdropFilter: "blur(12px)",
+              border: "1px solid rgba(124,58,237,0.45)", borderRadius: 999,
               padding: "6px 16px 6px 10px", marginBottom: 28
             }}>
               <span style={{
@@ -166,9 +166,9 @@ export default function Home() {
                 width: 8, height: 8, display: "inline-block"
               }} />
               <span style={{ color: "rgba(255,255,255,0.92)", fontSize: 12, fontWeight: 600, letterSpacing: "0.04em" }}>
-                {openSectors.length > 0 
-                  ? `BEST FARES AVAILABLE NOW — ${openSectors[0].originCode} → ${openSectors[0].destinationCode}`
-                  : "EXCLUSIVE AGENCY FARES AVAILABLE"}
+                {openSectors.length > 0
+                  ? `CHARTER FLIGHT OPEN · ${openSectors[0].originCode} → ${openSectors[0].destinationCode}`
+                  : "CHARTERED FLIGHTS PORTAL"}
               </span>
             </div>
           </motion.div>
@@ -180,29 +180,29 @@ export default function Home() {
               color: "#ffffff", lineHeight: 1.06, letterSpacing: "-0.04em",
               marginBottom: 20, maxWidth: 700
             }}>
-              Find the Best<br />
-              <span style={{ color: "#C4B5FD" }}>Flight Deals</span>
+              Your Gateway to<br />
+              <span style={{ color: "#C4B5FD" }}>Chartered Flights</span>
             </h1>
             <p style={{
               fontSize: "clamp(15px, 2vw, 19px)", color: "rgba(255,255,255,0.72)",
               marginBottom: 48, maxWidth: 520, lineHeight: 1.6, fontWeight: 400
             }}>
-              {openSectors.length > 0 
-                ? `Fly from ${openSectors[0].originCity} to ${openSectors[0].destinationCity} with exclusive agency fares — limited seats, unbeatable prices.`
-                : "Fly to your favorite destinations with exclusive agency fares — limited seats, unbeatable prices."}
+              {openSectors.length > 0
+                ? `Charter seats from ${openSectors[0].originCity} to ${openSectors[0].destinationCity}. Exclusive block fares, agency-only pricing, instant confirmation.`
+                : "Access exclusive chartered flight blocks with agency-only pricing, guaranteed seats and instant confirmation."}
             </p>
           </motion.div>
 
           {/* ── PiMagnifyingGlass Card ── */}
           <motion.div initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }}>
             <div style={{
-              background: "rgba(255,255,255,0.97)",
+              background: "rgba(255,255,255,0.06)",
               backdropFilter: "blur(24px)",
-              borderRadius: 20,
+              borderRadius: 24,
               padding: "6px",
-              boxShadow: "0 32px 80px rgba(46,10,87,0.35), 0 8px 24px rgba(0,0,0,0.15)",
+              boxShadow: "0 32px 80px rgba(0,0,0,0.5), 0 8px 24px rgba(124,58,237,0.25)",
               maxWidth: 820,
-              border: "1px solid rgba(255,255,255,0.8)",
+              border: "1px solid rgba(255,255,255,0.12)",
               position: "relative",
             }}>
               {dynamicRoute ? (
@@ -218,27 +218,27 @@ export default function Home() {
                     onClick={() => setDropdownOpen(o => !o)}
                     style={{
                       flex: 1, padding: "16px 20px", borderRadius: 14,
-                      background: dropdownOpen ? B.light : "#F9FAFB",
+                      background: dropdownOpen ? "rgba(124,58,237,0.15)" : "rgba(255,255,255,0.07)",
                       cursor: "pointer",
-                      border: dropdownOpen ? `2px solid ${B.accent}` : "2px solid transparent",
+                      border: dropdownOpen ? "2px solid #7C3AED" : "2px solid rgba(255,255,255,0.08)",
                       transition: "all 0.15s ease",
                     }}
                   >
-                    <div style={{ fontSize: 10, fontWeight: 800, color: "#9CA3AF", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 6, display: "flex", alignItems: "center", gap: 4 }}>
-                      <PiAirplaneTakeoff size={13} color="#9CA3AF" /> FROM
+                    <div style={{ fontSize: 10, fontWeight: 800, color: "#94A3B8", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 6, display: "flex", alignItems: "center", gap: 4 }}>
+                      <PiAirplaneTakeoff size={13} color="rgba(255,255,255,0.7)" /> FROM
                     </div>
-                    <div style={{ fontSize: 24, fontWeight: 900, color: "#111827", letterSpacing: "-0.04em" }}>
+                    <div style={{ fontSize: 24, fontWeight: 900, color: "#FFFFFF", letterSpacing: "-0.04em" }}>
                       {dynamicRoute.from.code}
                     </div>
-                    <div style={{ fontSize: 12, color: "#6B7280", fontWeight: 500, marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
-                      {dynamicRoute.from.city} <PiCaretDown size={12} color={B.accent} />
+                    <div style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500, marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
+                      {dynamicRoute.from.city} <PiCaretDown size={12} color="rgba(255,255,255,0.6)" />
                     </div>
                   </div>
 
                   {/* Arrow */}
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, padding: "0 2px" }}>
-                    <div style={{ width: 24, height: 24, borderRadius: "50%", border: "1.5px solid #E5E7EB", display: "flex", alignItems: "center", justifyContent: "center", background: "white" }}>
-                      <PiArrowRight size={11} color="#9CA3AF" />
+                    <div style={{ width: 24, height: 24, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.05)" }}>
+                      <PiArrowRight size={11} color="rgba(255,255,255,0.7)" />
                     </div>
                   </div>
 
@@ -247,20 +247,20 @@ export default function Home() {
                     onClick={() => setDropdownOpen(o => !o)}
                     style={{
                       flex: 1, padding: "16px 20px", borderRadius: 14,
-                      background: dropdownOpen ? B.light : "#F9FAFB",
+                      background: dropdownOpen ? "rgba(124,58,237,0.15)" : "rgba(255,255,255,0.07)",
                       cursor: "pointer",
-                      border: dropdownOpen ? `2px solid ${B.accent}` : "2px solid transparent",
+                      border: dropdownOpen ? "2px solid #7C3AED" : "2px solid rgba(255,255,255,0.08)",
                       transition: "all 0.15s ease",
                     }}
                   >
-                    <div style={{ fontSize: 10, fontWeight: 800, color: "#9CA3AF", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 6, display: "flex", alignItems: "center", gap: 4 }}>
-                      <PiAirplaneLanding size={13} color="#9CA3AF" /> TO
+                    <div style={{ fontSize: 10, fontWeight: 800, color: "#94A3B8", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 6, display: "flex", alignItems: "center", gap: 4 }}>
+                      <PiAirplaneLanding size={13} color="rgba(255,255,255,0.7)" /> TO
                     </div>
-                    <div style={{ fontSize: 24, fontWeight: 900, color: "#111827", letterSpacing: "-0.04em" }}>
+                    <div style={{ fontSize: 24, fontWeight: 900, color: "#FFFFFF", letterSpacing: "-0.04em" }}>
                       {dynamicRoute.to.code}
                     </div>
-                    <div style={{ fontSize: 12, color: "#6B7280", fontWeight: 500, marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
-                      {dynamicRoute.to.city} <PiCaretDown size={12} color={B.accent} />
+                    <div style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500, marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
+                      {dynamicRoute.to.city} <PiCaretDown size={12} color="rgba(255,255,255,0.6)" />
                     </div>
                   </div>
 
@@ -274,20 +274,20 @@ export default function Home() {
                         transition={{ duration: 0.18 }}
                         style={{
                           position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0,
-                          background: "#fff",
+                          background: "#1a1f35",
                           borderRadius: 18,
-                          boxShadow: "0 20px 60px rgba(46,10,87,0.18), 0 4px 16px rgba(0,0,0,0.08)",
-                          border: `1px solid ${B.accent}33`,
+                          boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
+                          border: "1px solid rgba(124,58,237,0.3)",
                           overflow: "hidden",
                           zIndex: 100,
                         }}
                       >
                         {/* Dropdown Header */}
-                        <div style={{ padding: "14px 20px 10px", borderBottom: "1px solid #F3F0FF" }}>
+                        <div style={{ padding: "14px 20px 10px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                            <PiMagnifyingGlass size={14} color={B.accent} />
-                            <span style={{ fontWeight: 800, fontSize: 13, color: B.primary }}>Available Routes</span>
-                            <span style={{ fontSize: 11, color: "#9CA3AF", marginLeft: "auto" }}>{openSectors.length} route{openSectors.length !== 1 ? "s" : ""}</span>
+                            <PiMagnifyingGlass size={14} color="rgba(255,255,255,0.8)" />
+                            <span style={{ fontWeight: 800, fontSize: 13, color: "#E2E8F0" }}>Charter Routes</span>
+                            <span style={{ fontSize: 11, color: "#9CA3AF", marginLeft: "auto" }}>{openSectors.length} flight{openSectors.length !== 1 ? "s" : ""} open</span>
                           </div>
                         </div>
 
@@ -306,35 +306,35 @@ export default function Home() {
                                   style={{
                                     padding: "14px 20px",
                                     cursor: "pointer",
-                                    background: isSelected ? "#F3F0FF" : "#fff",
-                                    borderBottom: i < openSectors.length - 1 ? "1px solid #F9F8FF" : "none",
+                                    background: isSelected ? "rgba(124,58,237,0.15)" : "transparent",
+                                    borderBottom: i < openSectors.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
                                     transition: "background 0.12s ease",
                                     display: "flex", alignItems: "center", gap: 14,
                                   }}
-                                  onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = "#FAFAFA"; }}
-                                  onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = "#fff"; }}
+                                  onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.05)"; }}
+                                  onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = "transparent"; }}
                                 >
                                   {/* Airline logo */}
-                                  <div style={{ width: 40, height: 40, borderRadius: 10, background: "#F3F0FF", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flexShrink: 0 }}>
+                                  <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(124,58,237,0.15)", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flexShrink: 0 }}>
                                     {s.airlineLogo ? (
                                       // eslint-disable-next-line @next/next/no-img-element
                                       <img src={s.airlineLogo} alt={s.airline} width={32} height={32} style={{ objectFit: "contain" }} />
                                     ) : (
-                                      <PiAirplaneTilt size={18} color={B.accent} />
+                                      <PiAirplaneTilt size={18} color="rgba(255,255,255,0.85)" />
                                     )}
                                   </div>
 
                                   {/* Route info */}
                                   <div style={{ flex: 1, minWidth: 0 }}>
                                     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
-                                      <span style={{ fontWeight: 900, fontSize: 16, color: B.primary, letterSpacing: "-0.03em" }}>{s.originCode}</span>
-                                      <PiArrowRight size={12} color="#C4B5FD" />
-                                      <span style={{ fontWeight: 900, fontSize: 16, color: B.primary, letterSpacing: "-0.03em" }}>{s.destinationCode}</span>
+                                      <span style={{ fontWeight: 900, fontSize: 16, color: "#FFFFFF", letterSpacing: "-0.03em" }}>{s.originCode}</span>
+                                      <PiArrowRight size={12} color="rgba(255,255,255,0.5)" />
+                                      <span style={{ fontWeight: 900, fontSize: 16, color: "#FFFFFF", letterSpacing: "-0.03em" }}>{s.destinationCode}</span>
                                       {isSelected && (
-                                        <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, color: B.accent, background: "#EDE9FE", padding: "2px 8px", borderRadius: 999 }}>Selected</span>
+                                        <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, color: "#A78BFA", background: "rgba(124,58,237,0.2)", padding: "2px 8px", borderRadius: 999 }}>Selected</span>
                                       )}
                                     </div>
-                                    <div style={{ fontSize: 11, color: "#6B7280", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                                    <div style={{ fontSize: 11, color: "#94A3B8", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                                       <span>{s.originCity} → {s.destinationCity}</span>
                                       <span style={{display: "flex", alignItems:"center", gap:3}}><PiCalendarBlank size={12}/> {s.departureDate && new Date(s.departureDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
                                       <span style={{display: "flex", alignItems:"center", gap:3}}><PiAirplaneTilt size={12}/> {s.airline} ({s.flightNumber})</span>
@@ -344,8 +344,8 @@ export default function Home() {
 
                                   {/* Price */}
                                   <div style={{ textAlign: "right", flexShrink: 0 }}>
-                                    <div style={{ fontWeight: 900, fontSize: 18, color: B.primary, letterSpacing: "-0.03em" }}>SAR {s.price.toLocaleString()}</div>
-                                    <div style={{ fontSize: 10, color: "#9CA3AF", fontWeight: 500 }}>{s.remainingSeats} seats left</div>
+                                    <div style={{ fontWeight: 900, fontSize: 18, color: "#C084FC", letterSpacing: "-0.03em" }}>SAR {s.price.toLocaleString()}</div>
+                                    <div style={{ fontSize: 10, color: "#94A3B8", fontWeight: 500 }}>{s.remainingSeats} seats left</div>
                                   </div>
                                 </div>
                               );
@@ -360,20 +360,20 @@ export default function Home() {
                 {/* DATE */}
                 <div style={{
                   flex: "1 1 160px", padding: "16px 20px",
-                  background: "#FEF3C7",
+                  background: "rgba(124,58,237,0.15)",
                   borderRadius: 14,
                   cursor: "default",
-                  border: "2px solid #F59E0B",
-                  boxShadow: "0 8px 16px rgba(245, 158, 11, 0.2)"
+                  border: "2px solid #7C3AED",
+                  boxShadow: "0 8px 16px rgba(124,58,237,0.25)"
                 }}>
-                  <div style={{ fontSize: 10, fontWeight: 900, color: "#D97706", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 6, display: "flex", alignItems: "center", gap: 4 }}>
-                    <PiCalendarBlank size={13} color="#D97706" /> TRAVEL DATE
+                  <div style={{ fontSize: 10, fontWeight: 900, color: "#A78BFA", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 6, display: "flex", alignItems: "center", gap: 4 }}>
+                    <PiCalendarBlank size={13} color="rgba(255,255,255,0.8)" /> TRAVEL DATE
                   </div>
-                  <div style={{ fontSize: 24, fontWeight: 900, color: "#92400E", letterSpacing: "-0.04em" }}>
+                  <div style={{ fontSize: 24, fontWeight: 900, color: "#FFFFFF", letterSpacing: "-0.04em" }}>
                     {activeSector?.departureDate ? activeSector.departureDate.split(" ").slice(0, 2).join(" ") : "09 March"}
                   </div>
-                  <div style={{ fontSize: 12, color: "#B45309", marginTop: 2, fontWeight: 700 }}>
-                    {activeSector?.departureDate ? activeSector.departureDate.split(" ").slice(2).join(" ") : "2026"} · <span style={{ background: "#FDE68A", padding: "2px 6px", borderRadius: 4 }}>One way</span>
+                  <div style={{ fontSize: 12, color: "#94A3B8", marginTop: 2, fontWeight: 700 }}>
+                    {activeSector?.departureDate ? activeSector.departureDate.split(" ").slice(2).join(" ") : "2026"} · <span style={{ background: "rgba(124,58,237,0.25)", color: "#C084FC", padding: "2px 6px", borderRadius: 4 }}>One way</span>
                   </div>
                 </div>
 
@@ -382,23 +382,23 @@ export default function Home() {
                   onClick={() => router.push(`/routes/${activeSector ? activeSector.id : "ruh-cok"}/flights`)}
                   style={{
                     flex: "0 0 auto",
-                    background: `linear-gradient(135deg, ${B.primary} 0%, ${B.accent} 100%)`,
+                    background: GRADIENT,
                     color: "white", border: "none", borderRadius: 14,
                     padding: "0 32px", cursor: "pointer",
                     fontWeight: 800, fontSize: 15, letterSpacing: "-0.01em",
                     display: "flex", alignItems: "center", gap: 8,
                     transition: "all 0.2s ease",
                     minWidth: 140, justifyContent: "center",
-                    boxShadow: `0 8px 24px ${B.primary}55`,
+                    boxShadow: "0 8px 24px rgba(124,58,237,0.45)",
                     minHeight: 72,
                   }}
                   onMouseEnter={e => {
                     e.currentTarget.style.transform = "translateY(-1px)";
-                    e.currentTarget.style.boxShadow = `0 12px 32px ${B.primary}70`;
+                    e.currentTarget.style.boxShadow = "0 12px 32px rgba(124,58,237,0.65)";
                   }}
                   onMouseLeave={e => {
                     e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = `0 8px 24px ${B.primary}55`;
+                    e.currentTarget.style.boxShadow = "0 8px 24px rgba(124,58,237,0.45)";
                   }}
                 >
                   <PiMagnifyingGlass size={20} />
@@ -409,57 +409,67 @@ export default function Home() {
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 4, padding: "6px" }}>
                   {/* Loading skeleton for search card */}
                   <div style={{ flex: "1 1 320px", display: "flex", gap: 4 }}>
-                    <div style={{ flex: 1, padding: "16px 20px", borderRadius: 14, background: "#F9FAFB" }}>
-                      <div style={{ width: 40, height: 10, background: "#E5E7EB", borderRadius: 4, marginBottom: 8 }} />
-                      <div style={{ width: 60, height: 24, background: "#E5E7EB", borderRadius: 6, marginBottom: 4 }} />
-                      <div style={{ width: 80, height: 12, background: "#E5E7EB", borderRadius: 4 }} />
+                    <div style={{ flex: 1, padding: "16px 20px", borderRadius: 14, background: "rgba(255,255,255,0.07)" }}>
+                      <div style={{ width: 40, height: 10, background: "rgba(255,255,255,0.08)", borderRadius: 4, marginBottom: 8 }} />
+                      <div style={{ width: 60, height: 24, background: "rgba(255,255,255,0.08)", borderRadius: 6, marginBottom: 4 }} />
+                      <div style={{ width: 80, height: 12, background: "rgba(255,255,255,0.08)", borderRadius: 4 }} />
                     </div>
                     <div style={{ display: "flex", alignItems: "center", padding: "0 2px" }}>
-                      <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#E5E7EB" }} />
+                      <div style={{ width: 24, height: 24, borderRadius: "50%", background: "rgba(255,255,255,0.08)" }} />
                     </div>
-                    <div style={{ flex: 1, padding: "16px 20px", borderRadius: 14, background: "#F9FAFB" }}>
-                      <div style={{ width: 40, height: 10, background: "#E5E7EB", borderRadius: 4, marginBottom: 8 }} />
-                      <div style={{ width: 60, height: 24, background: "#E5E7EB", borderRadius: 6, marginBottom: 4 }} />
-                      <div style={{ width: 80, height: 12, background: "#E5E7EB", borderRadius: 4 }} />
+                    <div style={{ flex: 1, padding: "16px 20px", borderRadius: 14, background: "rgba(255,255,255,0.07)" }}>
+                      <div style={{ width: 40, height: 10, background: "rgba(255,255,255,0.08)", borderRadius: 4, marginBottom: 8 }} />
+                      <div style={{ width: 60, height: 24, background: "rgba(255,255,255,0.08)", borderRadius: 6, marginBottom: 4 }} />
+                      <div style={{ width: 80, height: 12, background: "rgba(255,255,255,0.08)", borderRadius: 4 }} />
                     </div>
                   </div>
                   <div style={{ flex: "0 0 140px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <div style={{ width: "100%", height: 72, background: `${B.primary}22`, borderRadius: 14 }} />
+                    <div style={{ width: "100%", height: 72, background: "rgba(124,58,237,0.2)", borderRadius: 14 }} />
                   </div>
                 </div>
               ) : (
                 <div style={{ padding: "40px 20px", textAlign: "center" }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: B.primary, marginBottom: 4, letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                    Status Update
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#A78BFA", marginBottom: 4, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                    Charter Status
                   </div>
-                  <div style={{ fontSize: 24, fontWeight: 900, color: "#111827", letterSpacing: "-0.02em" }}>
-                    Currently No Routes Available
+                  <div style={{ fontSize: 24, fontWeight: 900, color: "#FFFFFF", letterSpacing: "-0.02em" }}>
+                    No Charter Flights Open
                   </div>
-                  <div style={{ fontSize: 14, color: "#6B7280", marginTop: 8, maxWidth: 400, margin: "8px auto 0" }}>
-                    All flights are currently sold out or closed. Please check back later or contact us for special inquiries.
+                  <div style={{ fontSize: 14, color: "#94A3B8", marginTop: 8, maxWidth: 400, margin: "8px auto 0" }}>
+                    No charter blocks are available right now. Contact us for group bookings or check back soon for new routes.
                   </div>
                 </div>
               )}
 
               {/* Route notice */}
-              <p style={{ textAlign: "center", fontSize: 11, color: "#9CA3AF", padding: "10px 20px 12px", fontWeight: 500, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                <PiAirplaneTilt size={14} /> {openSectors.length > 0
-                  ? <>{openSectors.length} route{openSectors.length > 1 ? "s" : ""} available · Click <strong style={{ color: B.primary }}>FROM / TO</strong> to browse all</>
-                  : <>Fares available for <strong style={{ color: B.primary }}>Riyadh (RUH) → Cochin (COK)</strong> · More routes coming soon</>}
+              <p style={{ textAlign: "center", fontSize: 11, color: "#64748B", padding: "10px 20px 12px", fontWeight: 500, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                <PiAirplaneTilt size={14} color="rgba(255,255,255,0.6)" /> {openSectors.length > 0
+                  ? <>{openSectors.length} charter route{openSectors.length > 1 ? "s" : ""} open · Click <strong style={{ color: "#A78BFA" }}>FROM / TO</strong> to select</>
+                  : <>Charter route: <strong style={{ color: "#A78BFA" }}>Riyadh (RUH) → Cochin (COK)</strong> · More routes coming soon</>}
               </p>
             </div>
           </motion.div>
 
           {/* Trust signals */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px 28px", marginTop: 36 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "12px 28px", marginTop: 36 }}>
               {[
-                { label: "4.9/5 Rated Agency", icon: <PiShieldCheck size={13} color="#FBBF24" /> },
-                { label: "Instant Approval", icon: <PiShieldCheck size={13} color="#86EFAC" /> },
-                { label: "Verified B2B Fares", icon: <PiShieldCheck size={13} color="#93C5FD" /> },
-              ].map(({ label, icon }) => (
-                <div key={label} style={{ display: "flex", alignItems: "center", gap: 7, color: "rgba(255,255,255,0.80)", fontSize: 13, fontWeight: 500 }}>
-                  {icon} {label}
+                { label: "Group Bookings Welcome", Icon: PiUsers },
+                { label: "Instant Confirmation", Icon: PiLightning },
+                { label: "Verified Charter Rates", Icon: PiShieldCheck },
+              ].map(({ label, Icon }) => (
+                <div key={label} style={{ display: "flex", alignItems: "center", gap: 9, color: "rgba(255,255,255,0.85)", fontSize: 13, fontWeight: 500 }}>
+                  <div style={{
+                    width: 28, height: 28, borderRadius: "50%",
+                    background: "rgba(255,255,255,0.08)",
+                    border: "1px solid rgba(255,255,255,0.18)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    boxShadow: "0 0 10px rgba(255,255,255,0.08)",
+                    flexShrink: 0,
+                  }}>
+                    <Icon size={14} color="rgba(255,255,255,0.9)" />
+                  </div>
+                  {label}
                 </div>
               ))}
             </div>
@@ -470,17 +480,25 @@ export default function Home() {
       {/* ═══════════════════════════════════════════
                 FEATURE BAR
             ═══════════════════════════════════════════ */}
-      <section style={{ background: "#fff", borderTop: "1px solid #F3F0FF", borderBottom: "1px solid #F3F0FF" }}>
+      <section style={{ background: "rgba(255,255,255,0.03)", borderTop: "1px solid rgba(255,255,255,0.06)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "22px 24px" }}>
-          <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: "16px 48px" }}>
+          <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: "16px 44px" }}>
             {[
-              { Icon: PiShieldCheck, label: "Verified Best Fares", color: "#10B981" },
-              { Icon: PiAirplaneTilt, label: "Direct & 1-Stop Options", color: B.accent },
-              { Icon: PiShieldCheck, label: "Instant Approval", color: "#F59E0B" },
-              { Icon: PiBriefcase, label: "Corporate B2B Rates", color: "#3B82F6" },
-            ].map(({ Icon, label, color }) => (
-              <div key={label} style={{ display: "flex", alignItems: "center", gap: 9, color: "#374151", fontSize: 13, fontWeight: 600 }}>
-                <Icon size={16} color={color} />
+              { Icon: PiCheckCircle, label: "Guaranteed Block Seats", favicon: false },
+              { Icon: PiAirplaneTilt, label: "Charter & Group Bookings", favicon: true },
+              { Icon: PiLightning, label: "Instant Confirmation", favicon: false },
+              { Icon: PiKey, label: "Agency-Only Pricing", favicon: false },
+            ].map(({ Icon, label, favicon }) => (
+              <div key={label} style={{ display: "flex", alignItems: "center", gap: 8, color: "#E2E8F0", fontSize: 13, fontWeight: 600 }}>
+                <div style={{
+                  width: 26, height: 26, borderRadius: 8,
+                  background: favicon ? "rgba(124,58,237,0.18)" : "rgba(255,255,255,0.07)",
+                  border: favicon ? "1px solid rgba(124,58,237,0.35)" : "1px solid rgba(255,255,255,0.12)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: favicon ? "0 0 10px rgba(124,58,237,0.2)" : "0 0 8px rgba(255,255,255,0.06)",
+                }}>
+                  <Icon size={14} color="rgba(255,255,255,0.85)" />
+                </div>
                 {label}
               </div>
             ))}
@@ -491,7 +509,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════
                 ALL AVAILABLE FARE CARDS
             ═══════════════════════════════════════════ */}
-      <section style={{ background: "#F7F7FB", padding: "72px 24px" }}>
+      <section style={{ background: "#0D1120", padding: "72px 24px" }}>
         <div style={{ maxWidth: 1120, margin: "0 auto" }}>
 
           {/* Section header */}
@@ -500,16 +518,16 @@ export default function Home() {
             viewport={{ once: true }} transition={{ duration: 0.4 }}
             style={{ textAlign: "center", marginBottom: 48 }}
           >
-            <Pill>{openSectors.length > 0 ? `${openSectors.length} Available Route${openSectors.length > 1 ? "s" : ""}` : "Limited Time Offer"}</Pill>
+            <Pill>{openSectors.length > 0 ? `${openSectors.length} Charter Flight${openSectors.length > 1 ? "s" : ""} Open` : "Charter Flights Portal"}</Pill>
             <h2 style={{
               fontSize: "clamp(24px, 4vw, 36px)", fontWeight: 900,
-              color: "#0F0A1A", letterSpacing: "-0.04em",
+              color: "#FFFFFF", letterSpacing: "-0.04em",
               marginTop: 14, marginBottom: 8
             }}>
-              Featured Routes
+              Available Charter Flights
             </h2>
-            <p style={{ color: "#6B7280", fontSize: 15 }}>
-              Exclusive fares. Unbeatable prices. Book before seats run out.
+            <p style={{ color: "#94A3B8", fontSize: 15 }}>
+              Block-seat charters with agency-only pricing. Secure your seats before they close.
             </p>
           </motion.div>
 
@@ -518,25 +536,25 @@ export default function Home() {
             <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 860, margin: "0 auto 48px" }}>
               {[1, 2].map((i) => (
                 <div key={i} style={{
-                  background: "#F9FAFB", borderRadius: 4, border: "1px solid #E5E7EB",
+                  background: "rgba(255,255,255,0.04)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)",
                   padding: "24px 22px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16
                 }}>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 100 }}>
-                    <div style={{ width: 60, height: 40, background: "#E5E7EB", borderRadius: 8, marginBottom: 8 }} />
-                    <div style={{ width: 80, height: 12, background: "#E5E7EB", borderRadius: 4 }} />
+                    <div style={{ width: 60, height: 40, background: "rgba(255,255,255,0.08)", borderRadius: 8, marginBottom: 8 }} />
+                    <div style={{ width: 80, height: 12, background: "rgba(255,255,255,0.08)", borderRadius: 4 }} />
                   </div>
                   <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 20 }}>
                     <div>
-                      <div style={{ width: 100, height: 12, background: "#E5E7EB", borderRadius: 4, marginBottom: 8 }} />
-                      <div style={{ width: 70, height: 28, background: "#E5E7EB", borderRadius: 6 }} />
+                      <div style={{ width: 100, height: 12, background: "rgba(255,255,255,0.08)", borderRadius: 4, marginBottom: 8 }} />
+                      <div style={{ width: 70, height: 28, background: "rgba(255,255,255,0.08)", borderRadius: 6 }} />
                     </div>
-                    <div style={{ width: 60, height: 2, background: "#E5E7EB" }} />
+                    <div style={{ width: 60, height: 2, background: "rgba(255,255,255,0.08)" }} />
                     <div>
-                      <div style={{ width: 100, height: 12, background: "#E5E7EB", borderRadius: 4, marginBottom: 8 }} />
-                      <div style={{ width: 70, height: 28, background: "#E5E7EB", borderRadius: 6 }} />
+                      <div style={{ width: 100, height: 12, background: "rgba(255,255,255,0.08)", borderRadius: 4, marginBottom: 8 }} />
+                      <div style={{ width: 70, height: 28, background: "rgba(255,255,255,0.08)", borderRadius: 6 }} />
                     </div>
                   </div>
-                  <div style={{ width: 80, height: 32, background: "#E5E7EB", borderRadius: 6 }} />
+                  <div style={{ width: 80, height: 32, background: "rgba(255,255,255,0.08)", borderRadius: 6 }} />
                 </div>
               ))}
             </div>
@@ -551,28 +569,39 @@ export default function Home() {
                   initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }} transition={{ delay: idx * 0.08, duration: 0.4 }}
                 >
-                  <div style={{
-                    background: "#F9FAFB",
-                    borderRadius: 4,
-                    border: "1px solid #E5E7EB",
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-                    position: "relative",
-                    padding: "16px 22px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 12
-                  }}>
+                  <div
+                    style={{
+                      background: "rgba(255,255,255,0.04)",
+                      borderRadius: 16,
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      boxShadow: "none",
+                      position: "relative",
+                      padding: "16px 22px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 12,
+                      transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                    }}
+                    onMouseEnter={e => {
+                      (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)";
+                      (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 32px rgba(124,58,237,0.25)";
+                    }}
+                    onMouseLeave={e => {
+                      (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
+                      (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
+                    }}
+                  >
                     {idx === 0 && (
                       <div style={{ display: "flex", marginBottom: -6 }}>
                         <div style={{
-                          background: B.primary,
+                          background: GRADIENT,
                           color: "#fff",
                           fontSize: 10,
                           fontWeight: 500,
                           padding: "2px 8px",
                           borderRadius: 4,
                         }}>
-                          Flyinco Special Fare
+                          Charter Special
                         </div>
                       </div>
                     )}
@@ -586,30 +615,30 @@ export default function Home() {
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={s.airlineLogo} alt={s.airline} style={{ maxWidth: 80, maxHeight: 40, objectFit: "contain" }} />
                           ) : (
-                            <PiAirplaneTilt size={28} color={B.accent} />
+                            <PiAirplaneTilt size={28} color="rgba(255,255,255,0.85)" />
                           )}
                         </div>
-                        <span style={{ fontSize: 13, color: "#333", textAlign: "center", lineHeight: 1.2 }}>{s.airline}</span>
-                        <span style={{ fontSize: 12, color: "#666", textAlign: "center", marginTop: 2 }}>{s.flightNumber}</span>
+                        <span style={{ fontSize: 13, color: "#E2E8F0", textAlign: "center", lineHeight: 1.2 }}>{s.airline}</span>
+                        <span style={{ fontSize: 12, color: "#94A3B8", textAlign: "center", marginTop: 2 }}>{s.flightNumber}</span>
                       </div>
 
                       {/* Departure Section */}
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 140 }}>
-                        <span style={{ fontSize: 13, color: "#333", marginBottom: 4 }}>{s.originCity} ({s.originCode})</span>
-                        <span style={{ fontSize: 26, fontWeight: 800, color: "#000", lineHeight: 1.1 }}>{s.departureTime || "--:--"}</span>
-                        <span style={{ fontSize: 13, color: "#666", marginTop: 4 }}>
+                        <span style={{ fontSize: 13, color: "#94A3B8", marginBottom: 4 }}>{s.originCity} ({s.originCode})</span>
+                        <span style={{ fontSize: 26, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.1 }}>{s.departureTime || "--:--"}</span>
+                        <span style={{ fontSize: 13, color: "#94A3B8", marginTop: 4 }}>
                           {s.departureDate ? new Date(s.departureDate).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }).replace(',', '') : "--"}
                         </span>
                       </div>
 
                       {/* Duration Section */}
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: "1 1 120px", minWidth: 120, maxWidth: 180 }}>
-                        <span style={{ fontSize: 12, color: "#555", marginBottom: 6 }}>{s.duration}</span>
+                        <span style={{ fontSize: 12, color: "#94A3B8", marginBottom: 6 }}>{s.duration}</span>
                         <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
-                          <div style={{ width: 6, height: 6, borderRadius: "50%", border: "1.5px solid #9CA3AF", background: "transparent", flexShrink: 0 }}></div>
-                          <div style={{ flex: 1, height: 1.5, background: "#9CA3AF" }}></div>
+                          <div style={{ width: 6, height: 6, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.3)", background: "transparent", flexShrink: 0 }}></div>
+                          <div style={{ flex: 1, height: 1.5, background: "rgba(255,255,255,0.2)" }}></div>
                           <svg width="6" height="10" viewBox="0 0 6 10" fill="none" style={{ flexShrink: 0, marginLeft: -1 }}>
-                            <path d="M1 1L5 5L1 9" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M1 1L5 5L1 9" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                           </svg>
                         </div>
                         {s.layover && (
@@ -618,32 +647,32 @@ export default function Home() {
                           </div>
                         )}
                         <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: s.layover ? 4 : 6 }}>
-                          <PiBriefcase size={14} color="#374151" />
-                          <span style={{ fontSize: 13, color: "#111", fontWeight: 600 }}>{s.baggage || "40KG"}</span>
+                          <PiBriefcase size={14} color="rgba(255,255,255,0.7)" />
+                          <span style={{ fontSize: 13, color: "#E2E8F0", fontWeight: 600 }}>{s.baggage || "40KG"}</span>
                         </div>
                       </div>
 
                       {/* Arrival Section */}
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 140 }}>
-                        <span style={{ fontSize: 13, color: "#333", marginBottom: 4 }}>{s.destinationCity} ({s.destinationCode})</span>
-                        <span style={{ fontSize: 26, fontWeight: 800, color: "#000", lineHeight: 1.1 }}>{s.arrivalTime || "--:--"}</span>
-                        <span style={{ fontSize: 13, color: "#666", marginTop: 4 }}>
+                        <span style={{ fontSize: 13, color: "#94A3B8", marginBottom: 4 }}>{s.destinationCity} ({s.destinationCode})</span>
+                        <span style={{ fontSize: 26, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.1 }}>{s.arrivalTime || "--:--"}</span>
+                        <span style={{ fontSize: 13, color: "#94A3B8", marginTop: 4 }}>
                           {s.arrivalDate ? new Date(s.arrivalDate).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }).replace(',', '') : (s.departureDate ? new Date(s.departureDate).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }).replace(',', '') : "--")}
                         </span>
                       </div>
 
                       {/* Price Section */}
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 120 }}>
-                        <span style={{ background: "#4B5563", color: "#fff", fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 4, marginBottom: 6 }}>
+                        <span style={{ background: "rgba(255,255,255,0.1)", color: "#94A3B8", fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 4, marginBottom: 6 }}>
                           {s.flightRules === "Refundable" ? "Refundable" : "NonRefundable"}
                         </span>
-                        <span style={{ fontSize: 20, fontWeight: 700, color: B.primary, display: "flex", alignItems: "baseline", gap: 3 }}>
-                          <span style={{ fontSize: 13 }}>SAR </span>{s.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                        <span style={{ fontSize: 20, fontWeight: 700, color: "#FFFFFF", display: "flex", alignItems: "baseline", gap: 3 }}>
+                          <span style={{ fontSize: 13, color: "#94A3B8" }}>SAR </span>{s.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                         </span>
-                        <span style={{ fontSize: 12, color: "#555", marginTop: 2 }}>
-                          NetFare - {s.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                        <span style={{ fontSize: 12, color: "#94A3B8", marginTop: 2 }}>
+                          Charter Fare - {s.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                         </span>
-                        <span style={{ fontSize: 11, color: "#D97706", marginTop: 6, fontWeight: 700, background: "#FEF3C7", padding: "2px 6px", borderRadius: 4 }}>
+                        <span style={{ fontSize: 11, color: "#FBBF24", marginTop: 6, fontWeight: 700, background: "rgba(245,158,11,0.15)", padding: "2px 6px", borderRadius: 4 }}>
                           {s.remainingSeats} Seats Left
                         </span>
                       </div>
@@ -653,19 +682,19 @@ export default function Home() {
                         <button
                           onClick={() => router.push(`/routes/${s.id}/flights`)}
                           style={{
-                            background: B.primary,
+                            background: GRADIENT,
                             color: "#fff",
                             border: "none",
-                            borderRadius: 4,
+                            borderRadius: 8,
                             padding: "8px 28px",
                             fontSize: 14,
                             fontWeight: 600,
                             cursor: "pointer",
                             width: "100%",
-                            transition: "background 0.2s"
+                            transition: "filter 0.2s"
                           }}
-                          onMouseEnter={e => e.currentTarget.style.background = "#1D063A"}
-                          onMouseLeave={e => e.currentTarget.style.background = B.primary}
+                          onMouseEnter={e => e.currentTarget.style.filter = "brightness(1.15)"}
+                          onMouseLeave={e => { e.currentTarget.style.filter = "none"; e.currentTarget.style.background = GRADIENT; }}
                         >
                           BOOK
                         </button>
@@ -674,7 +703,7 @@ export default function Home() {
                           style={{
                             background: "transparent",
                             border: "none",
-                            color: B.primary,
+                            color: "#A78BFA",
                             fontSize: 11,
                             fontWeight: 500,
                             cursor: "pointer",
@@ -693,7 +722,7 @@ export default function Home() {
                           style={{
                             background: "transparent",
                             border: "none",
-                            color: B.accent,
+                            color: "#C084FC",
                             fontSize: 11,
                             fontWeight: 600,
                             cursor: "pointer",
@@ -720,19 +749,19 @@ export default function Home() {
             <motion.div
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ delay: 0.1, duration: 0.45 }}
-              style={{ maxWidth: 780, margin: "24px auto 0", textAlign: "center", padding: "60px 20px", background: "#fff", borderRadius: 20, border: "1px dashed #E5E7EB" }}
+              style={{ maxWidth: 780, margin: "24px auto 0", textAlign: "center", padding: "60px 20px", background: "rgba(255,255,255,0.04)", borderRadius: 20, border: "1px dashed rgba(255,255,255,0.12)" }}
             >
-              <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#F3F0FF", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
-                <PiAirplaneTilt size={32} color={B.accent} />
+              <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(124,58,237,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
+                <PiAirplaneTilt size={32} color="rgba(255,255,255,0.85)" />
               </div>
-              <h3 style={{ fontSize: 22, fontWeight: 800, color: B.primary, marginBottom: 12 }}>Currently No Routes Available</h3>
-              <p style={{ color: "#6B7280", fontSize: 15, maxWidth: 450, margin: "0 auto 24px" }}>
-                We're currently updating our flight schedules. Please check back shortly for the best fares from Riyadh to Kochi and more.
+              <h3 style={{ fontSize: 22, fontWeight: 800, color: "#FFFFFF", marginBottom: 12 }}>No Charter Flights Available</h3>
+              <p style={{ color: "#94A3B8", fontSize: 15, maxWidth: 450, margin: "0 auto 24px" }}>
+                No charter blocks are currently open. We update our flights regularly — check back soon or contact us for group booking inquiries.
               </p>
-              <button 
-                onClick={() => window.location.reload()}
-                style={{ 
-                  background: B.primary, color: "#fff", border: "none", padding: "10px 24px", borderRadius: 8, fontWeight: 600, cursor: "pointer", fontSize: 14
+              <button
+                onClick={() => { if (typeof window !== "undefined") window.location.reload(); }}
+                style={{
+                  background: GRADIENT, color: "#fff", border: "none", padding: "10px 24px", borderRadius: 8, fontWeight: 600, cursor: "pointer", fontSize: 14
                 }}
               >
                 Refresh Page
@@ -747,18 +776,18 @@ export default function Home() {
         <div style={{
           position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
           background: "rgba(0,0,0,0.6)", zIndex: 9999, display: "flex",
-          alignItems: "center", justifyContent: "center", padding: 24, backdropFilter: "blur(4px)"
+          alignItems: "center", justifyContent: "center", padding: 24, backdropFilter: "blur(8px)"
         }}>
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             style={{
-              background: "#fff", borderRadius: 16, width: "100%", maxWidth: 640,
+              background: "#141827", borderRadius: 16, width: "100%", maxWidth: 640,
               boxShadow: "0 24px 48px rgba(0,0,0,0.2)", overflow: "hidden", position: "relative"
             }}
           >
             {/* Header */}
-            <div style={{ background: B.primary, padding: "20px 24px", color: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ background: GRADIENT, padding: "20px 24px", color: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span style={{ fontSize: 18, fontWeight: 700 }}>Flight Details</span>
               <button 
                 onClick={() => setSelectedFlightModal(null)} 
@@ -769,64 +798,64 @@ export default function Home() {
             </div>
             {/* Body */}
             <div style={{ padding: 24 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24, borderBottom: "1px solid #E5E7EB", paddingBottom: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24, borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: 16 }}>
                 {selectedFlightModal.airlineLogo ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={selectedFlightModal.airlineLogo} alt="Airline" style={{ maxHeight: 40, objectFit: "contain" }} />
                 ) : (
-                  <PiAirplaneTilt size={32} color={B.accent} />
+                  <PiAirplaneTilt size={32} color="rgba(255,255,255,0.85)" />
                 )}
                 <div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: "#111" }}>{selectedFlightModal.airline}</div>
-                  <div style={{ fontSize: 13, color: "#666" }}>Flight {selectedFlightModal.flightNumber || selectedFlightModal.flight}</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "#FFFFFF" }}>{selectedFlightModal.airline}</div>
+                  <div style={{ fontSize: 13, color: "#94A3B8" }}>Flight {selectedFlightModal.flightNumber || selectedFlightModal.flight}</div>
                 </div>
               </div>
 
               <div style={{ display: "flex", justifyContent: "space-between", position: "relative", marginBottom: 24 }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: "#111" }}>{selectedFlightModal.departureTime || "--:--"}</div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: "#444" }}>{selectedFlightModal.originCity || selectedFlightModal.from?.city} ({selectedFlightModal.originCode || selectedFlightModal.from?.code})</div>
-                  <div style={{ fontSize: 13, color: "#666", marginTop: 4 }}>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: "#FFFFFF" }}>{selectedFlightModal.departureTime || "--:--"}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "#E2E8F0" }}>{selectedFlightModal.originCity || selectedFlightModal.from?.city} ({selectedFlightModal.originCode || selectedFlightModal.from?.code})</div>
+                  <div style={{ fontSize: 13, color: "#94A3B8", marginTop: 4 }}>
                     {selectedFlightModal.departureDate ? new Date(selectedFlightModal.departureDate).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }).replace(',', '') : (selectedFlightModal.date || "Mon Mar 16 2026")}
                   </div>
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, padding: "0 16px" }}>
-                  <span style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>{selectedFlightModal.duration}</span>
+                  <span style={{ fontSize: 12, color: "#94A3B8", marginBottom: 4 }}>{selectedFlightModal.duration}</span>
                   <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
-                    <div style={{ width: 6, height: 6, borderRadius: "50%", border: "2px solid #9CA3AF", background: "transparent" }}></div>
-                    <div style={{ flex: 1, height: 2, background: "#9CA3AF" }}></div>
-                    <svg width="6" height="10" viewBox="0 0 6 10" fill="none" style={{ marginLeft: -1 }}><path d="M1 1L5 5L1 9" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)", background: "transparent" }}></div>
+                    <div style={{ flex: 1, height: 2, background: "rgba(255,255,255,0.3)" }}></div>
+                    <svg width="6" height="10" viewBox="0 0 6 10" fill="none" style={{ marginLeft: -1 }}><path d="M1 1L5 5L1 9" stroke="rgba(255,255,255,0.3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   </div>
-                  <span style={{ fontSize: 12, color: "#666", marginTop: 4 }}>{selectedFlightModal.layover ? `${selectedFlightModal.layover} Stop(s)` : "Direct"}</span>
+                  <span style={{ fontSize: 12, color: "#94A3B8", marginTop: 4 }}>{selectedFlightModal.layover ? `${selectedFlightModal.layover} Stop(s)` : "Direct"}</span>
                 </div>
 
                 <div style={{ flex: 1, textAlign: "right" }}>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: "#111" }}>{selectedFlightModal.arrivalTime || "--:--"}</div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: "#444" }}>{selectedFlightModal.destinationCity || selectedFlightModal.to?.city} ({selectedFlightModal.destinationCode || selectedFlightModal.to?.code})</div>
-                  <div style={{ fontSize: 13, color: "#666", marginTop: 4 }}>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: "#FFFFFF" }}>{selectedFlightModal.arrivalTime || "--:--"}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "#E2E8F0" }}>{selectedFlightModal.destinationCity || selectedFlightModal.to?.city} ({selectedFlightModal.destinationCode || selectedFlightModal.to?.code})</div>
+                  <div style={{ fontSize: 13, color: "#94A3B8", marginTop: 4 }}>
                     {selectedFlightModal.arrivalDate ? new Date(selectedFlightModal.arrivalDate).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }).replace(',', '') : (selectedFlightModal.departureDate ? new Date(selectedFlightModal.departureDate).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }).replace(',', '') : (selectedFlightModal.date || "Mon Mar 16 2026"))}
                   </div>
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, background: "#F9FAFB", padding: 16, borderRadius: 8 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, background: "rgba(255,255,255,0.05)", padding: 16, borderRadius: 8 }}>
                 <div>
-                  <span style={{ fontSize: 12, color: "#666", display: "block", marginBottom: 2 }}>Baggage Allowance</span>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: "#111", display: "flex", alignItems: "center", gap: 6 }}>
-                    <PiBriefcase size={14} color={B.accent} /> {selectedFlightModal.baggage || "40KG"}
+                  <span style={{ fontSize: 12, color: "#94A3B8", display: "block", marginBottom: 2 }}>Baggage Allowance</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: "#FFFFFF", display: "flex", alignItems: "center", gap: 6 }}>
+                    <PiBriefcase size={14} color="rgba(255,255,255,0.85)" /> {selectedFlightModal.baggage || "40KG"}
                   </span>
                 </div>
                 <div>
-                  <span style={{ fontSize: 12, color: "#666", display: "block", marginBottom: 2 }}>Flight Rules</span>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: "#111" }}>{selectedFlightModal.flightRules === "Refundable" ? "Refundable" : "NonRefundable"}</span>
+                  <span style={{ fontSize: 12, color: "#94A3B8", display: "block", marginBottom: 2 }}>Flight Rules</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: "#FFFFFF" }}>{selectedFlightModal.flightRules === "Refundable" ? "Refundable" : "NonRefundable"}</span>
                 </div>
               </div>
               
               {selectedFlightModal.flightDetails && (
                 <div style={{ marginTop: 24 }}>
-                  <h4 style={{ fontSize: 14, fontWeight: 700, color: "#111", marginBottom: 8 }}>Additional Information</h4>
-                  <div style={{ fontSize: 13, color: "#555", lineHeight: 1.6, background: "#F3F4F6", padding: 12, borderRadius: 6, whiteSpace: "pre-wrap" }}>
+                  <h4 style={{ fontSize: 14, fontWeight: 700, color: "#FFFFFF", marginBottom: 8 }}>Additional Information</h4>
+                  <div style={{ fontSize: 13, color: "#94A3B8", lineHeight: 1.6, background: "rgba(255,255,255,0.05)", padding: 12, borderRadius: 6, whiteSpace: "pre-wrap" }}>
                     {selectedFlightModal.flightDetails}
                   </div>
                 </div>
@@ -868,17 +897,17 @@ function SearchField({ label, code, name, sub, icon }: { label: string; code: st
   return (
     <div style={{
       flex: "1 1 160px", padding: "16px 20px", borderRadius: 14,
-      background: "#F9FAFB", cursor: "default",
+      background: "rgba(255,255,255,0.07)", cursor: "default",
       minWidth: 130
     }}>
-      <div style={{ fontSize: 10, fontWeight: 800, color: "#9CA3AF", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 6 }}>
+      <div style={{ fontSize: 10, fontWeight: 800, color: "#94A3B8", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 6 }}>
         {icon} {label}
       </div>
-      <div style={{ fontSize: 24, fontWeight: 900, color: "#111827", letterSpacing: "-0.04em" }}>
+      <div style={{ fontSize: 24, fontWeight: 900, color: "#FFFFFF", letterSpacing: "-0.04em" }}>
         {code}
       </div>
-      <div style={{ fontSize: 12, color: "#6B7280", fontWeight: 500, marginTop: 2 }}>{name}</div>
-      <div style={{ fontSize: 10, color: "#9CA3AF", marginTop: 1 }}>{sub}</div>
+      <div style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500, marginTop: 2 }}>{name}</div>
+      <div style={{ fontSize: 10, color: "#94A3B8", marginTop: 1 }}>{sub}</div>
     </div>
   );
 }
@@ -888,11 +917,11 @@ function Divider() {
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, padding: "0 2px" }}>
       <div style={{
         width: 24, height: 24, borderRadius: "50%",
-        border: "1.5px solid #E5E7EB",
+        border: "1.5px solid rgba(255,255,255,0.12)",
         display: "flex", alignItems: "center", justifyContent: "center",
-        background: "white"
+        background: "rgba(255,255,255,0.05)"
       }}>
-        <PiArrowRight size={11} color="#9CA3AF" />
+        <PiArrowRight size={11} color="rgba(255,255,255,0.7)" />
       </div>
     </div>
   );

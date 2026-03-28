@@ -33,34 +33,42 @@ export default function UserDashboard() {
             return;
         }
 
+        let isMounted = true;
+
         async function fetchData() {
             try {
-                const [profile, bookingData, annData, routeData] = await Promise.all([
+                const results = await Promise.allSettled([
                     flyApi.auth.me(),
                     flyApi.bookings.listPaginated({ page: 1, limit: 100 }),
-                    flyApi.announcements.list().catch(() => []),
-                    flyApi.sectors.listPaginated({ page: 1, limit: 20, availableOnly: true }).catch(() => ({ routes: [] }))
+                    flyApi.announcements.list(),
+                    flyApi.sectors.listPaginated({ page: 1, limit: 20, availableOnly: true }),
                 ]);
-                setUserProfile(profile);
 
-                setBookings(bookingData.bookings || []);
-                setAnnouncements(annData.filter((a: any) => a.active));
-                setSectors(routeData.routes || []);
+                const [profileResult, bookingResult, annResult, routeResult] = results;
 
-            } catch (error: any) {
-                if (error.message?.includes("Unauthorized") || error.message?.includes("401")) {
-                    router.push("/login");
+                if (!isMounted) return;
+
+                if (profileResult.status === "fulfilled") setUserProfile(profileResult.value);
+                if (bookingResult.status === "fulfilled") setBookings(bookingResult.value.bookings || []);
+                if (annResult.status === "fulfilled") setAnnouncements((annResult.value as any[]).filter((a: any) => a.active));
+                if (routeResult.status === "fulfilled") setSectors((routeResult.value as any).routes || []);
+
+                // Only show an error toast if the critical profile/bookings fetch failed
+                if (profileResult.status === "rejected" || bookingResult.status === "rejected") {
+                    const err = (profileResult.status === "rejected" ? profileResult : bookingResult as PromiseRejectedResult).reason;
+                    if (err?.message?.includes("Unauthorized") || err?.message?.includes("401")) {
+                        router.push("/login");
+                    } else {
+                        toast({ title: "Error fetching data", description: err?.message, variant: "destructive" });
+                    }
                 }
-                toast({
-                    title: "Error fetching data",
-                    description: error.message,
-                    variant: "destructive",
-                });
             } finally {
-                setIsLoading(false);
+                if (isMounted) setIsLoading(false);
             }
         }
+
         fetchData();
+        return () => { isMounted = false; };
     }, [toast, router]);
 
     const handleLogout = async () => {

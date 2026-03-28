@@ -25,6 +25,13 @@ export function middleware(request: NextRequest) {
         const padded = pad ? base64 + '='.repeat(4 - pad) : base64;
         const payload = JSON.parse(atob(padded));
 
+        // Reject expired tokens at the edge before the page even loads
+        if (payload.exp && payload.exp < Date.now() / 1000) {
+            const response = NextResponse.redirect(new URL('/login?expired=true', request.url));
+            response.cookies.delete('token');
+            return response;
+        }
+
         if (url.pathname.startsWith('/admin') && payload.role !== 'ADMIN') {
             return NextResponse.redirect(new URL('/dashboard', request.url));
         }
