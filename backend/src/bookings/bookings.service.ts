@@ -1247,13 +1247,32 @@ export class BookingsService {
     });
 
     // 3. Finalize & Transform
-    const agentPerformance = Object.values(agentMap)
+    // Merge entries with the same agency name — happens when some bookings are linked
+    // to a registered user (keyed by userId) and others are manual entries (keyed by
+    // "name:*") but both belong to the same agency (e.g. "Riya Travel").
+    const merged = Object.values(agentMap).reduce(
+      (acc, stats) => {
+        const key = stats.name.toLowerCase();
+        if (acc[key]) {
+          acc[key].totalSales += stats.totalSales;
+          acc[key].profit     += stats.profit;
+          acc[key].count      += stats.count;
+          acc[key].unpaid     += stats.unpaid;
+        } else {
+          acc[key] = { ...stats };
+        }
+        return acc;
+      },
+      {} as Record<string, (typeof agentMap)[string]>,
+    );
+
+    const agentPerformance = Object.values(merged)
       .map((stats) => ({
-        name: stats.name,
+        name:       stats.name,
         totalSales: stats.totalSales,
-        profit: stats.profit,
-        count: stats.count,
-        unpaid: Math.max(0, stats.unpaid),
+        profit:     stats.profit,
+        count:      stats.count,
+        unpaid:     Math.max(0, stats.unpaid),
       }))
       .sort((a, b) => b.totalSales - a.totalSales)
       .filter((a) => a.name !== "Direct")
