@@ -117,7 +117,7 @@ export default function Home() {
 
         {/* Background image */}
         <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
-          <Image src="/hero.png" alt="Flyinco hero" fill className="object-cover" priority quality={90} />
+          <Image src="/hero.jpg" alt="Flyinco hero" fill className="object-cover object-center" priority quality={90} />
           {/* Multi-layer gradient overlay for depth + contrast */}
           <div style={{
             position: "absolute", inset: 0,
