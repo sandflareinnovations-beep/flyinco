@@ -1,5 +1,5 @@
 "use client";
-import { PiSignOut, PiMapTrifold, PiCalendarBlank, PiGear, PiAirplaneTilt, PiFileText, PiCheckCircle, PiClock } from "react-icons/pi";
+import { PiSignOut, PiMapTrifold, PiCalendarBlank, PiGear, PiAirplaneTilt, PiFileText, PiCheckCircle, PiClock, PiBell } from "react-icons/pi";
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 
@@ -140,7 +140,38 @@ export default function UserDashboard() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 
-                {/* Global Announcements Section Removed as requested */}
+                {/* Announcements Section */}
+                {announcements.length > 0 && (
+                    <Card className="col-span-1 md:col-span-3 shadow-md border-2 border-blue-100 mb-6">
+                        <CardHeader className="bg-blue-50/50 pb-3 border-b border-blue-100">
+                            <CardTitle className="text-xl font-bold text-blue-800 flex items-center gap-2">
+                                <PiBell className="h-5 w-5" /> Announcements
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="divide-y divide-blue-50 p-0">
+                            {announcements.map((ann: any) => {
+                                const typeColors: Record<string, string> = {
+                                    INFO: "bg-blue-100 text-blue-700",
+                                    WARNING: "bg-amber-100 text-amber-700",
+                                    ALERT: "bg-red-100 text-red-700",
+                                    SUCCESS: "bg-emerald-100 text-emerald-700",
+                                };
+                                return (
+                                    <div key={ann.id} className="px-6 py-4">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <p className="font-bold text-gray-900">{ann.title}</p>
+                                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${typeColors[ann.type] || typeColors.INFO}`}>
+                                                {ann.type}
+                                            </span>
+                                        </div>
+                                        <p className="text-sm text-gray-600">{ann.content}</p>
+                                        <p className="text-xs text-gray-400 mt-1">{format(new Date(ann.createdAt), 'dd MMM yyyy')}</p>
+                                    </div>
+                                );
+                            })}
+                        </CardContent>
+                    </Card>
+                )}
 
                 {userProfile?.role === 'AGENT' && sectors.length > 0 && (
                     <Card className="col-span-1 md:col-span-3 shadow-md border-2 border-emerald-100 mb-6">

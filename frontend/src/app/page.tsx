@@ -715,8 +715,8 @@ export default function Home() {
             </div>
           )}
 
-          {/* Empty state when no live data */}
-          {openSectors.length === 0 && (
+          {/* Empty state when no live data — only after loading is complete */}
+          {!sectorsLoading && openSectors.length === 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ delay: 0.1, duration: 0.45 }}

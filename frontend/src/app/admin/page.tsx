@@ -41,7 +41,7 @@ export default function AdminDashboard() {
     });
 
     const { data: sectors, isLoading: loadingSectors } = useQuery({
-        queryKey: ["sectors"],
+        queryKey: ["sectors-all"],
         queryFn: () => flyApi.sectors.list({ limit: -1 }),
         staleTime: 60000, // Cache sectors for 1 minute
     });
