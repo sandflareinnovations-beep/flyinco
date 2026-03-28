@@ -9,7 +9,7 @@ import { BookingReceipt } from "@/components/admin/booking-receipt";
 
 // ── Flyinco Brand ──
 const B = { primary: "#0A0E1A", accent: "#7C3AED", light: "rgba(124,58,237,0.12)" };
-const GRADIENT = "linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)";
+const GRADIENT = "linear-gradient(135deg, #4C1D95 0%, #7C3AED 100%)";
 
 const ROUTE = {
   from: { code: "RUH", city: "Riyadh", country: "Saudi Arabia" },
