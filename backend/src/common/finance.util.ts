@@ -34,14 +34,14 @@ export async function calculateAgentFinances(prisma: PrismaService, user: any) {
   ]);
 
   const totalSales =
-    totalAgg._sum.sellingPrice || totalAgg._sum.purchasePrice || 0;
+    totalAgg._sum.sellingPrice ?? totalAgg._sum.purchasePrice ?? 0;
   const manualPaid = manualPaymentsAgg._sum.amount || 0;
   const unpaidAmount = totalSales - manualPaid;
 
   return {
     ...user,
     totalPaid: manualPaid,
-    outstanding: totalSales,
+    outstanding: Math.max(0, unpaidAmount),
     pendingDues: Math.max(0, unpaidAmount),
     totalSales: totalSales,
   };

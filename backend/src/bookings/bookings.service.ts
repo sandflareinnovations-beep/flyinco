@@ -1157,18 +1157,19 @@ export class BookingsService {
       (b) => b.status !== "CANCELLED",
     );
     const totalRevenue = activeFinancials.reduce(
-      (acc, b) => acc + (b.sellingPrice || b.route?.price || 0),
+      (acc, b) => acc + (b.sellingPrice ?? b.route?.price ?? 0),
       0,
     );
     const totalProfit = activeFinancials.reduce((acc, b) => {
-      // If profit is specifically 0 but we have prices, the profit field might be out of date
       const p =
-        b.profit !== 0 && b.profit !== null && b.profit !== undefined
+        b.profit !== null && b.profit !== undefined
           ? b.profit
-          : (b.sellingPrice || b.route?.price || 0) - (b.purchasePrice || 0);
+          : (b.sellingPrice ?? b.route?.price ?? 0) - (b.purchasePrice ?? 0);
       return acc + p;
     }, 0);
-    const totalBookings = counts.reduce((acc, s) => acc + s._count._all, 0);
+    const totalBookings = counts
+      .filter((s) => s.status !== "CANCELLED")
+      .reduce((acc, s) => acc + s._count._all, 0);
 
     const statusCounts = counts.reduce(
       (acc, s) => {
@@ -1186,59 +1187,54 @@ export class BookingsService {
 
     const agentMap: Record<
       string,
-      { totalSales: number; profit: number; count: number; unpaid: number }
+      { name: string; totalSales: number; profit: number; count: number; unpaid: number }
     > = {};
 
-    // 1. Process Bookings
+    // 1. Process Bookings — key by user ID when available for reliable matching
     activeFinancials.forEach((b) => {
-      // Determine the canonical agent name (Agency Name preferred)
+      let agentKey = "direct";
       let agentName = "Direct";
 
       if (b.user && b.user.id) {
+        agentKey = b.user.id;
         agentName = (b.user.agencyName || b.user.name || "Direct Agent").trim();
       } else if (b.agentDetails) {
-        // Fallback to agentDetails, but try to clean it up
-        // If it's in format "Agency (Person)", take the "Agency" part
         const match = b.agentDetails.match(/^(.*?)\s*\(/);
         agentName = (match ? match[1] : b.agentDetails).trim();
+        agentKey = `name:${agentName.toLowerCase()}`;
       }
 
-      if (!agentMap[agentName])
-        agentMap[agentName] = { totalSales: 0, profit: 0, count: 0, unpaid: 0 };
+      if (!agentMap[agentKey])
+        agentMap[agentKey] = { name: agentName, totalSales: 0, profit: 0, count: 0, unpaid: 0 };
 
-      const sale = b.sellingPrice || b.route?.price || 0;
+      const sale = b.sellingPrice ?? b.route?.price ?? 0;
       const p =
-        b.profit !== 0 && b.profit !== null && b.profit !== undefined
+        b.profit !== null && b.profit !== undefined
           ? b.profit
-          : sale - (b.purchasePrice || 0);
+          : sale - (b.purchasePrice ?? 0);
 
-      agentMap[agentName].totalSales += sale;
-      agentMap[agentName].profit += p;
-      agentMap[agentName].count += 1;
-      agentMap[agentName].unpaid += sale;
+      agentMap[agentKey].totalSales += sale;
+      agentMap[agentKey].profit += p;
+      agentMap[agentKey].count += 1;
+      agentMap[agentKey].unpaid += sale;
     });
 
-    // 2. Process Payments
+    // 2. Process Payments — key by agent user ID for reliable matching
     allPayments.forEach((p) => {
-      const agentName = (
-        p.agent?.agencyName ||
-        p.agent?.name ||
-        "Direct Agent"
-      ).trim();
+      const agentKey = p.agent?.id || "direct";
 
-      if (agentMap[agentName]) {
-        agentMap[agentName].unpaid -= p.amount || 0;
-      } else {
-        // If agent has no bookings in this period but has payments, we could track them
-        // but for "Sales by Agent" they won't show anyway
+      if (agentMap[agentKey]) {
+        agentMap[agentKey].unpaid -= p.amount || 0;
       }
     });
 
     // 3. Finalize & Transform
-    const agentPerformance = Object.entries(agentMap)
-      .map(([name, stats]) => ({
-        name,
-        ...stats,
+    const agentPerformance = Object.values(agentMap)
+      .map((stats) => ({
+        name: stats.name,
+        totalSales: stats.totalSales,
+        profit: stats.profit,
+        count: stats.count,
         unpaid: Math.max(0, stats.unpaid),
       }))
       .sort((a, b) => b.totalSales - a.totalSales)

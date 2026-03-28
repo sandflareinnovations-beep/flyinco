@@ -33,7 +33,7 @@ export default function AdminDashboard() {
     const endDate = endOfWeek(monthEnd, { weekStartsOn: 1 });
     const calendarDays = eachDayOfInterval({ start: startDate, end: endDate });
     const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const { data: metricsData, isLoading: loadingMetrics } = useQuery({
+    const { data: metricsData, isLoading: loadingMetrics, isError, error } = useQuery({
         queryKey: ["admin-metrics"],
         queryFn: () => flyApi.bookings.getMetrics(),
         staleTime: 60000, // Cache for 1 minute — prevents refetch on tab switch
@@ -42,7 +42,7 @@ export default function AdminDashboard() {
 
     const { data: sectors, isLoading: loadingSectors } = useQuery({
         queryKey: ["sectors"],
-        queryFn: () => flyApi.sectors.list(),
+        queryFn: () => flyApi.sectors.list({ limit: -1 }),
         staleTime: 60000, // Cache sectors for 1 minute
     });
 
@@ -69,7 +69,7 @@ export default function AdminDashboard() {
                 if (!acc[key]) acc[key] = [];
                 acc[key].push(s);
             }
-        } catch (e) {}
+        } catch (e) { console.warn('Invalid departure date:', s.departureDate, e); }
         return acc;
     }, {});
 
@@ -77,12 +77,15 @@ export default function AdminDashboard() {
     const remainingSeats = sectorList.reduce((acc: number, s: any) => acc + (s.remainingSeats || 0), 0);
 
 
-    const agentSalesData = agentPerformance.map((a: any) => ({
-        name: a.name.length > 12 ? a.name.split(' ').slice(0, 1).join(' ') : a.name, // Trim if too long
-        fullName: a.name,
+    const agentSalesData = agentPerformance.map((a: any) => {
+        const displayName = a.name || 'Unknown';
+        return {
+        name: displayName.length > 12 ? displayName.split(' ').slice(0, 1).join(' ') : displayName,
+        fullName: displayName,
         Sales: a.totalSales,
         Unpaid: a.unpaid,
-    }));
+    };
+    });
 
     const pieData = [
         { name: "Sold", value: seatsSold },
@@ -92,6 +95,12 @@ export default function AdminDashboard() {
     const PIE_COLORS = ['#7c3aed', '#ede9fe'];
 
     if (isLoading) return <LoadingLogo fullPage text="Updating Platform Stats..." />;
+    if (isError) return (
+        <div className="flex flex-col items-center justify-center h-64 text-center">
+            <p className="text-red-600 font-bold">Failed to load dashboard metrics</p>
+            <p className="text-sm text-gray-500 mt-1">{(error as any)?.message || 'Unknown error'}</p>
+        </div>
+    );
 
     return (
         <div className="space-y-8 max-w-6xl pb-10">
@@ -214,7 +223,7 @@ export default function AdminDashboard() {
                                 </Pie>
                                 <Tooltip contentStyle={{ borderRadius: '12px' }} />
                                 <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="font-bold text-gray-400 text-xs">
-                                    {(seatsSold / (seatsSold + remainingSeats) * 100).toFixed(0)}% Sold
+                                    {seatsSold + remainingSeats > 0 ? (seatsSold / (seatsSold + remainingSeats) * 100).toFixed(0) : 0}% Sold
                                 </text>
                             </PieChart>
                         </ResponsiveContainer>
@@ -255,10 +264,10 @@ export default function AdminDashboard() {
                                 <div key={i} className="px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors">
                                     <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center font-bold text-xs uppercase">
-                                            {agent.name.charAt(0)}
+                                            {(agent.name || 'U').charAt(0)}
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-gray-900 truncate max-w-[120px]">{agent.name}</p>
+                                            <p className="text-sm font-bold text-gray-900 truncate max-w-[120px]">{agent.name || 'Unknown'}</p>
                                             <p className="text-[10px] text-gray-500">{agent.count} Bookings</p>
                                         </div>
                                     </div>
