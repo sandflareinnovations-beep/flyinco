@@ -1,11 +1,10 @@
 "use client";
-import { PiShieldCheck, PiAirplaneTilt, PiClock, PiBriefcase, PiArrowRight, PiCaretRight, PiCaretDown, PiMagnifyingGlass, PiDownloadSimple, PiAirplaneTakeoff, PiAirplaneLanding, PiCalendarBlank } from "react-icons/pi";
+import { PiShieldCheck, PiAirplaneTilt, PiClock, PiBriefcase, PiArrowRight, PiCaretRight, PiCaretDown, PiMagnifyingGlass, PiDownloadSimple, PiAirplaneTakeoff, PiAirplaneLanding, PiCalendarBlank, PiUsers, PiLightning, PiLock, PiKey, PiCheckCircle, PiGlobe } from "react-icons/pi";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { BookingReceipt } from "@/components/admin/booking-receipt";
 
 // ── Flyinco Brand ──
@@ -33,8 +32,8 @@ function Pill({ children, bg = B.light, color = "#C084FC" }: any) {
   return (
     <span style={{
       background: bg, color, fontSize: 11, fontWeight: 700,
-      padding: "4px 12px", borderRadius: 999,
-      display: "inline-flex", alignItems: "center", gap: 5,
+      padding: "4px 14px 4px 8px", borderRadius: 999,
+      display: "inline-flex", alignItems: "center", gap: 6,
       letterSpacing: "0.02em", border: "1px solid rgba(124,58,237,0.3)"
     }}>
       {children}
@@ -74,7 +73,7 @@ export default function Home() {
     if (openSectors.length > 0 && !selectedSector) {
       setSelectedSector(openSectors[0]);
     }
-  }, [openSectors.length]);
+  }, [openSectors, selectedSector]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -158,8 +157,8 @@ export default function Home() {
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
             <div style={{
               display: "inline-flex", alignItems: "center", gap: 8,
-              background: "rgba(255,255,255,0.12)", backdropFilter: "blur(12px)",
-              border: "1px solid rgba(255,255,255,0.22)", borderRadius: 999,
+              background: "rgba(124,58,237,0.22)", backdropFilter: "blur(12px)",
+              border: "1px solid rgba(124,58,237,0.45)", borderRadius: 999,
               padding: "6px 16px 6px 10px", marginBottom: 28
             }}>
               <span style={{
@@ -167,9 +166,9 @@ export default function Home() {
                 width: 8, height: 8, display: "inline-block"
               }} />
               <span style={{ color: "rgba(255,255,255,0.92)", fontSize: 12, fontWeight: 600, letterSpacing: "0.04em" }}>
-                {openSectors.length > 0 
-                  ? `BEST FARES AVAILABLE NOW — ${openSectors[0].originCode} → ${openSectors[0].destinationCode}`
-                  : "EXCLUSIVE AGENCY FARES AVAILABLE"}
+                {openSectors.length > 0
+                  ? `CHARTER FLIGHT OPEN · ${openSectors[0].originCode} → ${openSectors[0].destinationCode}`
+                  : "CHARTERED FLIGHTS PORTAL"}
               </span>
             </div>
           </motion.div>
@@ -181,16 +180,16 @@ export default function Home() {
               color: "#ffffff", lineHeight: 1.06, letterSpacing: "-0.04em",
               marginBottom: 20, maxWidth: 700
             }}>
-              Find the Best<br />
-              <span style={{ color: "#C4B5FD" }}>Flight Deals</span>
+              Your Gateway to<br />
+              <span style={{ color: "#C4B5FD" }}>Chartered Flights</span>
             </h1>
             <p style={{
               fontSize: "clamp(15px, 2vw, 19px)", color: "rgba(255,255,255,0.72)",
               marginBottom: 48, maxWidth: 520, lineHeight: 1.6, fontWeight: 400
             }}>
-              {openSectors.length > 0 
-                ? `Fly from ${openSectors[0].originCity} to ${openSectors[0].destinationCity} with exclusive agency fares — limited seats, unbeatable prices.`
-                : "Fly to your favorite destinations with exclusive agency fares — limited seats, unbeatable prices."}
+              {openSectors.length > 0
+                ? `Charter seats from ${openSectors[0].originCity} to ${openSectors[0].destinationCity}. Exclusive block fares, agency-only pricing, instant confirmation.`
+                : "Access exclusive chartered flight blocks with agency-only pricing, guaranteed seats and instant confirmation."}
             </p>
           </motion.div>
 
@@ -226,20 +225,20 @@ export default function Home() {
                     }}
                   >
                     <div style={{ fontSize: 10, fontWeight: 800, color: "#94A3B8", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 6, display: "flex", alignItems: "center", gap: 4 }}>
-                      <PiAirplaneTakeoff size={13} color="#94A3B8" /> FROM
+                      <PiAirplaneTakeoff size={13} color="rgba(255,255,255,0.7)" /> FROM
                     </div>
                     <div style={{ fontSize: 24, fontWeight: 900, color: "#FFFFFF", letterSpacing: "-0.04em" }}>
                       {dynamicRoute.from.code}
                     </div>
                     <div style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500, marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
-                      {dynamicRoute.from.city} <PiCaretDown size={12} color={B.accent} />
+                      {dynamicRoute.from.city} <PiCaretDown size={12} color="rgba(255,255,255,0.6)" />
                     </div>
                   </div>
 
                   {/* Arrow */}
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, padding: "0 2px" }}>
                     <div style={{ width: 24, height: 24, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.05)" }}>
-                      <PiArrowRight size={11} color="#94A3B8" />
+                      <PiArrowRight size={11} color="rgba(255,255,255,0.7)" />
                     </div>
                   </div>
 
@@ -255,13 +254,13 @@ export default function Home() {
                     }}
                   >
                     <div style={{ fontSize: 10, fontWeight: 800, color: "#94A3B8", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 6, display: "flex", alignItems: "center", gap: 4 }}>
-                      <PiAirplaneLanding size={13} color="#94A3B8" /> TO
+                      <PiAirplaneLanding size={13} color="rgba(255,255,255,0.7)" /> TO
                     </div>
                     <div style={{ fontSize: 24, fontWeight: 900, color: "#FFFFFF", letterSpacing: "-0.04em" }}>
                       {dynamicRoute.to.code}
                     </div>
                     <div style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500, marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
-                      {dynamicRoute.to.city} <PiCaretDown size={12} color={B.accent} />
+                      {dynamicRoute.to.city} <PiCaretDown size={12} color="rgba(255,255,255,0.6)" />
                     </div>
                   </div>
 
@@ -286,9 +285,9 @@ export default function Home() {
                         {/* Dropdown Header */}
                         <div style={{ padding: "14px 20px 10px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                            <PiMagnifyingGlass size={14} color={B.accent} />
-                            <span style={{ fontWeight: 800, fontSize: 13, color: "#E2E8F0" }}>Available Routes</span>
-                            <span style={{ fontSize: 11, color: "#9CA3AF", marginLeft: "auto" }}>{openSectors.length} route{openSectors.length !== 1 ? "s" : ""}</span>
+                            <PiMagnifyingGlass size={14} color="rgba(255,255,255,0.8)" />
+                            <span style={{ fontWeight: 800, fontSize: 13, color: "#E2E8F0" }}>Charter Routes</span>
+                            <span style={{ fontSize: 11, color: "#9CA3AF", marginLeft: "auto" }}>{openSectors.length} flight{openSectors.length !== 1 ? "s" : ""} open</span>
                           </div>
                         </div>
 
@@ -321,7 +320,7 @@ export default function Home() {
                                       // eslint-disable-next-line @next/next/no-img-element
                                       <img src={s.airlineLogo} alt={s.airline} width={32} height={32} style={{ objectFit: "contain" }} />
                                     ) : (
-                                      <PiAirplaneTilt size={18} color={B.accent} />
+                                      <PiAirplaneTilt size={18} color="rgba(255,255,255,0.85)" />
                                     )}
                                   </div>
 
@@ -329,10 +328,10 @@ export default function Home() {
                                   <div style={{ flex: 1, minWidth: 0 }}>
                                     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
                                       <span style={{ fontWeight: 900, fontSize: 16, color: "#FFFFFF", letterSpacing: "-0.03em" }}>{s.originCode}</span>
-                                      <PiArrowRight size={12} color="#A78BFA" />
+                                      <PiArrowRight size={12} color="rgba(255,255,255,0.5)" />
                                       <span style={{ fontWeight: 900, fontSize: 16, color: "#FFFFFF", letterSpacing: "-0.03em" }}>{s.destinationCode}</span>
                                       {isSelected && (
-                                        <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, color: B.accent, background: "#EDE9FE", padding: "2px 8px", borderRadius: 999 }}>Selected</span>
+                                        <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, color: "#A78BFA", background: "rgba(124,58,237,0.2)", padding: "2px 8px", borderRadius: 999 }}>Selected</span>
                                       )}
                                     </div>
                                     <div style={{ fontSize: 11, color: "#94A3B8", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -368,7 +367,7 @@ export default function Home() {
                   boxShadow: "0 8px 16px rgba(124,58,237,0.25)"
                 }}>
                   <div style={{ fontSize: 10, fontWeight: 900, color: "#A78BFA", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 6, display: "flex", alignItems: "center", gap: 4 }}>
-                    <PiCalendarBlank size={13} color="#A78BFA" /> TRAVEL DATE
+                    <PiCalendarBlank size={13} color="rgba(255,255,255,0.8)" /> TRAVEL DATE
                   </div>
                   <div style={{ fontSize: 24, fontWeight: 900, color: "#FFFFFF", letterSpacing: "-0.04em" }}>
                     {activeSector?.departureDate ? activeSector.departureDate.split(" ").slice(0, 2).join(" ") : "09 March"}
@@ -431,36 +430,46 @@ export default function Home() {
               ) : (
                 <div style={{ padding: "40px 20px", textAlign: "center" }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: "#A78BFA", marginBottom: 4, letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                    Status Update
+                    Charter Status
                   </div>
                   <div style={{ fontSize: 24, fontWeight: 900, color: "#FFFFFF", letterSpacing: "-0.02em" }}>
-                    Currently No Routes Available
+                    No Charter Flights Open
                   </div>
                   <div style={{ fontSize: 14, color: "#94A3B8", marginTop: 8, maxWidth: 400, margin: "8px auto 0" }}>
-                    All flights are currently sold out or closed. Please check back later or contact us for special inquiries.
+                    No charter blocks are available right now. Contact us for group bookings or check back soon for new routes.
                   </div>
                 </div>
               )}
 
               {/* Route notice */}
               <p style={{ textAlign: "center", fontSize: 11, color: "#64748B", padding: "10px 20px 12px", fontWeight: 500, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                <PiAirplaneTilt size={14} /> {openSectors.length > 0
-                  ? <>{openSectors.length} route{openSectors.length > 1 ? "s" : ""} available · Click <strong style={{ color: "#A78BFA" }}>FROM / TO</strong> to browse all</>
-                  : <>Fares available for <strong style={{ color: "#A78BFA" }}>Riyadh (RUH) → Cochin (COK)</strong> · More routes coming soon</>}
+                <PiAirplaneTilt size={14} color="rgba(255,255,255,0.6)" /> {openSectors.length > 0
+                  ? <>{openSectors.length} charter route{openSectors.length > 1 ? "s" : ""} open · Click <strong style={{ color: "#A78BFA" }}>FROM / TO</strong> to select</>
+                  : <>Charter route: <strong style={{ color: "#A78BFA" }}>Riyadh (RUH) → Cochin (COK)</strong> · More routes coming soon</>}
               </p>
             </div>
           </motion.div>
 
           {/* Trust signals */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px 28px", marginTop: 36 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "12px 28px", marginTop: 36 }}>
               {[
-                { label: "4.9/5 Rated Agency", icon: <PiShieldCheck size={13} color="#FBBF24" /> },
-                { label: "Instant Approval", icon: <PiShieldCheck size={13} color="#86EFAC" /> },
-                { label: "Verified B2B Fares", icon: <PiShieldCheck size={13} color="#93C5FD" /> },
-              ].map(({ label, icon }) => (
-                <div key={label} style={{ display: "flex", alignItems: "center", gap: 7, color: "rgba(255,255,255,0.80)", fontSize: 13, fontWeight: 500 }}>
-                  {icon} {label}
+                { label: "Group Bookings Welcome", Icon: PiUsers },
+                { label: "Instant Confirmation", Icon: PiLightning },
+                { label: "Verified Charter Rates", Icon: PiShieldCheck },
+              ].map(({ label, Icon }) => (
+                <div key={label} style={{ display: "flex", alignItems: "center", gap: 9, color: "rgba(255,255,255,0.85)", fontSize: 13, fontWeight: 500 }}>
+                  <div style={{
+                    width: 28, height: 28, borderRadius: "50%",
+                    background: "rgba(255,255,255,0.08)",
+                    border: "1px solid rgba(255,255,255,0.18)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    boxShadow: "0 0 10px rgba(255,255,255,0.08)",
+                    flexShrink: 0,
+                  }}>
+                    <Icon size={14} color="rgba(255,255,255,0.9)" />
+                  </div>
+                  {label}
                 </div>
               ))}
             </div>
@@ -473,15 +482,23 @@ export default function Home() {
             ═══════════════════════════════════════════ */}
       <section style={{ background: "rgba(255,255,255,0.03)", borderTop: "1px solid rgba(255,255,255,0.06)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "22px 24px" }}>
-          <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: "16px 48px" }}>
+          <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: "16px 44px" }}>
             {[
-              { Icon: PiShieldCheck, label: "Verified Best Fares", color: "#10B981" },
-              { Icon: PiAirplaneTilt, label: "Direct & 1-Stop Options", color: B.accent },
-              { Icon: PiShieldCheck, label: "Instant Approval", color: "#F59E0B" },
-              { Icon: PiBriefcase, label: "Corporate B2B Rates", color: "#3B82F6" },
-            ].map(({ Icon, label, color }) => (
-              <div key={label} style={{ display: "flex", alignItems: "center", gap: 9, color: "#E2E8F0", fontSize: 13, fontWeight: 600 }}>
-                <Icon size={16} color={color} />
+              { Icon: PiCheckCircle, label: "Guaranteed Block Seats", favicon: false },
+              { Icon: PiAirplaneTilt, label: "Charter & Group Bookings", favicon: true },
+              { Icon: PiLightning, label: "Instant Confirmation", favicon: false },
+              { Icon: PiKey, label: "Agency-Only Pricing", favicon: false },
+            ].map(({ Icon, label, favicon }) => (
+              <div key={label} style={{ display: "flex", alignItems: "center", gap: 8, color: "#E2E8F0", fontSize: 13, fontWeight: 600 }}>
+                <div style={{
+                  width: 26, height: 26, borderRadius: 8,
+                  background: favicon ? "rgba(124,58,237,0.18)" : "rgba(255,255,255,0.07)",
+                  border: favicon ? "1px solid rgba(124,58,237,0.35)" : "1px solid rgba(255,255,255,0.12)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: favicon ? "0 0 10px rgba(124,58,237,0.2)" : "0 0 8px rgba(255,255,255,0.06)",
+                }}>
+                  <Icon size={14} color="rgba(255,255,255,0.85)" />
+                </div>
                 {label}
               </div>
             ))}
@@ -501,16 +518,16 @@ export default function Home() {
             viewport={{ once: true }} transition={{ duration: 0.4 }}
             style={{ textAlign: "center", marginBottom: 48 }}
           >
-            <Pill>{openSectors.length > 0 ? `${openSectors.length} Available Route${openSectors.length > 1 ? "s" : ""}` : "Limited Time Offer"}</Pill>
+            <Pill>{openSectors.length > 0 ? `${openSectors.length} Charter Flight${openSectors.length > 1 ? "s" : ""} Open` : "Charter Flights Portal"}</Pill>
             <h2 style={{
               fontSize: "clamp(24px, 4vw, 36px)", fontWeight: 900,
               color: "#FFFFFF", letterSpacing: "-0.04em",
               marginTop: 14, marginBottom: 8
             }}>
-              Featured Routes
+              Available Charter Flights
             </h2>
             <p style={{ color: "#94A3B8", fontSize: 15 }}>
-              Exclusive fares. Unbeatable prices. Book before seats run out.
+              Block-seat charters with agency-only pricing. Secure your seats before they close.
             </p>
           </motion.div>
 
@@ -584,7 +601,7 @@ export default function Home() {
                           padding: "2px 8px",
                           borderRadius: 4,
                         }}>
-                          Flyinco Special Fare
+                          Charter Special
                         </div>
                       </div>
                     )}
@@ -598,7 +615,7 @@ export default function Home() {
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={s.airlineLogo} alt={s.airline} style={{ maxWidth: 80, maxHeight: 40, objectFit: "contain" }} />
                           ) : (
-                            <PiAirplaneTilt size={28} color={B.accent} />
+                            <PiAirplaneTilt size={28} color="rgba(255,255,255,0.85)" />
                           )}
                         </div>
                         <span style={{ fontSize: 13, color: "#E2E8F0", textAlign: "center", lineHeight: 1.2 }}>{s.airline}</span>
@@ -630,7 +647,7 @@ export default function Home() {
                           </div>
                         )}
                         <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: s.layover ? 4 : 6 }}>
-                          <PiBriefcase size={14} color="#374151" />
+                          <PiBriefcase size={14} color="rgba(255,255,255,0.7)" />
                           <span style={{ fontSize: 13, color: "#E2E8F0", fontWeight: 600 }}>{s.baggage || "40KG"}</span>
                         </div>
                       </div>
@@ -653,7 +670,7 @@ export default function Home() {
                           <span style={{ fontSize: 13, color: "#94A3B8" }}>SAR </span>{s.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                         </span>
                         <span style={{ fontSize: 12, color: "#94A3B8", marginTop: 2 }}>
-                          NetFare - {s.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                          Charter Fare - {s.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                         </span>
                         <span style={{ fontSize: 11, color: "#FBBF24", marginTop: 6, fontWeight: 700, background: "rgba(245,158,11,0.15)", padding: "2px 6px", borderRadius: 4 }}>
                           {s.remainingSeats} Seats Left
@@ -735,14 +752,14 @@ export default function Home() {
               style={{ maxWidth: 780, margin: "24px auto 0", textAlign: "center", padding: "60px 20px", background: "rgba(255,255,255,0.04)", borderRadius: 20, border: "1px dashed rgba(255,255,255,0.12)" }}
             >
               <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(124,58,237,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
-                <PiAirplaneTilt size={32} color={B.accent} />
+                <PiAirplaneTilt size={32} color="rgba(255,255,255,0.85)" />
               </div>
-              <h3 style={{ fontSize: 22, fontWeight: 800, color: "#FFFFFF", marginBottom: 12 }}>Currently No Routes Available</h3>
+              <h3 style={{ fontSize: 22, fontWeight: 800, color: "#FFFFFF", marginBottom: 12 }}>No Charter Flights Available</h3>
               <p style={{ color: "#94A3B8", fontSize: 15, maxWidth: 450, margin: "0 auto 24px" }}>
-                We're currently updating our flight schedules. Please check back shortly for the best fares from Riyadh to Kochi and more.
+                No charter blocks are currently open. We update our flights regularly — check back soon or contact us for group booking inquiries.
               </p>
               <button
-                onClick={() => window.location.reload()}
+                onClick={() => { if (typeof window !== "undefined") window.location.reload(); }}
                 style={{
                   background: GRADIENT, color: "#fff", border: "none", padding: "10px 24px", borderRadius: 8, fontWeight: 600, cursor: "pointer", fontSize: 14
                 }}
@@ -786,7 +803,7 @@ export default function Home() {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={selectedFlightModal.airlineLogo} alt="Airline" style={{ maxHeight: 40, objectFit: "contain" }} />
                 ) : (
-                  <PiAirplaneTilt size={32} color={B.accent} />
+                  <PiAirplaneTilt size={32} color="rgba(255,255,255,0.85)" />
                 )}
                 <div>
                   <div style={{ fontSize: 16, fontWeight: 700, color: "#FFFFFF" }}>{selectedFlightModal.airline}</div>
@@ -826,7 +843,7 @@ export default function Home() {
                 <div>
                   <span style={{ fontSize: 12, color: "#94A3B8", display: "block", marginBottom: 2 }}>Baggage Allowance</span>
                   <span style={{ fontSize: 14, fontWeight: 600, color: "#FFFFFF", display: "flex", alignItems: "center", gap: 6 }}>
-                    <PiBriefcase size={14} color={B.accent} /> {selectedFlightModal.baggage || "40KG"}
+                    <PiBriefcase size={14} color="rgba(255,255,255,0.85)" /> {selectedFlightModal.baggage || "40KG"}
                   </span>
                 </div>
                 <div>
@@ -904,7 +921,7 @@ function Divider() {
         display: "flex", alignItems: "center", justifyContent: "center",
         background: "rgba(255,255,255,0.05)"
       }}>
-        <PiArrowRight size={11} color="#94A3B8" />
+        <PiArrowRight size={11} color="rgba(255,255,255,0.7)" />
       </div>
     </div>
   );

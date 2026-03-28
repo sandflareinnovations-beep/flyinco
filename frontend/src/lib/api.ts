@@ -27,17 +27,7 @@ const getApiBase = () => {
 
 export const API_BASE = getApiBase();
 
-let isRefreshing = false;
-let refreshSubscribers: ((token: string) => void)[] = [];
-
-const subscribeTokenRefresh = (cb: (token: string) => void) => {
-    refreshSubscribers.push(cb);
-};
-
-const onTokenRefreshed = (token: string) => {
-    refreshSubscribers.map((cb) => cb(token));
-    refreshSubscribers = [];
-};
+let refreshPromise: Promise<string> | null = null;
 
 export const fetchWithCreds = async (url: string, options: any = {}): Promise<any> => {
     const { requiresAuth = true, retryCount = 0, ...fetchOptions } = options;
@@ -74,59 +64,36 @@ export const fetchWithCreds = async (url: string, options: any = {}): Promise<an
 
         // 1. Handle 401 Unauthorized - Trigger Refresh Flow
         if (res.status === 401 && requiresAuth !== false && !url.includes('/auth/login') && !url.includes('/auth/refresh')) {
-            if (!isRefreshing) {
-                isRefreshing = true;
+            if (!refreshPromise) {
                 const refreshToken = localStorage.getItem('refresh_token');
-                
                 if (!refreshToken) {
                     window.location.href = '/login?expired=true';
                     return;
                 }
-
-                try {
-                    const refreshRes = await fetch(`${API_BASE}/auth/refresh`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ refresh_token: refreshToken }),
-                    });
-
+                refreshPromise = fetch(`${API_BASE}/auth/refresh`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ refresh_token: refreshToken }),
+                }).then(async (refreshRes) => {
                     if (refreshRes.ok) {
                         const data = await refreshRes.json();
                         const newToken = data.token || data.access_token;
-                        
-                        // Save new tokens
                         localStorage.setItem('token', newToken);
-                        if (data.refresh_token) {
-                            localStorage.setItem('refresh_token', data.refresh_token);
-                        }
-                        
-                        // Sync cookie for Next.js middleware
+                        if (data.refresh_token) localStorage.setItem('refresh_token', data.refresh_token);
                         const isSecure = window.location.protocol === "https:";
                         document.cookie = `token=${newToken}; path=/; max-age=86400; SameSite=Lax${isSecure ? "; Secure" : ""}`;
-                        
-                        isRefreshing = false;
-                        onTokenRefreshed(newToken);
+                        return newToken as string;
                     } else {
-                        // Refresh failed (token likely revoked or expired)
-                        isRefreshing = false;
                         localStorage.clear();
                         document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
                         window.location.href = '/login?expired=true';
                         throw new Error('Session expired');
                     }
-                } catch (e) {
-                    isRefreshing = false;
-                    throw e;
-                }
+                }).finally(() => { refreshPromise = null; });
             }
 
-            // Await the refresh already in progress
-            return new Promise((resolve) => {
-                subscribeTokenRefresh((newToken: string) => {
-                    // Re-run with the new token
-                    resolve(fetchWithCreds(url, { ...options, headers: { ...options.headers, "Authorization": `Bearer ${newToken}` } }));
-                });
-            });
+            const newToken = await refreshPromise;
+            return fetchWithCreds(url, { ...options, headers: { ...options.headers, "Authorization": `Bearer ${newToken}` } });
         }
 
         // 2. Parse Data
@@ -169,11 +136,11 @@ export const flyApi = {
             if (params?.availableOnly) query.append('availableOnly', 'true');
 
             const data = await fetchWithCreds(`/routes?${query.toString()}`, { requiresAuth: false });
-            
+
             // Handle both legacy array response and new paginated response
             const routesArray = Array.isArray(data) ? data : (data.routes || []);
-            
-            const mapped = routesArray.map((d: any) => ({
+
+            const mapped = routesArray.filter((d: any) => d.id && d.origin && d.destination).map((d: any) => ({
                 id: d.id,
                 originCode: d.origin,
                 originCity: d.originCity || "Origin City",
@@ -214,8 +181,8 @@ export const flyApi = {
 
             const data = await fetchWithCreds(`/routes?${query.toString()}`, { requiresAuth: false });
             const routesArray = data.routes || [];
-            
-            const mapped = routesArray.map((d: any) => ({
+
+            const mapped = routesArray.filter((d: any) => d.id && d.origin && d.destination).map((d: any) => ({
                 id: d.id,
                 originCode: d.origin,
                 originCity: d.originCity || "Origin City",

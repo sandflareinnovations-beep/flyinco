@@ -77,13 +77,13 @@ export default function AdminDashboard() {
     const remainingSeats = sectorList.reduce((acc: number, s: any) => acc + (s.remainingSeats || 0), 0);
 
 
-    const agentSalesData = agentPerformance.map((a: any) => {
+    const agentSalesData = validAgents.map((a: any) => {
         const displayName = a.name || 'Unknown';
         return {
         name: displayName.length > 12 ? displayName.split(' ').slice(0, 1).join(' ') : displayName,
         fullName: displayName,
-        Sales: a.totalSales,
-        Unpaid: a.unpaid,
+        Sales:  a.totalSales ?? 0,
+        Unpaid: a.unpaid     ?? 0,
     };
     });
 
@@ -260,7 +260,7 @@ export default function AdminDashboard() {
                     </CardHeader>
                     <CardContent className="p-0">
                         <div className="divide-y divide-gray-100">
-                            {agentPerformance.slice(0, 5).map((agent: any, i: number) => (
+                            {validAgents.slice(0, 5).map((agent: any, i: number) => (
                                 <div key={i} className="px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors">
                                     <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center font-bold text-xs uppercase">
@@ -272,9 +272,9 @@ export default function AdminDashboard() {
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-sm font-black text-gray-900">SAR {agent.totalSales.toLocaleString()}</p>
-                                        {agent.unpaid > 0 ? (
-                                            <p className="text-[10px] text-red-500 font-bold">Due: {agent.unpaid.toLocaleString()}</p>
+                                        <p className="text-sm font-black text-gray-900">SAR {(agent.totalSales ?? 0).toLocaleString()}</p>
+                                        {(agent.unpaid ?? 0) > 0 ? (
+                                            <p className="text-[10px] text-red-500 font-bold">Due: {(agent.unpaid ?? 0).toLocaleString()}</p>
                                         ) : (
                                             <p className="text-[10px] text-emerald-500 font-bold">Paid</p>
                                         )}
