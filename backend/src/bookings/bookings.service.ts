@@ -1185,6 +1185,20 @@ export class BookingsService {
     );
     const totalUnpaidDues = Math.max(0, totalRevenue - globalPaymentsSum);
 
+    // Build a set of known agent names/agency names to filter out suppliers/direct
+    const registeredAgents = await this.prisma.user.findMany({
+      where: { role: "AGENT" },
+      select: { id: true, name: true, agencyName: true },
+    });
+    const agentNameSet = new Set<string>(
+      registeredAgents
+        .flatMap((a) => [
+          a.name?.toLowerCase().trim(),
+          a.agencyName?.toLowerCase().trim(),
+        ])
+        .filter(Boolean) as string[],
+    );
+
     const agentMap: Record<
       string,
       { name: string; totalSales: number; profit: number; count: number; unpaid: number }
@@ -1200,7 +1214,11 @@ export class BookingsService {
         agentName = (b.user.agencyName || b.user.name || "Direct Agent").trim();
       } else if (b.agentDetails) {
         const match = b.agentDetails.match(/^(.*?)\s*\(/);
-        agentName = (match ? match[1] : b.agentDetails).trim();
+        const parsedName = (match ? match[1] : b.agentDetails).trim();
+        // Only treat as an agent if the name matches a registered AGENT user —
+        // prevents supplier names / direct bookings from appearing in agent charts
+        if (!agentNameSet.has(parsedName.toLowerCase())) return;
+        agentName = parsedName;
         agentKey = `name:${agentName.toLowerCase()}`;
       }
 
