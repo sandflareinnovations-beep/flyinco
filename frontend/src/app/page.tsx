@@ -618,27 +618,27 @@ export default function Home() {
                             <PiAirplaneTilt size={28} color="rgba(255,255,255,0.85)" />
                           )}
                         </div>
-                        <span style={{ fontSize: 13, color: "#E2E8F0", textAlign: "center", lineHeight: 1.2 }}>{s.airline}</span>
-                        <span style={{ fontSize: 12, color: "#94A3B8", textAlign: "center", marginTop: 2 }}>{s.flightNumber}</span>
+                        <span style={{ fontSize: 13, color: "#1F2937", textAlign: "center", lineHeight: 1.2 }}>{s.airline}</span>
+                        <span style={{ fontSize: 12, color: "#374151", textAlign: "center", marginTop: 2 }}>{s.flightNumber}</span>
                       </div>
 
                       {/* Departure Section */}
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 140 }}>
-                        <span style={{ fontSize: 13, color: "#94A3B8", marginBottom: 4 }}>{s.originCity} ({s.originCode})</span>
-                        <span style={{ fontSize: 26, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.1 }}>{s.departureTime || "--:--"}</span>
-                        <span style={{ fontSize: 13, color: "#94A3B8", marginTop: 4 }}>
+                        <span style={{ fontSize: 13, color: "#374151", marginBottom: 4 }}>{s.originCity} ({s.originCode})</span>
+                        <span style={{ fontSize: 26, fontWeight: 800, color: "#1F2937", lineHeight: 1.1 }}>{s.departureTime || "--:--"}</span>
+                        <span style={{ fontSize: 13, color: "#374151", marginTop: 4 }}>
                           {s.departureDate ? new Date(s.departureDate).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }).replace(',', '') : "--"}
                         </span>
                       </div>
 
                       {/* Duration Section */}
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: "1 1 120px", minWidth: 120, maxWidth: 180 }}>
-                        <span style={{ fontSize: 12, color: "#94A3B8", marginBottom: 6 }}>{s.duration}</span>
+                        <span style={{ fontSize: 12, color: "#374151", marginBottom: 6 }}>{s.duration}</span>
                         <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
-                          <div style={{ width: 6, height: 6, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.3)", background: "transparent", flexShrink: 0 }}></div>
-                          <div style={{ flex: 1, height: 1.5, background: "rgba(255,255,255,0.2)" }}></div>
+                          <div style={{ width: 6, height: 6, borderRadius: "50%", border: "1.5px solid rgba(0,0,0,0.2)", background: "transparent", flexShrink: 0 }}></div>
+                          <div style={{ flex: 1, height: 1.5, background: "rgba(0,0,0,0.15)" }}></div>
                           <svg width="6" height="10" viewBox="0 0 6 10" fill="none" style={{ flexShrink: 0, marginLeft: -1 }}>
-                            <path d="M1 1L5 5L1 9" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M1 1L5 5L1 9" stroke="rgba(0,0,0,0.2)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                           </svg>
                         </div>
                         {s.layover && (
@@ -647,29 +647,29 @@ export default function Home() {
                           </div>
                         )}
                         <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: s.layover ? 4 : 6 }}>
-                          <PiBriefcase size={14} color="rgba(255,255,255,0.7)" />
-                          <span style={{ fontSize: 13, color: "#E2E8F0", fontWeight: 600 }}>{s.baggage || "40KG"}</span>
+                          <PiBriefcase size={14} color="#7C3AED" />
+                          <span style={{ fontSize: 13, color: "#1F2937", fontWeight: 600 }}>{s.baggage || "40KG"}</span>
                         </div>
                       </div>
 
                       {/* Arrival Section */}
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 140 }}>
-                        <span style={{ fontSize: 13, color: "#94A3B8", marginBottom: 4 }}>{s.destinationCity} ({s.destinationCode})</span>
-                        <span style={{ fontSize: 26, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.1 }}>{s.arrivalTime || "--:--"}</span>
-                        <span style={{ fontSize: 13, color: "#94A3B8", marginTop: 4 }}>
+                        <span style={{ fontSize: 13, color: "#374151", marginBottom: 4 }}>{s.destinationCity} ({s.destinationCode})</span>
+                        <span style={{ fontSize: 26, fontWeight: 800, color: "#1F2937", lineHeight: 1.1 }}>{s.arrivalTime || "--:--"}</span>
+                        <span style={{ fontSize: 13, color: "#374151", marginTop: 4 }}>
                           {s.arrivalDate ? new Date(s.arrivalDate).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }).replace(',', '') : (s.departureDate ? new Date(s.departureDate).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }).replace(',', '') : "--")}
                         </span>
                       </div>
 
                       {/* Price Section */}
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 120 }}>
-                        <span style={{ background: "rgba(255,255,255,0.1)", color: "#94A3B8", fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 4, marginBottom: 6 }}>
+                        <span style={{ background: "rgba(0,0,0,0.05)", color: "#374151", fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 4, marginBottom: 6 }}>
                           {s.flightRules === "Refundable" ? "Refundable" : "NonRefundable"}
                         </span>
-                        <span style={{ fontSize: 20, fontWeight: 700, color: "#FFFFFF", display: "flex", alignItems: "baseline", gap: 3 }}>
-                          <span style={{ fontSize: 13, color: "#94A3B8" }}>SAR </span>{s.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                        <span style={{ fontSize: 20, fontWeight: 700, color: "#1F2937", display: "flex", alignItems: "baseline", gap: 3 }}>
+                          <span style={{ fontSize: 13, color: "#374151" }}>SAR </span>{s.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                         </span>
-                        <span style={{ fontSize: 12, color: "#94A3B8", marginTop: 2 }}>
+                        <span style={{ fontSize: 12, color: "#374151", marginTop: 2 }}>
                           Special Fare - {s.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                         </span>
                         <span style={{ fontSize: 11, color: "#FBBF24", marginTop: 6, fontWeight: 700, background: "rgba(245,158,11,0.15)", padding: "2px 6px", borderRadius: 4 }}>
