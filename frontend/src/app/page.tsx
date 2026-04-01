@@ -28,13 +28,13 @@ const ROUTE = {
   arrivalTime: "18:50 PM",
 };
 
-function Pill({ children, bg = B.light, color = "#C084FC" }: any) {
+function Pill({ children, bg = B.light, color = "#C084FC", borderColor = "rgba(124,58,237,0.3)" }: any) {
   return (
     <span style={{
       background: bg, color, fontSize: 11, fontWeight: 700,
       padding: "4px 14px 4px 8px", borderRadius: 999,
       display: "inline-flex", alignItems: "center", gap: 6,
-      letterSpacing: "0.02em", border: "1px solid rgba(124,58,237,0.3)"
+      letterSpacing: "0.02em", border: `1px solid ${borderColor}`
     }}>
       {children}
     </span>
@@ -509,7 +509,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════
                 ALL AVAILABLE FARE CARDS
             ═══════════════════════════════════════════ */}
-      <section style={{ background: "#0D1120", padding: "72px 24px" }}>
+      <section style={{ background: "#ffffff", padding: "72px 24px" }}>
         <div style={{ maxWidth: 1120, margin: "0 auto" }}>
 
           {/* Section header */}
@@ -518,15 +518,15 @@ export default function Home() {
             viewport={{ once: true }} transition={{ duration: 0.4 }}
             style={{ textAlign: "center", marginBottom: 48 }}
           >
-            <Pill>{openSectors.length > 0 ? `${openSectors.length} Special Flight${openSectors.length > 1 ? "s" : ""} Open` : "Special Flights Portal"}</Pill>
+            <Pill bg="rgba(124,58,237,0.15)" color="#7C3AED" borderColor="rgba(124,58,237,0.4)">{openSectors.length > 0 ? `${openSectors.length} Special Flight${openSectors.length > 1 ? "s" : ""} Open` : "Special Flights Portal"}</Pill>
             <h2 style={{
               fontSize: "clamp(24px, 4vw, 36px)", fontWeight: 900,
-              color: "#FFFFFF", letterSpacing: "-0.04em",
+              color: "#1F2937", letterSpacing: "-0.04em",
               marginTop: 14, marginBottom: 8
             }}>
               Available Special Flights
             </h2>
-            <p style={{ color: "#94A3B8", fontSize: 15 }}>
+            <p style={{ color: "#6B7280", fontSize: 15 }}>
               Special flights with agency-only pricing. Secure your seats before they close.
             </p>
           </motion.div>
@@ -536,25 +536,25 @@ export default function Home() {
             <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 860, margin: "0 auto 48px" }}>
               {[1, 2].map((i) => (
                 <div key={i} style={{
-                  background: "rgba(255,255,255,0.04)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)",
+                  background: "rgba(0,0,0,0.04)", borderRadius: 16, border: "1px solid rgba(0,0,0,0.08)",
                   padding: "24px 22px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16
                 }}>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 100 }}>
-                    <div style={{ width: 60, height: 40, background: "rgba(255,255,255,0.08)", borderRadius: 8, marginBottom: 8 }} />
-                    <div style={{ width: 80, height: 12, background: "rgba(255,255,255,0.08)", borderRadius: 4 }} />
+                    <div style={{ width: 60, height: 40, background: "rgba(0,0,0,0.08)", borderRadius: 8, marginBottom: 8 }} />
+                    <div style={{ width: 80, height: 12, background: "rgba(0,0,0,0.08)", borderRadius: 4 }} />
                   </div>
                   <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 20 }}>
                     <div>
-                      <div style={{ width: 100, height: 12, background: "rgba(255,255,255,0.08)", borderRadius: 4, marginBottom: 8 }} />
-                      <div style={{ width: 70, height: 28, background: "rgba(255,255,255,0.08)", borderRadius: 6 }} />
+                      <div style={{ width: 100, height: 12, background: "rgba(0,0,0,0.08)", borderRadius: 4, marginBottom: 8 }} />
+                      <div style={{ width: 70, height: 28, background: "rgba(0,0,0,0.08)", borderRadius: 6 }} />
                     </div>
-                    <div style={{ width: 60, height: 2, background: "rgba(255,255,255,0.08)" }} />
+                    <div style={{ width: 60, height: 2, background: "rgba(0,0,0,0.08)" }} />
                     <div>
-                      <div style={{ width: 100, height: 12, background: "rgba(255,255,255,0.08)", borderRadius: 4, marginBottom: 8 }} />
-                      <div style={{ width: 70, height: 28, background: "rgba(255,255,255,0.08)", borderRadius: 6 }} />
+                      <div style={{ width: 100, height: 12, background: "rgba(0,0,0,0.08)", borderRadius: 4, marginBottom: 8 }} />
+                      <div style={{ width: 70, height: 28, background: "rgba(0,0,0,0.08)", borderRadius: 6 }} />
                     </div>
                   </div>
-                  <div style={{ width: 80, height: 32, background: "rgba(255,255,255,0.08)", borderRadius: 6 }} />
+                  <div style={{ width: 80, height: 32, background: "rgba(0,0,0,0.08)", borderRadius: 6 }} />
                 </div>
               ))}
             </div>
@@ -571,9 +571,9 @@ export default function Home() {
                 >
                   <div
                     style={{
-                      background: "rgba(255,255,255,0.04)",
+                      background: "rgba(0,0,0,0.04)",
                       borderRadius: 16,
-                      border: "1px solid rgba(255,255,255,0.08)",
+                      border: "1px solid rgba(0,0,0,0.08)",
                       boxShadow: "none",
                       position: "relative",
                       padding: "16px 22px",
@@ -749,13 +749,13 @@ export default function Home() {
             <motion.div
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ delay: 0.1, duration: 0.45 }}
-              style={{ maxWidth: 780, margin: "24px auto 0", textAlign: "center", padding: "60px 20px", background: "rgba(255,255,255,0.04)", borderRadius: 20, border: "1px dashed rgba(255,255,255,0.12)" }}
+              style={{ maxWidth: 780, margin: "24px auto 0", textAlign: "center", padding: "60px 20px", background: "rgba(0,0,0,0.04)", borderRadius: 20, border: "1px dashed rgba(0,0,0,0.12)" }}
             >
               <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(124,58,237,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
-                <PiAirplaneTilt size={32} color="rgba(255,255,255,0.85)" />
+                <PiAirplaneTilt size={32} color="#7C3AED" />
               </div>
-              <h3 style={{ fontSize: 22, fontWeight: 800, color: "#FFFFFF", marginBottom: 12 }}>No Special Flights Available</h3>
-              <p style={{ color: "#94A3B8", fontSize: 15, maxWidth: 450, margin: "0 auto 24px" }}>
+              <h3 style={{ fontSize: 22, fontWeight: 800, color: "#1F2937", marginBottom: 12 }}>No Special Flights Available</h3>
+              <p style={{ color: "#6B7280", fontSize: 15, maxWidth: 450, margin: "0 auto 24px" }}>
                 No special flights are currently open. We update our flights regularly — check back soon or contact us for group booking inquiries.
               </p>
               <button
