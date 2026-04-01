@@ -480,7 +480,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════
                 FEATURE BAR
             ═══════════════════════════════════════════ */}
-      <section style={{ background: "linear-gradient(135deg, #4C1D95 0%, #7C3AED 100%)", borderTop: "none", borderBottom: "none" }}>
+      <section style={{ background: "#f9fafb", borderTop: "none", borderBottom: "none" }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "22px 24px" }}>
           <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: "16px 44px" }}>
             {[
@@ -489,15 +489,15 @@ export default function Home() {
               { Icon: PiLightning, label: "Instant Confirmation", favicon: false },
               { Icon: PiKey, label: "Agency-Only Pricing", favicon: false },
             ].map(({ Icon, label, favicon }) => (
-              <div key={label} style={{ display: "flex", alignItems: "center", gap: 8, color: "#E2E8F0", fontSize: 13, fontWeight: 600 }}>
+              <div key={label} style={{ display: "flex", alignItems: "center", gap: 8, color: "#374151", fontSize: 13, fontWeight: 600 }}>
                 <div style={{
                   width: 26, height: 26, borderRadius: 8,
-                  background: "rgba(255,255,255,0.25)",
-                  border: "1px solid rgba(255,255,255,0.4)",
+                  background: "rgba(124,58,237,0.15)",
+                  border: "1px solid rgba(124,58,237,0.3)",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  boxShadow: "0 0 8px rgba(255,255,255,0.15)",
+                  boxShadow: "0 0 8px rgba(124,58,237,0.1)",
                 }}>
-                  <Icon size={14} color="#ffffff" />
+                  <Icon size={14} color="#7C3AED" />
                 </div>
                 {label}
               </div>
