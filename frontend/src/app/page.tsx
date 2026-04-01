@@ -480,7 +480,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════
                 FEATURE BAR
             ═══════════════════════════════════════════ */}
-      <section style={{ background: "rgba(255,255,255,0.03)", borderTop: "1px solid rgba(255,255,255,0.06)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+      <section style={{ background: "linear-gradient(135deg, #4C1D95 0%, #7C3AED 100%)", borderTop: "none", borderBottom: "none" }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "22px 24px" }}>
           <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: "16px 44px" }}>
             {[
@@ -492,12 +492,12 @@ export default function Home() {
               <div key={label} style={{ display: "flex", alignItems: "center", gap: 8, color: "#E2E8F0", fontSize: 13, fontWeight: 600 }}>
                 <div style={{
                   width: 26, height: 26, borderRadius: 8,
-                  background: favicon ? "rgba(124,58,237,0.18)" : "rgba(255,255,255,0.07)",
-                  border: favicon ? "1px solid rgba(124,58,237,0.35)" : "1px solid rgba(255,255,255,0.12)",
+                  background: "rgba(255,255,255,0.25)",
+                  border: "1px solid rgba(255,255,255,0.4)",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  boxShadow: favicon ? "0 0 10px rgba(124,58,237,0.2)" : "0 0 8px rgba(255,255,255,0.06)",
+                  boxShadow: "0 0 8px rgba(255,255,255,0.15)",
                 }}>
-                  <Icon size={14} color="rgba(255,255,255,0.85)" />
+                  <Icon size={14} color="#ffffff" />
                 </div>
                 {label}
               </div>
@@ -782,80 +782,80 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             style={{
-              background: "#141827", borderRadius: 16, width: "100%", maxWidth: 640,
-              boxShadow: "0 24px 48px rgba(0,0,0,0.2)", overflow: "hidden", position: "relative"
+              background: "#ffffff", borderRadius: 16, width: "100%", maxWidth: 640,
+              boxShadow: "0 24px 48px rgba(0,0,0,0.4)", overflow: "hidden", position: "relative"
             }}
           >
             {/* Header */}
-            <div style={{ background: GRADIENT, padding: "20px 24px", color: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ background: "linear-gradient(135deg, #F3E8FF 0%, #EDE9FE 100%)", padding: "20px 24px", color: "#1F2937", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span style={{ fontSize: 18, fontWeight: 700 }}>Flight Details</span>
-              <button 
-                onClick={() => setSelectedFlightModal(null)} 
-                style={{ background: "transparent", border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+              <button
+                onClick={() => setSelectedFlightModal(null)}
+                style={{ background: "transparent", border: "none", color: "#7C3AED", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
               >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
               </button>
             </div>
             {/* Body */}
             <div style={{ padding: 24 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24, borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24, borderBottom: "1px solid rgba(0,0,0,0.1)", paddingBottom: 16 }}>
                 {selectedFlightModal.airlineLogo ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={selectedFlightModal.airlineLogo} alt="Airline" style={{ maxHeight: 40, objectFit: "contain" }} />
                 ) : (
-                  <PiAirplaneTilt size={32} color="rgba(255,255,255,0.85)" />
+                  <PiAirplaneTilt size={32} color="#374151" />
                 )}
                 <div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: "#FFFFFF" }}>{selectedFlightModal.airline}</div>
-                  <div style={{ fontSize: 13, color: "#94A3B8" }}>Flight {selectedFlightModal.flightNumber || selectedFlightModal.flight}</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "#1F2937" }}>{selectedFlightModal.airline}</div>
+                  <div style={{ fontSize: 13, color: "#6B7280" }}>Flight {selectedFlightModal.flightNumber || selectedFlightModal.flight}</div>
                 </div>
               </div>
 
               <div style={{ display: "flex", justifyContent: "space-between", position: "relative", marginBottom: 24 }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: "#FFFFFF" }}>{selectedFlightModal.departureTime || "--:--"}</div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: "#E2E8F0" }}>{selectedFlightModal.originCity || selectedFlightModal.from?.city} ({selectedFlightModal.originCode || selectedFlightModal.from?.code})</div>
-                  <div style={{ fontSize: 13, color: "#94A3B8", marginTop: 4 }}>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: "#1F2937" }}>{selectedFlightModal.departureTime || "--:--"}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "#374151" }}>{selectedFlightModal.originCity || selectedFlightModal.from?.city} ({selectedFlightModal.originCode || selectedFlightModal.from?.code})</div>
+                  <div style={{ fontSize: 13, color: "#6B7280", marginTop: 4 }}>
                     {selectedFlightModal.departureDate ? new Date(selectedFlightModal.departureDate).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }).replace(',', '') : (selectedFlightModal.date || "Mon Mar 16 2026")}
                   </div>
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, padding: "0 16px" }}>
-                  <span style={{ fontSize: 12, color: "#94A3B8", marginBottom: 4 }}>{selectedFlightModal.duration}</span>
+                  <span style={{ fontSize: 12, color: "#6B7280", marginBottom: 4 }}>{selectedFlightModal.duration}</span>
                   <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
-                    <div style={{ width: 6, height: 6, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)", background: "transparent" }}></div>
-                    <div style={{ flex: 1, height: 2, background: "rgba(255,255,255,0.3)" }}></div>
-                    <svg width="6" height="10" viewBox="0 0 6 10" fill="none" style={{ marginLeft: -1 }}><path d="M1 1L5 5L1 9" stroke="rgba(255,255,255,0.3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", border: "2px solid rgba(0,0,0,0.2)", background: "transparent" }}></div>
+                    <div style={{ flex: 1, height: 2, background: "rgba(0,0,0,0.2)" }}></div>
+                    <svg width="6" height="10" viewBox="0 0 6 10" fill="none" style={{ marginLeft: -1 }}><path d="M1 1L5 5L1 9" stroke="rgba(0,0,0,0.2)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   </div>
-                  <span style={{ fontSize: 12, color: "#94A3B8", marginTop: 4 }}>{selectedFlightModal.layover ? `${selectedFlightModal.layover} Stop(s)` : "Direct"}</span>
+                  <span style={{ fontSize: 12, color: "#6B7280", marginTop: 4 }}>{selectedFlightModal.layover ? `${selectedFlightModal.layover} Stop(s)` : "Direct"}</span>
                 </div>
 
                 <div style={{ flex: 1, textAlign: "right" }}>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: "#FFFFFF" }}>{selectedFlightModal.arrivalTime || "--:--"}</div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: "#E2E8F0" }}>{selectedFlightModal.destinationCity || selectedFlightModal.to?.city} ({selectedFlightModal.destinationCode || selectedFlightModal.to?.code})</div>
-                  <div style={{ fontSize: 13, color: "#94A3B8", marginTop: 4 }}>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: "#1F2937" }}>{selectedFlightModal.arrivalTime || "--:--"}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "#374151" }}>{selectedFlightModal.destinationCity || selectedFlightModal.to?.city} ({selectedFlightModal.destinationCode || selectedFlightModal.to?.code})</div>
+                  <div style={{ fontSize: 13, color: "#6B7280", marginTop: 4 }}>
                     {selectedFlightModal.arrivalDate ? new Date(selectedFlightModal.arrivalDate).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }).replace(',', '') : (selectedFlightModal.departureDate ? new Date(selectedFlightModal.departureDate).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }).replace(',', '') : (selectedFlightModal.date || "Mon Mar 16 2026"))}
                   </div>
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, background: "rgba(255,255,255,0.05)", padding: 16, borderRadius: 8 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, background: "rgba(0,0,0,0.05)", padding: 16, borderRadius: 8 }}>
                 <div>
-                  <span style={{ fontSize: 12, color: "#94A3B8", display: "block", marginBottom: 2 }}>Baggage Allowance</span>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: "#FFFFFF", display: "flex", alignItems: "center", gap: 6 }}>
-                    <PiBriefcase size={14} color="rgba(255,255,255,0.85)" /> {selectedFlightModal.baggage || "40KG"}
+                  <span style={{ fontSize: 12, color: "#6B7280", display: "block", marginBottom: 2 }}>Baggage Allowance</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: "#1F2937", display: "flex", alignItems: "center", gap: 6 }}>
+                    <PiBriefcase size={14} color="#374151" /> {selectedFlightModal.baggage || "40KG"}
                   </span>
                 </div>
                 <div>
-                  <span style={{ fontSize: 12, color: "#94A3B8", display: "block", marginBottom: 2 }}>Flight Rules</span>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: "#FFFFFF" }}>{selectedFlightModal.flightRules === "Refundable" ? "Refundable" : "NonRefundable"}</span>
+                  <span style={{ fontSize: 12, color: "#6B7280", display: "block", marginBottom: 2 }}>Flight Rules</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: "#1F2937" }}>{selectedFlightModal.flightRules === "Refundable" ? "Refundable" : "NonRefundable"}</span>
                 </div>
               </div>
               
               {selectedFlightModal.flightDetails && (
                 <div style={{ marginTop: 24 }}>
-                  <h4 style={{ fontSize: 14, fontWeight: 700, color: "#FFFFFF", marginBottom: 8 }}>Additional Information</h4>
-                  <div style={{ fontSize: 13, color: "#94A3B8", lineHeight: 1.6, background: "rgba(255,255,255,0.05)", padding: 12, borderRadius: 6, whiteSpace: "pre-wrap" }}>
+                  <h4 style={{ fontSize: 14, fontWeight: 700, color: "#1F2937", marginBottom: 8 }}>Additional Information</h4>
+                  <div style={{ fontSize: 13, color: "#6B7280", lineHeight: 1.6, background: "rgba(0,0,0,0.05)", padding: 12, borderRadius: 6, whiteSpace: "pre-wrap" }}>
                     {selectedFlightModal.flightDetails}
                   </div>
                 </div>
