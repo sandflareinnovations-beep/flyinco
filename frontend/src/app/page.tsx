@@ -167,8 +167,8 @@ export default function Home() {
               }} />
               <span style={{ color: "rgba(255,255,255,0.92)", fontSize: 12, fontWeight: 600, letterSpacing: "0.04em" }}>
                 {openSectors.length > 0
-                  ? `CHARTER FLIGHT OPEN · ${openSectors[0].originCode} → ${openSectors[0].destinationCode}`
-                  : "CHARTERED FLIGHTS PORTAL"}
+                  ? `SPECIAL FLIGHT OPEN · ${openSectors[0].originCode} → ${openSectors[0].destinationCode}`
+                  : "SPECIAL FLIGHTS PORTAL"}
               </span>
             </div>
           </motion.div>
@@ -181,15 +181,15 @@ export default function Home() {
               marginBottom: 20, maxWidth: 700
             }}>
               Your Gateway to<br />
-              <span style={{ color: "#C4B5FD" }}>Chartered Flights</span>
+              <span style={{ color: "#C4B5FD" }}>Special Flights</span>
             </h1>
             <p style={{
               fontSize: "clamp(15px, 2vw, 19px)", color: "rgba(255,255,255,0.72)",
               marginBottom: 48, maxWidth: 520, lineHeight: 1.6, fontWeight: 400
             }}>
               {openSectors.length > 0
-                ? `Charter seats from ${openSectors[0].originCity} to ${openSectors[0].destinationCity}. Exclusive block fares, agency-only pricing, instant confirmation.`
-                : "Access exclusive chartered flight blocks with agency-only pricing, guaranteed seats and instant confirmation."}
+                ? `Special flight seats from ${openSectors[0].originCity} to ${openSectors[0].destinationCity}. Exclusive block fares, agency-only pricing, instant confirmation.`
+                : "Access exclusive special flight blocks with agency-only pricing, guaranteed seats and instant confirmation."}
             </p>
           </motion.div>
 
@@ -286,7 +286,7 @@ export default function Home() {
                         <div style={{ padding: "14px 20px 10px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                             <PiMagnifyingGlass size={14} color="rgba(255,255,255,0.8)" />
-                            <span style={{ fontWeight: 800, fontSize: 13, color: "#E2E8F0" }}>Charter Routes</span>
+                            <span style={{ fontWeight: 800, fontSize: 13, color: "#E2E8F0" }}>Special Routes</span>
                             <span style={{ fontSize: 11, color: "#9CA3AF", marginLeft: "auto" }}>{openSectors.length} flight{openSectors.length !== 1 ? "s" : ""} open</span>
                           </div>
                         </div>
@@ -430,13 +430,13 @@ export default function Home() {
               ) : (
                 <div style={{ padding: "40px 20px", textAlign: "center" }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: "#A78BFA", marginBottom: 4, letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                    Charter Status
+                    Flight Status
                   </div>
                   <div style={{ fontSize: 24, fontWeight: 900, color: "#FFFFFF", letterSpacing: "-0.02em" }}>
-                    No Charter Flights Open
+                    No Special Flights Open
                   </div>
                   <div style={{ fontSize: 14, color: "#94A3B8", marginTop: 8, maxWidth: 400, margin: "8px auto 0" }}>
-                    No charter blocks are available right now. Contact us for group bookings or check back soon for new routes.
+                    No special flights are available right now. Contact us for group bookings or check back soon for new routes.
                   </div>
                 </div>
               )}
@@ -444,8 +444,8 @@ export default function Home() {
               {/* Route notice */}
               <p style={{ textAlign: "center", fontSize: 11, color: "#64748B", padding: "10px 20px 12px", fontWeight: 500, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
                 <PiAirplaneTilt size={14} color="rgba(255,255,255,0.6)" /> {openSectors.length > 0
-                  ? <>{openSectors.length} charter route{openSectors.length > 1 ? "s" : ""} open · Click <strong style={{ color: "#A78BFA" }}>FROM / TO</strong> to select</>
-                  : <>Charter route: <strong style={{ color: "#A78BFA" }}>Riyadh (RUH) → Cochin (COK)</strong> · More routes coming soon</>}
+                  ? <>{openSectors.length} special route{openSectors.length > 1 ? "s" : ""} open · Click <strong style={{ color: "#A78BFA" }}>FROM / TO</strong> to select</>
+                  : <>Special route: <strong style={{ color: "#A78BFA" }}>Riyadh (RUH) → Cochin (COK)</strong> · More routes coming soon</>}
               </p>
             </div>
           </motion.div>
@@ -456,7 +456,7 @@ export default function Home() {
               {[
                 { label: "Group Bookings Welcome", Icon: PiUsers },
                 { label: "Instant Confirmation", Icon: PiLightning },
-                { label: "Verified Charter Rates", Icon: PiShieldCheck },
+                { label: "Verified Special Rates", Icon: PiShieldCheck },
               ].map(({ label, Icon }) => (
                 <div key={label} style={{ display: "flex", alignItems: "center", gap: 9, color: "rgba(255,255,255,0.85)", fontSize: 13, fontWeight: 500 }}>
                   <div style={{
@@ -485,7 +485,7 @@ export default function Home() {
           <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: "16px 44px" }}>
             {[
               { Icon: PiCheckCircle, label: "Guaranteed Block Seats", favicon: false },
-              { Icon: PiAirplaneTilt, label: "Charter & Group Bookings", favicon: true },
+              { Icon: PiAirplaneTilt, label: "Special & Group Bookings", favicon: true },
               { Icon: PiLightning, label: "Instant Confirmation", favicon: false },
               { Icon: PiKey, label: "Agency-Only Pricing", favicon: false },
             ].map(({ Icon, label, favicon }) => (
@@ -518,16 +518,16 @@ export default function Home() {
             viewport={{ once: true }} transition={{ duration: 0.4 }}
             style={{ textAlign: "center", marginBottom: 48 }}
           >
-            <Pill>{openSectors.length > 0 ? `${openSectors.length} Charter Flight${openSectors.length > 1 ? "s" : ""} Open` : "Charter Flights Portal"}</Pill>
+            <Pill>{openSectors.length > 0 ? `${openSectors.length} Special Flight${openSectors.length > 1 ? "s" : ""} Open` : "Special Flights Portal"}</Pill>
             <h2 style={{
               fontSize: "clamp(24px, 4vw, 36px)", fontWeight: 900,
               color: "#FFFFFF", letterSpacing: "-0.04em",
               marginTop: 14, marginBottom: 8
             }}>
-              Available Charter Flights
+              Available Special Flights
             </h2>
             <p style={{ color: "#94A3B8", fontSize: 15 }}>
-              Block-seat charters with agency-only pricing. Secure your seats before they close.
+              Special flights with agency-only pricing. Secure your seats before they close.
             </p>
           </motion.div>
 
@@ -601,7 +601,7 @@ export default function Home() {
                           padding: "2px 8px",
                           borderRadius: 4,
                         }}>
-                          Charter Special
+                          Special Flight
                         </div>
                       </div>
                     )}
@@ -670,7 +670,7 @@ export default function Home() {
                           <span style={{ fontSize: 13, color: "#94A3B8" }}>SAR </span>{s.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                         </span>
                         <span style={{ fontSize: 12, color: "#94A3B8", marginTop: 2 }}>
-                          Charter Fare - {s.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                          Special Fare - {s.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                         </span>
                         <span style={{ fontSize: 11, color: "#FBBF24", marginTop: 6, fontWeight: 700, background: "rgba(245,158,11,0.15)", padding: "2px 6px", borderRadius: 4 }}>
                           {s.remainingSeats} Seats Left
@@ -754,9 +754,9 @@ export default function Home() {
               <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(124,58,237,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
                 <PiAirplaneTilt size={32} color="rgba(255,255,255,0.85)" />
               </div>
-              <h3 style={{ fontSize: 22, fontWeight: 800, color: "#FFFFFF", marginBottom: 12 }}>No Charter Flights Available</h3>
+              <h3 style={{ fontSize: 22, fontWeight: 800, color: "#FFFFFF", marginBottom: 12 }}>No Special Flights Available</h3>
               <p style={{ color: "#94A3B8", fontSize: 15, maxWidth: 450, margin: "0 auto 24px" }}>
-                No charter blocks are currently open. We update our flights regularly — check back soon or contact us for group booking inquiries.
+                No special flights are currently open. We update our flights regularly — check back soon or contact us for group booking inquiries.
               </p>
               <button
                 onClick={() => { if (typeof window !== "undefined") window.location.reload(); }}
