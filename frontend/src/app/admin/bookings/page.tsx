@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
-import * as XLSX from "xlsx";
+// XLSX loaded dynamically on export to reduce bundle size
 
 import { useState } from "react";
 import { BookingReceipt } from "@/components/admin/booking-receipt";
@@ -287,7 +287,7 @@ export default function AdminBookings() {
         }),
     });
 
-    const handleExportAll = () => {
+    const handleExportAll = async () => {
         const data = bookings.map((b: any) => ({
             ID: b.id,
             Date: b.createdAt ? format(new Date(b.createdAt), 'dd-MM-yyyy') : 'N/A',
@@ -312,6 +312,7 @@ export default function AdminBookings() {
             Remarks: b.remarks || 'N/A'
         }));
 
+        const XLSX = await import("xlsx");
         const ws = XLSX.utils.json_to_sheet(data);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "All_Bookings");

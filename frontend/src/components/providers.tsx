@@ -9,6 +9,7 @@ export function Providers({ children, ...props }: ThemeProviderProps) {
         defaultOptions: {
             queries: {
                 staleTime: 5 * 60 * 1000, // 5 minutes
+                refetchOnWindowFocus: false, // Don't refetch on every tab switch
             },
         },
     }));

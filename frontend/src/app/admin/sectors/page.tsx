@@ -1,6 +1,6 @@
 "use client";
 import { PiPlus, PiDotsThreeVertical, PiTrash, PiLockKey, PiWarning, PiPencilSimple, PiListNumbers, PiCheckCircle, PiGear, PiFileArrowDown } from "react-icons/pi";
-import * as XLSX from "xlsx";
+// XLSX loaded dynamically on export to reduce bundle size
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { flyApi } from "@/lib/api";
@@ -133,6 +133,7 @@ export default function SectorManagement() {
             arrivalTime: form.arrivalTime,
             baggage: form.baggage,
             airlineLogo: form.airlineLogo,
+            duration: form.duration,
             layover: form.layover,
             flightRules: form.flightRules,
             flightDetails: form.flightDetails,
@@ -224,6 +225,7 @@ export default function SectorManagement() {
                 "Phone": "",
                 "Email": "",
             });
+            const XLSX = await import("xlsx");
             const ws = XLSX.utils.json_to_sheet(rows);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Passengers");

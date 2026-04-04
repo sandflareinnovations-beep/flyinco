@@ -15,7 +15,7 @@ import {
 } from "react-icons/pi";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { format } from "date-fns";
-import * as XLSX from "xlsx";
+// XLSX loaded dynamically on export to reduce bundle size
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -118,7 +118,7 @@ export default function SupplierManagement() {
         return { totalPurchase, totalPaid, balance };
     }, [supplierBookings, supplierPayments]);
 
-    const handleExportExcel = () => {
+    const handleExportExcel = async () => {
         if (!selectedSupplier) return;
         const data = [
             ...supplierBookings.map(b => ({
@@ -139,6 +139,7 @@ export default function SupplierManagement() {
             }))
         ].sort((a,b) => new Date(b.Date).getTime() - new Date(a.Date).getTime());
 
+        const XLSX = await import("xlsx");
         const ws = XLSX.utils.json_to_sheet(data);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Statement");

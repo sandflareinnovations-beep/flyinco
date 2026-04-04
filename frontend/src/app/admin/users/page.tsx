@@ -3,7 +3,7 @@ import { PiUsers, PiEnvelopeSimple, PiPhone, PiCalendarBlank, PiPlus, PiKey, PiT
 import { useEffect, useState, useCallback } from "react";
 import { format } from "date-fns";
 
-import * as XLSX from "xlsx";
+// XLSX loaded dynamically on export to reduce bundle size
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
