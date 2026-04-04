@@ -18,7 +18,7 @@ import {
 } from "react-icons/pi";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { format } from "date-fns";
-import * as XLSX from "xlsx";
+// XLSX loaded dynamically on export to reduce bundle size
 import { motion, AnimatePresence } from "framer-motion";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -80,38 +80,13 @@ export default function AdminAccounts() {
         setAgentPayments([]);
         setLoadingLedger(true);
         try {
-            // Fetch bookings by name, agencyName, AND agentId to catch all bookings
-            const fetchPromises: Promise<any>[] = [];
-
-            // Primary: fetch by agentId (userId) — catches bookings even if agentDetails is empty
-            fetchPromises.push(flyApi.bookings.list({ limit: 5000, agentId: agent.id }));
-
-            // Secondary: fetch by agent name (catches legacy bookings matched by agentDetails string)
-            if (agent.name) {
-                fetchPromises.push(flyApi.bookings.list({ limit: 5000, agent: agent.name }));
-            }
-            // Tertiary: fetch by agency name (if different from name)
-            if (agent.agencyName && agent.agencyName.toLowerCase() !== agent.name?.toLowerCase()) {
-                fetchPromises.push(flyApi.bookings.list({ limit: 5000, agent: agent.agencyName }));
-            }
-
-            const [paymentsRes, ...bookingResults] = await Promise.all([
+            // Fetch bookings by agentId — single query catches all bookings for this agent
+            const [paymentsRes, bookingsRes] = await Promise.all([
                 flyApi.payments.byAgent(agent.id),
-                ...fetchPromises
+                flyApi.bookings.list({ limit: 5000, agentId: agent.id }),
             ]);
 
-            // Merge and deduplicate bookings by ID
-            const allBookings: any[] = [];
-            const seenIds = new Set<string>();
-            for (const res of bookingResults) {
-                const bookings = Array.isArray(res) ? res : (res.bookings || []);
-                for (const b of bookings) {
-                    if (!seenIds.has(b.id)) {
-                        seenIds.add(b.id);
-                        allBookings.push(b);
-                    }
-                }
-            }
+            const allBookings = Array.isArray(bookingsRes) ? bookingsRes : (bookingsRes.bookings || []);
 
             setAgentLedger(allBookings);
             setAgentPayments(Array.isArray(paymentsRes) ? paymentsRes : []);
@@ -162,7 +137,7 @@ export default function AdminAccounts() {
         }
     };
 
-    const handleExportExcel = () => {
+    const handleExportExcel = async () => {
         if (!selectedAgent) return;
         const data = [
             ...agentLedger.map(b => ({
@@ -197,6 +172,7 @@ export default function AdminAccounts() {
             }))
         ].sort((a,b) => new Date(b.Date).getTime() - new Date(a.Date).getTime());
 
+        const XLSX = await import("xlsx");
         const ws = XLSX.utils.json_to_sheet(data);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Ledger");

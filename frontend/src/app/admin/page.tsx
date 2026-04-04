@@ -38,6 +38,7 @@ export default function AdminDashboard() {
         queryFn: () => flyApi.bookings.getMetrics(),
         staleTime: 60000, // Cache for 1 minute — prevents refetch on tab switch
         refetchInterval: 60000, // Poll every 60s instead of 30s
+        refetchIntervalInBackground: false, // Don't poll when tab is not visible
     });
 
     const { data: sectors, isLoading: loadingSectors } = useQuery({

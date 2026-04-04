@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { flyApi } from "@/lib/api";
-import * as XLSX from "xlsx";
+// XLSX loaded dynamically on export to reduce bundle size
 import { PiChartBar, PiFileArrowDown, PiUsers, PiCurrencyDollar, PiTrendUp, PiMagnifyingGlass, PiCaretDown, PiCaretUp } from "react-icons/pi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,7 +55,7 @@ export default function RouteReportsPage() {
         { revenue: 0, cost: 0, profit: 0, bookings: 0 }
     );
 
-    const handleExportAll = () => {
+    const handleExportAll = async () => {
         const rows = filtered.map((r: any) => ({
             "Route": `${r.origin} → ${r.destination}`,
             "Airline": r.airline,
@@ -72,6 +72,7 @@ export default function RouteReportsPage() {
             "Total Cost (SAR)": r.totalCost,
             "Total Profit (SAR)": r.totalProfit,
         }));
+        const XLSX = await import("xlsx");
         const ws = XLSX.utils.json_to_sheet(rows);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Route Summary");
@@ -134,6 +135,7 @@ export default function RouteReportsPage() {
             "Purchase Price (SAR)": report.summary.totalCost, "Profit (SAR)": report.summary.totalProfit,
             "Agent": "", "Phone": "", "Email": "",
         });
+        const XLSX = await import("xlsx");
         const ws = XLSX.utils.json_to_sheet(rows);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Passengers");
