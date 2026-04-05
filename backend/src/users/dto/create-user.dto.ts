@@ -23,7 +23,7 @@ export class CreateUserDto {
   password: string;
 
   @IsOptional()
-  @IsIn(["USER", "ADMIN", "AGENT"])
+  @IsIn(["USER", "ADMIN", "AGENT", "STAFF"])
   role?: string;
 
   @IsOptional()
