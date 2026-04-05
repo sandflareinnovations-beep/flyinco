@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -21,6 +21,54 @@ const P = {
   white:    "#FFFFFF",
   dim:      "rgba(255,255,255,0.55)",
   faint:    "rgba(255,255,255,0.15)",
+};
+
+// ── Shared input renderer (must be outside Navbar to avoid re-mount on every render) ──
+function Field({ label, type = "text", value, onChange, placeholder, pw, showPw, onTogglePw, disabled }: any) {
+    return (
+        <div>
+            <label style={{ fontSize: 11, fontWeight: 700, color: P.dim, display: "block",
+                marginBottom: 6, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                {label}
+            </label>
+            <div style={{ position: "relative" }}>
+                <input
+                    type={pw ? (showPw ? "text" : "password") : type}
+                    value={value} onChange={onChange} placeholder={placeholder}
+                    disabled={disabled} required
+                    style={{
+                        width: "100%", height: 44, borderRadius: 10, padding: "0 14px",
+                        paddingRight: pw ? 44 : 14,
+                        background: P.input,
+                        border: `1.5px solid ${P.inputBdr}`,
+                        color: P.white, fontSize: 14, outline: "none",
+                        transition: "border-color 0.18s, background 0.18s",
+                        boxSizing: "border-box",
+                    }}
+                    onFocus={e => { e.target.style.borderColor = P.purple; e.target.style.background = "rgba(124,58,237,0.13)"; }}
+                    onBlur={e  => { e.target.style.borderColor = P.inputBdr; e.target.style.background = P.input; }}
+                />
+                {pw && (
+                    <button type="button" onClick={onTogglePw} disabled={disabled}
+                        style={{ position: "absolute", right: 13, top: "50%", transform: "translateY(-50%)",
+                            background: "none", border: "none", cursor: "pointer",
+                            color: P.faint, padding: 0, display: "flex" }}>
+                        {showPw ? <PiEyeClosed size={16} /> : <PiEye size={16} />}
+                    </button>
+                )}
+            </div>
+        </div>
+    );
+}
+
+const submitBtn: React.CSSProperties = {
+    width: "100%", height: 48, marginTop: 6,
+    background: P.btn, color: P.white,
+    border: "none", borderRadius: 12, fontWeight: 800, fontSize: 15,
+    cursor: "pointer", display: "flex", alignItems: "center",
+    justifyContent: "center", gap: 9,
+    boxShadow: "0 6px 20px rgba(76,29,149,0.55)",
+    transition: "all 0.2s ease",
 };
 
 export function Navbar() {
@@ -112,54 +160,6 @@ export function Navbar() {
             setSignupLoading(false);
         }
     }
-
-    // ── Shared input renderer ──────────────────────────
-    function Field({ label, type = "text", value, onChange, placeholder, pw, showPw, onTogglePw, disabled }: any) {
-        return (
-            <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: P.dim, display: "block",
-                    marginBottom: 6, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                    {label}
-                </label>
-                <div style={{ position: "relative" }}>
-                    <input
-                        type={pw ? (showPw ? "text" : "password") : type}
-                        value={value} onChange={onChange} placeholder={placeholder}
-                        disabled={disabled} required
-                        style={{
-                            width: "100%", height: 44, borderRadius: 10, padding: "0 14px",
-                            paddingRight: pw ? 44 : 14,
-                            background: P.input,
-                            border: `1.5px solid ${P.inputBdr}`,
-                            color: P.white, fontSize: 14, outline: "none",
-                            transition: "border-color 0.18s, background 0.18s",
-                            boxSizing: "border-box",
-                        }}
-                        onFocus={e => { e.target.style.borderColor = P.purple; e.target.style.background = "rgba(124,58,237,0.13)"; }}
-                        onBlur={e  => { e.target.style.borderColor = P.inputBdr; e.target.style.background = P.input; }}
-                    />
-                    {pw && (
-                        <button type="button" onClick={onTogglePw} disabled={disabled}
-                            style={{ position: "absolute", right: 13, top: "50%", transform: "translateY(-50%)",
-                                background: "none", border: "none", cursor: "pointer",
-                                color: P.faint, padding: 0, display: "flex" }}>
-                            {showPw ? <PiEyeClosed size={16} /> : <PiEye size={16} />}
-                        </button>
-                    )}
-                </div>
-            </div>
-        );
-    }
-
-    const submitBtn: React.CSSProperties = {
-        width: "100%", height: 48, marginTop: 6,
-        background: P.btn, color: P.white,
-        border: "none", borderRadius: 12, fontWeight: 800, fontSize: 15,
-        cursor: "pointer", display: "flex", alignItems: "center",
-        justifyContent: "center", gap: 9,
-        boxShadow: "0 6px 20px rgba(76,29,149,0.55)",
-        transition: "all 0.2s ease",
-    };
 
     return (
         <>
@@ -274,7 +274,7 @@ export function Navbar() {
                                 {loginTarget === "admin" ? "Opening Admin Panel…" : "Loading Your Dashboard…"}
                             </p>
                             <p style={{ color: P.dim, fontSize: 13, marginBottom: 20 }}>
-                                Flyinco Charter Portal
+                                Flyinco B2B Portal
                             </p>
                             <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
                                 {[0, 0.18, 0.36].map((delay, i) => (
@@ -335,7 +335,7 @@ export function Navbar() {
 
                             <div style={{ padding: "22px 28px 28px" }}>
 
-                                {/* Header — Flyinco Charter Portal */}
+                                {/* Header — Flyinco B2B Portal */}
                                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 22 }}>
                                     <div style={{
                                         width: 42, height: 42, borderRadius: 12,
@@ -350,7 +350,7 @@ export function Navbar() {
                                     <div>
                                         <div style={{ fontSize: 18, fontWeight: 800, color: P.white,
                                             letterSpacing: "-0.03em", lineHeight: 1.2 }}>
-                                            Flyinco Charter Portal
+                                            Flyinco B2B Portal
                                         </div>
                                         <div style={{ fontSize: 11, color: P.dim, marginTop: 3,
                                             letterSpacing: "0.04em", textTransform: "uppercase", fontWeight: 600 }}>
