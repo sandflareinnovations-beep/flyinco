@@ -727,7 +727,7 @@ export class BookingsService {
 
     const where: any = {};
 
-    if (user.role === "ADMIN") {
+    if (user.role === "ADMIN" || user.role === "STAFF") {
       // Use AND array to combine conditions without overwriting
       const andConditions: any[] = [];
 

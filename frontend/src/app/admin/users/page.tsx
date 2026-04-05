@@ -321,6 +321,7 @@ export default function UsersAdminPage() {
                 {[
                     { label: "Total Users", value: users.length, color: B.primary },
                     { label: "Agents", value: users.filter(u => u.role === "AGENT").length, color: "#10B981" },
+                    { label: "Staff", value: users.filter(u => u.role === "STAFF").length, color: "#6C2BD9" },
                     { label: "Customers", value: users.filter(u => u.role === "USER").length, color: "#64748B" },
                 ].map(stat => (
                     <div key={stat.label} className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
@@ -479,6 +480,7 @@ export default function UsersAdminPage() {
                                     value={form.role || "USER"} onChange={e => setForm({ ...form, role: e.target.value })}>
                                     <option value="USER">Customer / User</option>
                                     <option value="AGENT">Agent</option>
+                                    <option value="STAFF">Staff</option>
                                     <option value="ADMIN">Admin</option>
                                 </select>
                             </div>
@@ -533,6 +535,7 @@ export default function UsersAdminPage() {
                                     value={form.role || "USER"} onChange={e => setForm({ ...form, role: e.target.value })}>
                                     <option value="USER">Customer / User</option>
                                     <option value="AGENT">Agent</option>
+                                    <option value="STAFF">Staff</option>
                                     <option value="ADMIN">Admin</option>
                                 </select>
                             </div>

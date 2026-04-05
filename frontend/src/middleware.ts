@@ -7,7 +7,7 @@ export function middleware(request: NextRequest) {
 
     // If no token, redirect to login for protected routes
     if (!token) {
-        if (url.pathname.startsWith('/admin') || url.pathname.startsWith('/dashboard')) {
+        if (url.pathname.startsWith('/admin') || url.pathname.startsWith('/dashboard') || url.pathname.startsWith('/staff')) {
             return NextResponse.redirect(new URL('/login', request.url));
         }
         return NextResponse.next();
@@ -35,8 +35,12 @@ export function middleware(request: NextRequest) {
         if (url.pathname.startsWith('/admin') && payload.role !== 'ADMIN') {
             return NextResponse.redirect(new URL('/dashboard', request.url));
         }
+
+        if (url.pathname.startsWith('/staff') && payload.role !== 'STAFF' && payload.role !== 'ADMIN') {
+            return NextResponse.redirect(new URL('/dashboard', request.url));
+        }
     } catch (e) {
-        if (url.pathname.startsWith('/admin') || url.pathname.startsWith('/dashboard')) {
+        if (url.pathname.startsWith('/admin') || url.pathname.startsWith('/dashboard') || url.pathname.startsWith('/staff')) {
             // Clear invalid token string
             const response = NextResponse.redirect(new URL('/login?expired=true', request.url));
             response.cookies.delete('token');
@@ -48,5 +52,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/admin/:path*', '/dashboard/:path*'],
+    matcher: ['/admin/:path*', '/dashboard/:path*', '/staff/:path*'],
 };

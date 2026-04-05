@@ -29,7 +29,7 @@ function LoginContent() {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [redirecting, setRedirecting] = useState(false);
-    const [redirectTarget, setRedirectTarget] = useState<"admin" | "dashboard">("dashboard");
+    const [redirectTarget, setRedirectTarget] = useState<"admin" | "dashboard" | "staff">("dashboard");
     const [initializing, setInitializing] = useState(true);
 
     useEffect(() => {
@@ -60,7 +60,7 @@ function LoginContent() {
         if (storedUser && token && token !== "undefined") {
             try {
                 const user = JSON.parse(storedUser);
-                router.replace(user.role === "ADMIN" ? "/admin" : "/dashboard");
+                router.replace(user.role === "ADMIN" ? "/admin" : user.role === "STAFF" ? "/staff" : "/dashboard");
                 const timer = setTimeout(() => setInitializing(false), 300);
                 return () => clearTimeout(timer);
             } catch {
@@ -110,7 +110,7 @@ function LoginContent() {
             const cookieStr = `token=${tokenKey}; path=/; max-age=86400; SameSite=Lax${isSecure ? "; Secure" : ""}`;
             document.cookie = cookieStr;
 
-            const target: "admin" | "dashboard" = data.user.role === "ADMIN" ? "admin" : "dashboard";
+            const target: "admin" | "dashboard" | "staff" = data.user.role === "ADMIN" ? "admin" : data.user.role === "STAFF" ? "staff" : "dashboard";
 
             // Show redirect overlay first, then navigate after animation renders
             setRedirectTarget(target);
@@ -168,7 +168,7 @@ function LoginContent() {
                     </div>
                     <div style={{ textAlign: "center" }}>
                         <p style={{ color: "#fff", fontWeight: 800, fontSize: 22, letterSpacing: "-0.03em" }}>
-                            {redirectTarget === "admin" ? "Opening Admin Panel..." : "Loading Dashboard..."}
+                            {redirectTarget === "admin" ? "Opening Admin Panel..." : redirectTarget === "staff" ? "Opening Staff Panel..." : "Loading Dashboard..."}
                         </p>
                         <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 14, marginTop: 8 }}>
                             Please wait, setting things up for you

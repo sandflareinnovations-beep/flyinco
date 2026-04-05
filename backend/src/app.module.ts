@@ -1,5 +1,5 @@
 import { Module, NestModule, MiddlewareConsumer } from "@nestjs/common";
-import { APP_GUARD } from "@nestjs/core";
+import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { PrismaModule } from "./prisma/prisma.module";
@@ -14,6 +14,7 @@ import { PaymentsModule } from "./payments/payments.module";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
 import { BackupService } from "./common/backup.service";
 import { SecurityLoggerMiddleware } from "./common/middleware/security-logger.middleware";
+import { StaffFilterInterceptor } from "./common/staff-filter.interceptor";
 
 @Module({
   imports: [
@@ -50,6 +51,10 @@ import { SecurityLoggerMiddleware } from "./common/middleware/security-logger.mi
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: StaffFilterInterceptor,
     },
   ],
 })

@@ -97,7 +97,7 @@ export class BookingsController {
 
   // ── Metrics: Total numbers for dashboard ──
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("ADMIN", "AGENT", "USER")
+  @Roles("ADMIN", "AGENT", "USER", "STAFF")
   @Get("metrics")
   getMetrics(@Req() req: any) {
     return this.bookingsService.getMetrics(req.user);
@@ -112,7 +112,7 @@ export class BookingsController {
 
   // ── Admin/Agent/User: view their bookings ──
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("ADMIN", "AGENT", "USER")
+  @Roles("ADMIN", "AGENT", "USER", "STAFF")
   @Get()
   findAll(
     @Req() req: any,
@@ -137,14 +137,14 @@ export class BookingsController {
 
   // ── Admin: Route-wise passenger report ──
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("ADMIN")
+  @Roles("ADMIN", "STAFF")
   @Get("report/by-route/:routeId")
   getRoutePassengerReport(@Param("routeId") routeId: string) {
     return this.bookingsService.getRoutePassengerReport(routeId);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("ADMIN")
+  @Roles("ADMIN", "STAFF")
   @Get("report/route-summary")
   getRouteSummaryReport() {
     return this.bookingsService.getRouteSummaryReport();
@@ -159,7 +159,7 @@ export class BookingsController {
 
   // ── User/Admin: view one booking ──
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("USER", "ADMIN", "AGENT")
+  @Roles("USER", "ADMIN", "AGENT", "STAFF")
   @Get(":id")
   findOne(@Param("id") id: string, @Req() req: any) {
     return this.bookingsService.findOne(id, req.user);
@@ -213,7 +213,7 @@ export class BookingsController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("ADMIN")
+  @Roles("ADMIN", "STAFF")
   @Post(":id/send-itinerary")
   async sendItinerary(@Param("id") id: string, @Body("email") email?: string) {
     return this.bookingsService.sendItinerary(id, email);
