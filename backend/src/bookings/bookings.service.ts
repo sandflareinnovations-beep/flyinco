@@ -561,6 +561,9 @@ export class BookingsService {
         const person = (dbUser.name || "Unknown").trim();
         // Unified identification format for cross-system mapping
         structuredAgentDetails = `${agency} (${person})`;
+      } else if (dbUser && dbUser.role === "STAFF") {
+        const staffName = (dbUser.name || "Staff Member").trim();
+        structuredAgentDetails = `Staff: ${staffName}`;
       } else if (dbUser && !structuredAgentDetails) {
         // Logged in passenger without agent association
         structuredAgentDetails = (dbUser.name || "Direct Passenger").trim();
@@ -575,6 +578,12 @@ export class BookingsService {
       this.logger.warn(
         `Agent booking by user ${user.id} has empty agentDetails - agent DB record may be incomplete`,
       );
+    }
+
+    // Auto-derive gender from passengerType if not explicitly set
+    if (dto.passengerType && !dto.gender) {
+      if (dto.passengerType === "ADULT_MALE") dto.gender = "Male";
+      else if (dto.passengerType === "ADULT_FEMALE") dto.gender = "Female";
     }
 
     this.logger.log(
@@ -626,6 +635,7 @@ export class BookingsService {
           request: dto.request,
           agentDetails: structuredAgentDetails,
           gender: dto.gender,
+          passengerType: dto.passengerType,
           nationality: dto.nationality,
           dateOfBirth: parseDateHelper(dto.dateOfBirth),
           passportExpiry: parseDateHelper(dto.passportExpiry),
@@ -1347,6 +1357,20 @@ export class BookingsService {
     }
 
     return booking;
+  }
+
+  async confirmPayment(id: string) {
+    const booking = await this.prisma.booking.findUnique({ where: { id } });
+    if (!booking) throw new NotFoundException("Booking not found");
+
+    return this.prisma.booking.update({
+      where: { id },
+      data: {
+        paymentStatus: "PAID",
+        status: "CONFIRMED",
+      },
+      include: { route: true },
+    });
   }
 
   async update(id: string, dto: UpdateBookingDto) {

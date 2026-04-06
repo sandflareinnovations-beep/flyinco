@@ -113,6 +113,10 @@ export class CreateBookingDto {
 
   @IsOptional()
   @IsString()
+  passengerType?: string;
+
+  @IsOptional()
+  @IsString()
   nationality?: string;
 
   @IsOptional()

@@ -75,6 +75,7 @@ model Booking {
   remarks        String?
   request        String?
   gender         String?
+  passengerType  String?
   nationality    String?
   dateOfBirth    DateTime?
   passportExpiry DateTime?

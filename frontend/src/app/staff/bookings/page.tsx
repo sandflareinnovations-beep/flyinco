@@ -1,5 +1,5 @@
 "use client";
-import { PiEye, PiMagnifyingGlass, PiPrinter, PiEnvelopeSimple, PiTicket } from "react-icons/pi";
+import { PiEye, PiMagnifyingGlass, PiPrinter, PiEnvelopeSimple, PiTicket, PiCheckCircle } from "react-icons/pi";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +35,9 @@ export default function StaffBookings() {
     const [selected, setSelected] = useState<any>(null);
     const [showDetail, setShowDetail] = useState(false);
     const [showReceipt, setShowReceipt] = useState(false);
+    const [showPaymentConfirm, setShowPaymentConfirm] = useState(false);
+    const [paymentConfirmed, setPaymentConfirmed] = useState(false);
+    const [confirming, setConfirming] = useState(false);
 
     const { data: bookingData, isLoading, refetch, isError } = useQuery({
         queryKey: ["staff-bookings", page, search],
@@ -243,6 +246,21 @@ export default function StaffBookings() {
                                                             <PiEnvelopeSimple className="h-4 w-4" />
                                                         </Button>
                                                     )}
+                                                    {booking.paymentStatus !== "PAID" && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="h-8 w-8 p-0 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg"
+                                                            onClick={() => {
+                                                                setSelected(booking);
+                                                                setPaymentConfirmed(false);
+                                                                setShowPaymentConfirm(true);
+                                                            }}
+                                                            title="Confirm Payment"
+                                                        >
+                                                            <PiCheckCircle className="h-4 w-4" />
+                                                        </Button>
+                                                    )}
                                                 </div>
                                             </TableCell>
                                         </motion.tr>
@@ -398,6 +416,80 @@ export default function StaffBookings() {
                 <DialogContent className="max-w-4xl max-h-[90vh] p-0 rounded-2xl overflow-hidden">
                     {selected && (
                         <BookingReceipt booking={selected} onClose={() => setShowReceipt(false)} />
+                    )}
+                </DialogContent>
+            </Dialog>
+
+            {/* ─── PAYMENT CONFIRMATION DIALOG ─── */}
+            <Dialog open={showPaymentConfirm} onOpenChange={setShowPaymentConfirm}>
+                <DialogContent className="max-w-md rounded-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="text-lg font-black">Confirm Customer Payment</DialogTitle>
+                        <DialogDescription className="text-xs text-gray-400">
+                            Mark this booking as paid and confirm it.
+                        </DialogDescription>
+                    </DialogHeader>
+                    {selected && (
+                        <div className="space-y-4 text-sm">
+                            {/* Booking summary */}
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase">Passenger</p>
+                                    <p className="font-semibold text-gray-900">{selected.passengerName}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase">Route</p>
+                                    <p className="font-semibold text-gray-900">
+                                        {selected.route ? `${selected.route.origin} → ${selected.route.destination}` : "N/A"}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase">Travel Date</p>
+                                    <p>{selected.travelDate ? format(new Date(selected.travelDate), "dd MMM yyyy") : "N/A"}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase">Airline</p>
+                                    <p>{selected.route?.airline || "N/A"}</p>
+                                </div>
+                            </div>
+
+                            {/* Payment toggle */}
+                            <div className="border-t border-gray-100 pt-4">
+                                <label className="flex items-center gap-3 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={paymentConfirmed}
+                                        onChange={(e) => setPaymentConfirmed(e.target.checked)}
+                                        className="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                                    />
+                                    <span className="font-semibold text-gray-800">Customer has paid</span>
+                                </label>
+                            </div>
+
+                            {/* Action button */}
+                            <Button
+                                className="w-full rounded-xl font-bold text-white"
+                                style={{ backgroundColor: paymentConfirmed ? '#059669' : '#D1D5DB' }}
+                                disabled={!paymentConfirmed || confirming}
+                                onClick={async () => {
+                                    setConfirming(true);
+                                    try {
+                                        await fetchWithCreds(`/bookings/${selected.id}/confirm-payment`, {
+                                            method: "PATCH",
+                                        });
+                                        toast({ title: "Payment Confirmed", description: "Booking marked as PAID and CONFIRMED." });
+                                        setShowPaymentConfirm(false);
+                                        refetch();
+                                    } catch (err: any) {
+                                        toast({ title: "Error", description: err?.message || "Failed to confirm payment.", variant: "destructive" });
+                                    } finally {
+                                        setConfirming(false);
+                                    }
+                                }}
+                            >
+                                {confirming ? "Confirming..." : "Add / Confirm Booking"}
+                            </Button>
+                        </div>
                     )}
                 </DialogContent>
             </Dialog>

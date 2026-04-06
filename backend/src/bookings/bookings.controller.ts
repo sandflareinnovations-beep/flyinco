@@ -165,6 +165,14 @@ export class BookingsController {
     return this.bookingsService.findOne(id, req.user);
   }
 
+  // ── Staff/Admin: confirm customer payment in person ──
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("STAFF", "ADMIN")
+  @Patch(":id/confirm-payment")
+  confirmPayment(@Param("id") id: string) {
+    return this.bookingsService.confirmPayment(id);
+  }
+
   // ── Admin: update booking status / issue PNR ──
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles("ADMIN")

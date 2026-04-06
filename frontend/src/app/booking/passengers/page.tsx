@@ -31,6 +31,7 @@ function PassengersForm() {
     // Contact info
     const [phone, setPhone] = useState('');
     const [email, setEmail] = useState('');
+    const [isStaff, setIsStaff] = useState(false);
 
     // Passenger details
     const [passenger, setPassenger] = useState<Partial<PassengerDetail>>({
@@ -45,6 +46,15 @@ function PassengersForm() {
         } else {
             const f = mockFlights.find(f => f.id === flightId);
             if (f) setFlight(f);
+        }
+
+        // Detect staff user
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                setIsStaff(user?.role === 'STAFF');
+            } catch {}
         }
     }, [flightId]);
 
@@ -156,7 +166,13 @@ function PassengersForm() {
                                 <CardHeader className="pb-3">
                                     <CardTitle className="text-sm font-bold flex items-center gap-2 text-gray-700">
                                         <PiUser className="h-4 w-4" style={{ color: '#2E0A57' }} />
-                                        Passenger 1 — Adult
+                                        Passenger 1 — {isStaff && passenger.passengerType
+                                            ? passenger.passengerType === 'ADULT_MALE' ? 'Adult Male'
+                                            : passenger.passengerType === 'ADULT_FEMALE' ? 'Adult Female'
+                                            : passenger.passengerType === 'CHILD' ? 'Child'
+                                            : passenger.passengerType === 'INFANT' ? 'Infant'
+                                            : 'Adult'
+                                            : 'Adult'}
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -173,6 +189,30 @@ function PassengersForm() {
                                             </SelectContent>
                                         </Select>
                                     </div>
+                                    {isStaff && (
+                                        <div className="space-y-1.5">
+                                            <Label className="text-xs font-semibold text-gray-600">Passenger Type *</Label>
+                                            <Select
+                                                defaultValue="ADULT_MALE"
+                                                onValueChange={v => {
+                                                    updatePassenger('passengerType' as any, v);
+                                                    // Auto-set title based on type
+                                                    if (v === 'ADULT_MALE') updatePassenger('title', 'Mr');
+                                                    else if (v === 'ADULT_FEMALE') updatePassenger('title', 'Mrs');
+                                                }}
+                                            >
+                                                <SelectTrigger className="rounded-xl border-gray-200 focus:ring-[#6C2BD9]">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="ADULT_MALE">Adult - Male</SelectItem>
+                                                    <SelectItem value="ADULT_FEMALE">Adult - Female</SelectItem>
+                                                    <SelectItem value="CHILD">Child</SelectItem>
+                                                    <SelectItem value="INFANT">Infant</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    )}
                                     <div className="space-y-1.5">
                                         <Label className="text-xs font-semibold text-gray-600">Nationality *</Label>
                                         <Input placeholder="e.g. Saudi Arabia" className="rounded-xl border-gray-200 focus-visible:ring-[#6C2BD9]"
