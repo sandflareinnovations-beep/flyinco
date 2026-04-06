@@ -52,6 +52,12 @@ export class PaymentsService {
             agentDetails: { contains: n, mode: "insensitive" },
           });
         });
+        // Also match bookings by agencyEmail
+        if (agentUser.email) {
+          bookingConditions.push({
+            agencyEmail: { equals: agentUser.email, mode: "insensitive" },
+          });
+        }
 
         const unpaidBookings = await this.prisma.booking.findMany({
           where: {
@@ -112,6 +118,12 @@ export class PaymentsService {
             agentDetails: { contains: n, mode: "insensitive" },
           });
         });
+        // Also match bookings by agencyEmail
+        if (agentUser.email) {
+          bookingConditions.push({
+            agencyEmail: { equals: agentUser.email, mode: "insensitive" },
+          });
+        }
 
         const matchingPaidBookings = await this.prisma.booking.findMany({
           where: {

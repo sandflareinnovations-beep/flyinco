@@ -731,10 +731,38 @@ export class BookingsService {
       // Use AND array to combine conditions without overwriting
       const andConditions: any[] = [];
 
-      // Support direct agent/user ID filtering first
+      // Support direct agent/user ID filtering — search ALL agent identifiers
       const targetUserId = userId || agentId;
       if (targetUserId) {
-        andConditions.push({ userId: targetUserId });
+        // Look up the agent user to get name, agencyName, email for comprehensive matching
+        const agentUser = await this.prisma.user.findUnique({
+          where: { id: targetUserId },
+        });
+
+        if (agentUser) {
+          const agentOrConditions: any[] = [{ userId: targetUserId }];
+          // Also match bookings by agentDetails (name/agencyName text)
+          if (agentUser.name) {
+            agentOrConditions.push({
+              agentDetails: { contains: agentUser.name, mode: "insensitive" },
+            });
+          }
+          if (agentUser.agencyName) {
+            agentOrConditions.push({
+              agentDetails: { contains: agentUser.agencyName, mode: "insensitive" },
+            });
+          }
+          // Also match by agencyEmail
+          if (agentUser.email) {
+            agentOrConditions.push({
+              agencyEmail: { equals: agentUser.email, mode: "insensitive" },
+            });
+          }
+          andConditions.push({ OR: agentOrConditions });
+        } else {
+          // Fallback: just filter by userId if agent record not found
+          andConditions.push({ userId: targetUserId });
+        }
       }
 
       if (search) {
@@ -809,9 +837,7 @@ export class BookingsService {
         });
       }
 
-      if (agentId) {
-        andConditions.push({ userId: agentId });
-      }
+      // Note: agentId filtering is already handled above with comprehensive OR matching
 
       if (andConditions.length > 0) {
         where.AND = andConditions;
