@@ -345,11 +345,11 @@ export default function AdminAccounts() {
                                         </div>
                                     </div>
 
-                                    <div className="space-y-4 max-h-[400px] overflow-y-auto">
-                                        <p className="text-[10px] font-black text-gray-400 uppercase sticky top-0 bg-white py-2">Transaction Ledger</p>
+                                    <div className="space-y-4 max-h-[600px] overflow-y-auto border-t border-gray-100 pt-4">
+                                        <p className="text-[10px] font-black text-gray-400 uppercase sticky top-0 bg-white py-2 z-10">Transaction Ledger</p>
                                         {loadingLedger ? (
                                             <div className="flex justify-center p-8"><PiClock className="animate-spin h-8 w-8 text-gray-200" /></div>
-                                        ) : (
+                                        ) : sortedTransactions && sortedTransactions.length > 0 ? (
                                             <div className="space-y-2">
                                                 {sortedTransactions.map((item: any) => (
                                                     <div key={`${item.itemType}-${item.id}`} className="flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:bg-gray-50 transition-all">
@@ -359,19 +359,45 @@ export default function AdminAccounts() {
                                                             </div>
                                                             <div>
                                                                 <p className="text-sm font-bold text-gray-800">
-                                                                    {item.itemType === 'BOOKING' ? `${item.passengerName} - ${item.airline || ''} (${item.sector || ''})` : (item.type === 'DUES' ? 'Credit Note / Manual Dues' : 'Payment Received')}
+                                                                    {item.itemType === 'BOOKING' ? `${item.passengerName || 'Unknown Passenger'} - ${item.airline || 'N/A'} (${item.sector || 'N/A'})` : (item.type === 'DUES' ? 'Credit Note / Manual Dues' : 'Payment Received')}
                                                                 </p>
                                                                 <p className="text-[10px] text-gray-400">
-                                                                    {format(new Date(item.createdAt), 'dd MMM yyyy')} | 
-                                                                    {item.itemType === 'BOOKING' 
-                                                                        ? `${item.pnr || 'NO PNR'} | Travel: ${item.travelDate ? format(new Date(item.travelDate), 'dd MMM') : 'N/A'}` 
+                                                                    {(() => {
+                                                                        try {
+                                                                            const dateObj = item.createdAt ? new Date(item.createdAt) : null;
+                                                                            if (dateObj && !isNaN(dateObj.getTime())) {
+                                                                                return format(dateObj, 'dd MMM yyyy');
+                                                                            }
+                                                                            return 'Invalid Date';
+                                                                        } catch (e) {
+                                                                            console.warn('Date format error:', item.createdAt);
+                                                                            return 'Invalid Date';
+                                                                        }
+                                                                    })()} |
+                                                                    {item.itemType === 'BOOKING'
+                                                                        ? (() => {
+                                                                            try {
+                                                                                if (item.travelDate) {
+                                                                                    const travelDate = new Date(item.travelDate);
+                                                                                    if (!isNaN(travelDate.getTime())) {
+                                                                                        return ` ${item.pnr || 'NO PNR'} | Travel: ${format(travelDate, 'dd MMM')}`;
+                                                                                    }
+                                                                                }
+                                                                                return ` ${item.pnr || 'NO PNR'} | Travel: N/A`;
+                                                                            } catch (e) {
+                                                                                console.warn('Travel date format error:', item.travelDate);
+                                                                                return ` ${item.pnr || 'NO PNR'} | Travel: N/A`;
+                                                                            }
+                                                                        })()
                                                                         : (item.reference || 'No Ref')}
                                                                 </p>
                                                             </div>
                                                         </div>
                                                         <div className="text-right">
                                                             <p className={`text-sm font-black ${item.itemType === 'BOOKING' ? 'text-gray-900' : 'text-emerald-600'}`}>
-                                                                {item.itemType === 'BOOKING' ? `+ SAR ${item.sellingPrice?.toLocaleString() || 0}` : `- SAR ${item.amount?.toLocaleString() || 0}`}
+                                                                {item.itemType === 'BOOKING'
+                                                                    ? `+ SAR ${(item.sellingPrice && !isNaN(item.sellingPrice) ? item.sellingPrice : 0).toLocaleString()}`
+                                                                    : `- SAR ${(item.amount && !isNaN(item.amount) ? item.amount : 0).toLocaleString()}`}
                                                             </p>
                                                             {item.itemType === 'PAYMENT' && (
                                                                 <button 
@@ -394,6 +420,12 @@ export default function AdminAccounts() {
                                                         </div>
                                                     </div>
                                                 ))}
+                                            </div>
+                                        ) : (
+                                            <div className="text-center py-8 text-gray-400">
+                                                <PiFileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                                                <p className="text-sm font-medium">No transactions yet</p>
+                                                <p className="text-xs">Bookings and payments will appear here</p>
                                             </div>
                                         )}
                                     </div>
