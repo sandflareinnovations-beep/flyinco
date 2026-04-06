@@ -34,6 +34,7 @@ export type Booking = {
     passengerName: string;
     passportNumber: string;
     gender?: string;
+    passengerType?: string;
     nationality: string;
     dateOfBirth?: string;
     passportExpiry?: string;
@@ -127,6 +128,7 @@ export type PassengerDetail = {
     passportExpiry: string;
     countryOfIssue: string;
     type: 'ADULT' | 'CHILD' | 'INFANT';
+    passengerType?: 'ADULT_MALE' | 'ADULT_FEMALE' | 'CHILD' | 'INFANT';
 };
 
 export type BookingFormData = {

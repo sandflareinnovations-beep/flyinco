@@ -102,6 +102,7 @@ function PaymentForm() {
                             email,
                             phone,
                             gender: passenger.gender,
+                            passengerType: passenger.passengerType,
                             nationality: passenger.nationality,
                             dateOfBirth: passenger.dateOfBirth,
                             passportExpiry: passenger.passportExpiry,

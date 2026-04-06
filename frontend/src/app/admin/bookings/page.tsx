@@ -497,8 +497,14 @@ export default function AdminBookings() {
                                             </div>
                                             <p className="text-xs text-gray-400 font-mono">{booking.passportNumber}</p>
                                             {(booking.agentDetails || booking.user?.name) && (
-                                                <Badge variant="outline" className="mt-1 border-violet-200 text-violet-600 bg-violet-50 text-[10px] py-0">
-                                                    Agent: {booking.agentDetails || booking.user?.name || 'Unknown'}
+                                                <Badge variant="outline" className={`mt-1 text-[10px] py-0 ${
+                                                    booking.agentDetails?.startsWith("Staff:")
+                                                        ? "border-blue-200 text-blue-600 bg-blue-50"
+                                                        : "border-violet-200 text-violet-600 bg-violet-50"
+                                                }`}>
+                                                    {booking.agentDetails?.startsWith("Staff:")
+                                                        ? `Staff Booked: ${booking.agentDetails.replace("Staff: ", "")}`
+                                                        : `Agent: ${booking.agentDetails || booking.user?.name || 'Unknown'}`}
                                                 </Badge>
                                             )}
                                         </TableCell>
@@ -783,8 +789,14 @@ export default function AdminBookings() {
                                     </div>
                                     {(selected.agentDetails || selected.user?.name) && (
                                         <div className="flex items-center gap-2 text-sm mt-2 pt-2 border-t border-gray-200">
-                                            <Badge className="bg-violet-100 text-violet-700 hover:bg-violet-200">
-                                                Agent: {selected.agentDetails || selected.user?.name || 'Unknown'}
+                                            <Badge className={
+                                                selected.agentDetails?.startsWith("Staff:")
+                                                    ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
+                                                    : "bg-violet-100 text-violet-700 hover:bg-violet-200"
+                                            }>
+                                                {selected.agentDetails?.startsWith("Staff:")
+                                                    ? `Staff Booked: ${selected.agentDetails.replace("Staff: ", "")}`
+                                                    : `Agent: ${selected.agentDetails || selected.user?.name || 'Unknown'}`}
                                             </Badge>
                                         </div>
                                     )}

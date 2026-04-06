@@ -138,20 +138,20 @@ export default function Home() {
           }} />
         </div>
 
-        {/* Decorative blobs */}
-        <div style={{
+        {/* Decorative blobs — hidden on mobile to prevent overflow */}
+        <div className="hidden sm:block" style={{
           position: "absolute", top: "15%", right: "8%", width: 320, height: 320,
           borderRadius: "50%", background: "rgba(108,43,217,0.18)",
           filter: "blur(80px)", zIndex: 1, pointerEvents: "none"
         }} />
-        <div style={{
+        <div className="hidden sm:block" style={{
           position: "absolute", bottom: "20%", left: "5%", width: 250, height: 250,
           borderRadius: "50%", background: "rgba(255,255,255,0.06)",
           filter: "blur(60px)", zIndex: 1, pointerEvents: "none"
         }} />
 
         {/* Hero content */}
-        <div style={{ position: "relative", zIndex: 2, maxWidth: 1120, margin: "0 auto", padding: "140px 24px 60px", width: "100%" }}>
+        <div className="relative z-[2] max-w-[1120px] mx-auto w-full px-4 sm:px-6 pt-24 sm:pt-32 md:pt-[140px] pb-10 sm:pb-[60px]">
 
           {/* Top badge */}
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
@@ -206,12 +206,12 @@ export default function Home() {
               position: "relative",
             }}>
               {dynamicRoute ? (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-1">
 
                 {/* FROM/TO — Clickable dropdown trigger */}
                 <div
                   ref={dropdownRef}
-                  style={{ position: "relative", flex: "1 1 320px", display: "flex", gap: 4 }}
+                  className="relative flex gap-1 w-full sm:w-auto sm:flex-[1_1_280px]"
                 >
                   {/* FROM field */}
                   <div
@@ -358,8 +358,8 @@ export default function Home() {
                 </div>
 
                 {/* DATE */}
-                <div style={{
-                  flex: "1 1 160px", padding: "16px 20px",
+                <div className="flex-[1_1_100%] sm:flex-[1_1_160px] min-w-0" style={{
+                  padding: "16px 20px",
                   background: "rgba(124,58,237,0.15)",
                   borderRadius: 14,
                   cursor: "default",
@@ -380,8 +380,8 @@ export default function Home() {
                 {/* PiMagnifyingGlass CTA */}
                 <button
                   onClick={() => router.push(`/routes/${activeSector ? activeSector.id : "ruh-cok"}/flights`)}
+                  className="w-full sm:w-auto sm:flex-[0_0_auto]"
                   style={{
-                    flex: "0 0 auto",
                     background: GRADIENT,
                     color: "white", border: "none", borderRadius: 14,
                     padding: "0 32px", cursor: "pointer",
@@ -406,9 +406,9 @@ export default function Home() {
                 </button>
               </div>
               ) : sectorsLoading ? (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 4, padding: "6px" }}>
+                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-1 p-1.5">
                   {/* Loading skeleton for search card */}
-                  <div style={{ flex: "1 1 320px", display: "flex", gap: 4 }}>
+                  <div className="flex gap-1 w-full sm:w-auto sm:flex-[1_1_280px]">
                     <div style={{ flex: 1, padding: "16px 20px", borderRadius: 14, background: "rgba(255,255,255,0.07)" }}>
                       <div style={{ width: 40, height: 10, background: "rgba(255,255,255,0.08)", borderRadius: 4, marginBottom: 8 }} />
                       <div style={{ width: 60, height: 24, background: "rgba(255,255,255,0.08)", borderRadius: 6, marginBottom: 4 }} />
@@ -452,7 +452,7 @@ export default function Home() {
 
           {/* Trust signals */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "12px 28px", marginTop: 36 }}>
+            <div className="flex flex-wrap gap-x-4 gap-y-3 sm:gap-x-7 sm:gap-y-3 mt-6 sm:mt-9">
               {[
                 { label: "Group Bookings Welcome", Icon: PiUsers },
                 { label: "Instant Confirmation", Icon: PiLightning },
@@ -481,15 +481,15 @@ export default function Home() {
                 FEATURE BAR
             ═══════════════════════════════════════════ */}
       <section style={{ background: "#f9fafb", borderTop: "none", borderBottom: "none" }}>
-        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "22px 24px" }}>
-          <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: "16px 44px" }}>
+        <div className="max-w-[1120px] mx-auto px-4 sm:px-6 py-4 sm:py-[22px]">
+          <div className="flex justify-center flex-wrap gap-3 sm:gap-x-11 sm:gap-y-4">
             {[
               { Icon: PiCheckCircle, label: "Guaranteed Block Seats", favicon: false },
               { Icon: PiAirplaneTilt, label: "Special & Group Bookings", favicon: true },
               { Icon: PiLightning, label: "Instant Confirmation", favicon: false },
               { Icon: PiKey, label: "Agency-Only Pricing", favicon: false },
             ].map(({ Icon, label, favicon }) => (
-              <div key={label} style={{ display: "flex", alignItems: "center", gap: 8, color: "#374151", fontSize: 13, fontWeight: 600 }}>
+              <div key={label} className="flex items-center gap-2 text-gray-700 text-xs sm:text-[13px] font-semibold">
                 <div style={{
                   width: 26, height: 26, borderRadius: 8,
                   background: "rgba(124,58,237,0.15)",
@@ -509,8 +509,8 @@ export default function Home() {
       {/* ═══════════════════════════════════════════
                 ALL AVAILABLE FARE CARDS
             ═══════════════════════════════════════════ */}
-      <section style={{ background: "#ffffff", padding: "72px 24px" }}>
-        <div style={{ maxWidth: 1120, margin: "0 auto" }}>
+      <section className="bg-white py-10 px-4 sm:py-[72px] sm:px-6">
+        <div className="max-w-[1120px] mx-auto">
 
           {/* Section header */}
           <motion.div
@@ -606,10 +606,10 @@ export default function Home() {
                       </div>
                     )}
 
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                      
+                    <div className="grid grid-cols-2 gap-3 sm:flex sm:items-center sm:justify-between sm:gap-3 sm:flex-wrap">
+
                       {/* Airline Section */}
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 100, flexShrink: 0 }}>
+                      <div className="col-span-2 sm:col-auto" style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 80, flexShrink: 0 }}>
                         <div style={{ height: 40, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 2 }}>
                           {s.airlineLogo ? (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -623,7 +623,7 @@ export default function Home() {
                       </div>
 
                       {/* Departure Section */}
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 140 }}>
+                      <div className="col-span-1 sm:col-auto" style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 0 }}>
                         <span style={{ fontSize: 13, color: "#374151", marginBottom: 4 }}>{s.originCity} ({s.originCode})</span>
                         <span style={{ fontSize: 26, fontWeight: 800, color: "#1F2937", lineHeight: 1.1 }}>{s.departureTime || "--:--"}</span>
                         <span style={{ fontSize: 13, color: "#374151", marginTop: 4 }}>
@@ -632,7 +632,7 @@ export default function Home() {
                       </div>
 
                       {/* Duration Section */}
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: "1 1 120px", minWidth: 120, maxWidth: 180 }}>
+                      <div className="col-span-2 sm:col-auto sm:flex-[1_1_120px] sm:max-w-[180px]" style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 0 }}>
                         <span style={{ fontSize: 12, color: "#374151", marginBottom: 6 }}>{s.duration}</span>
                         <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
                           <div style={{ width: 6, height: 6, borderRadius: "50%", border: "1.5px solid rgba(0,0,0,0.2)", background: "transparent", flexShrink: 0 }}></div>
@@ -653,7 +653,7 @@ export default function Home() {
                       </div>
 
                       {/* Arrival Section */}
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 140 }}>
+                      <div className="col-span-1 sm:col-auto" style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 0 }}>
                         <span style={{ fontSize: 13, color: "#374151", marginBottom: 4 }}>{s.destinationCity} ({s.destinationCode})</span>
                         <span style={{ fontSize: 26, fontWeight: 800, color: "#1F2937", lineHeight: 1.1 }}>{s.arrivalTime || "--:--"}</span>
                         <span style={{ fontSize: 13, color: "#374151", marginTop: 4 }}>
@@ -662,7 +662,7 @@ export default function Home() {
                       </div>
 
                       {/* Price Section */}
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 120 }}>
+                      <div className="col-span-1 sm:col-auto" style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 0 }}>
                         <span style={{ background: "rgba(0,0,0,0.05)", color: "#374151", fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 4, marginBottom: 6 }}>
                           {s.flightRules === "Refundable" ? "Refundable" : "NonRefundable"}
                         </span>
@@ -678,7 +678,7 @@ export default function Home() {
                       </div>
 
                       {/* Action Section */}
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 100 }}>
+                      <div className="col-span-2 sm:col-auto" style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 0, width: "100%", sm:width: "auto" }}>
                         <button
                           onClick={() => router.push(`/routes/${s.id}/flights`)}
                           style={{
@@ -749,7 +749,7 @@ export default function Home() {
             <motion.div
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ delay: 0.1, duration: 0.45 }}
-              style={{ maxWidth: 780, margin: "24px auto 0", textAlign: "center", padding: "60px 20px", background: "rgba(0,0,0,0.04)", borderRadius: 20, border: "1px dashed rgba(0,0,0,0.12)" }}
+              className="max-w-[780px] mx-auto mt-6 text-center px-4 sm:px-6 py-12 sm:py-[60px] bg-gray-50 rounded-2xl border border-dashed border-gray-200"
             >
               <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(124,58,237,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
                 <PiAirplaneTilt size={32} color="#7C3AED" />
@@ -776,14 +776,14 @@ export default function Home() {
         <div style={{
           position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
           background: "rgba(0,0,0,0.6)", zIndex: 9999, display: "flex",
-          alignItems: "center", justifyContent: "center", padding: 24, backdropFilter: "blur(8px)"
+          alignItems: "center", justifyContent: "center", padding: "16px", backdropFilter: "blur(8px)"
         }}>
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-[640px] mx-4 bg-white rounded-2xl overflow-hidden relative"
             style={{
-              background: "#ffffff", borderRadius: 16, width: "100%", maxWidth: 640,
-              boxShadow: "0 24px 48px rgba(0,0,0,0.4)", overflow: "hidden", position: "relative"
+              boxShadow: "0 24px 48px rgba(0,0,0,0.4)"
             }}
           >
             {/* Header */}
@@ -811,7 +811,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div style={{ display: "flex", justifyContent: "space-between", position: "relative", marginBottom: 24 }}>
+              <div className="flex flex-col sm:flex-row sm:justify-between gap-4 sm:gap-4 relative mb-6" style={{ position: "relative" }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 24, fontWeight: 800, color: "#1F2937" }}>{selectedFlightModal.departureTime || "--:--"}</div>
                   <div style={{ fontSize: 14, fontWeight: 600, color: "#374151" }}>{selectedFlightModal.originCity || selectedFlightModal.from?.city} ({selectedFlightModal.originCode || selectedFlightModal.from?.code})</div>
