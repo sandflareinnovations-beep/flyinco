@@ -228,7 +228,8 @@ export default function UserDashboard() {
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="font-black text-emerald-700 text-base">
-                                                SAR {s.price?.toLocaleString()}
+                                                SAR {(s.agentPrice || s.price)?.toLocaleString()}
+                                                {s.agentPrice && <div className="text-xs text-emerald-500 font-medium">Agent Price</div>}
                                             </TableCell>
                                             <TableCell className="text-right">
                                                 <Button 

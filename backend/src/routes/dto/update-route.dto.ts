@@ -6,4 +6,8 @@ export class UpdateRouteDto extends PartialType(CreateRouteDto) {
   @IsOptional()
   @IsNumber()
   remainingSeats?: number;
+
+  @IsOptional()
+  @IsNumber()
+  agentPrice?: number;
 }

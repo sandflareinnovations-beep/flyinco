@@ -10,6 +10,10 @@ export class CreateRouteDto {
   @IsNumber()
   price: number;
 
+  @IsOptional()
+  @IsNumber()
+  agentPrice?: number;
+
   @IsNumber()
   totalSeats: number;
 

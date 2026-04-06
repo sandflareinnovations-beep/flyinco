@@ -7,6 +7,7 @@ export type FareSector = {
     destinationCode: string;
     destinationCity: string;
     price: number;
+    agentPrice?: number;
     totalSeats: number;
     remainingSeats: number;
     heldSeats: number;
@@ -78,6 +79,7 @@ export type RouteOption = {
     departureDate: string;
     arrivalDate: string;
     price: number;          // price per adult in SAR
+    agentPrice?: number;    // agent-specific price in SAR
     totalSeats: number;
     remainingSeats: number;
 };

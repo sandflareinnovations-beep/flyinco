@@ -1,15 +1,39 @@
 "use client";
 import { PiAirplaneTilt } from "react-icons/pi";
 import { motion } from "framer-motion";
-import { mockRoutes } from "@/lib/mock";
 import { RouteCard } from "@/components/routes/route-card";
+import { flyApi } from "@/lib/api";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { RouteOption } from "@/lib/types";
 
 export default function RoutesPage() {
-    const [loading] = useState(false);
-    const routes = mockRoutes;
+    const [loading, setLoading] = useState(true);
+    const [routes, setRoutes] = useState<RouteOption[]>([]);
+
+    useEffect(() => {
+        flyApi.sectors.list({ availableOnly: true })
+            .then((data: any) => {
+                const list = Array.isArray(data) ? data : (data.routes || []);
+                setRoutes(list.map((s: any) => ({
+                    id: s.id,
+                    originCode: s.originCode || s.origin,
+                    originCity: s.originCity || "Origin City",
+                    destinationCode: s.destinationCode || s.destination,
+                    destinationCity: s.destinationCity || "Dest City",
+                    airline: s.airline || "",
+                    airlineLogo: s.airlineLogo,
+                    departureDate: s.departureDate || "",
+                    arrivalDate: s.arrivalDate || "",
+                    price: s.price,
+                    totalSeats: s.totalSeats,
+                    remainingSeats: s.remainingSeats,
+                })));
+            })
+            .catch(() => setRoutes([]))
+            .finally(() => setLoading(false));
+    }, []);
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-zinc-950">
