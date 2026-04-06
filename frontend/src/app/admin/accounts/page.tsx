@@ -113,6 +113,16 @@ export default function AdminAccounts() {
                 }
             }
 
+            // BUG FIX: Warn if we hit pagination limit (5000 bookings)
+            if (allBookings.length >= 5000) {
+                toast({
+                    title: "⚠️ Data May Be Incomplete",
+                    description: `Agent ${agent.name} has 5000+ bookings. Ledger display may be truncated. For complete reports, consider exporting.`,
+                    variant: "destructive"
+                });
+                console.warn(`Agent ${agent.name} (${agent.id}) has 5000+ bookings - ledger may be incomplete`);
+            }
+
             setAgentLedger(allBookings);
             setAgentPayments(Array.isArray(paymentsRes) ? paymentsRes : []);
         } catch (error: any) {
@@ -136,8 +146,20 @@ export default function AdminAccounts() {
             toast({ title: "Success", description: "Payment recorded successfully." });
             setShowPaymentModal(false);
             setFormData({ amount: "", type: "PAYMENT", reference: "", notes: "" });
-            fetchLedger(selectedAgent);
-            fetchAgents();
+
+            // BUG FIX: Add delay to ensure backend processed the payment before refetching
+            await new Promise(r => setTimeout(r, 300));
+
+            // Refetch both ledger and agent list to get updated pendingDues from backend
+            await fetchLedger(selectedAgent);
+            const updatedAgents = await flyApi.users.list({ limit: 1000 });
+            const list = Array.isArray(updatedAgents) ? updatedAgents : (updatedAgents.users || []);
+            const agentList = list.filter((u: any) => u.role === 'AGENT');
+            setAgents(agentList);
+
+            // Update selectedAgent with fresh data
+            const refreshedAgent = agentList.find(a => a.id === selectedAgent.id);
+            if (refreshedAgent) setSelectedAgent(refreshedAgent);
         } catch (error: any) {
             toast({ title: "Error", description: error.message, variant: "destructive" });
         } finally {
@@ -153,8 +175,22 @@ export default function AdminAccounts() {
             toast({ title: "Deleted", description: "Payment record removed." });
             setShowDeleteModal(false);
             setSelectedPayment(null);
-            fetchLedger(selectedAgent);
-            fetchAgents();
+
+            // BUG FIX: Add delay to ensure backend processed the deletion before refetching
+            await new Promise(r => setTimeout(r, 300));
+
+            // Refetch both ledger and agent list to get updated pendingDues from backend
+            if (selectedAgent) {
+                await fetchLedger(selectedAgent);
+                const updatedAgents = await flyApi.users.list({ limit: 1000 });
+                const list = Array.isArray(updatedAgents) ? updatedAgents : (updatedAgents.users || []);
+                const agentList = list.filter((u: any) => u.role === 'AGENT');
+                setAgents(agentList);
+
+                // Update selectedAgent with fresh data
+                const refreshedAgent = agentList.find(a => a.id === selectedAgent.id);
+                if (refreshedAgent) setSelectedAgent(refreshedAgent);
+            }
         } catch (error: any) {
             toast({ title: "Error", description: error.message, variant: "destructive" });
         } finally {
@@ -203,9 +239,26 @@ export default function AdminAccounts() {
         XLSX.writeFile(wb, `${selectedAgent.name}_Reports.xlsx`);
     };
 
-    const totalSalesRec = useMemo(() => agentLedger.reduce((sum, b) => sum + (b.sellingPrice || 0), 0), [agentLedger]);
+    const totalSalesRec = useMemo(() => {
+        let invalidCount = 0;
+        const sum = agentLedger.reduce((sum, b) => {
+            if (b.sellingPrice === null || b.sellingPrice === undefined || isNaN(b.sellingPrice)) {
+                invalidCount++;
+                console.warn(`Booking ${b.id} has invalid sellingPrice:`, b.sellingPrice);
+            }
+            return sum + (b.sellingPrice || 0);
+        }, 0);
+        if (invalidCount > 0) {
+            console.warn(`${invalidCount} bookings have invalid sellingPrice`);
+        }
+        return sum;
+    }, [agentLedger]);
+
     const totalPaymentsRec = useMemo(() => agentPayments.reduce((sum, p) => sum + (p.amount || 0), 0), [agentPayments]);
-    const dynamicDues = totalSalesRec - totalPaymentsRec;
+
+    // BUG FIX: Use backend-maintained pendingDues instead of calculating from partial data
+    // The backend value is the source of truth and includes historical balances
+    const dynamicDues = selectedAgent?.pendingDues || 0;
 
     // Optimized transaction list memoization
     const sortedTransactions = useMemo(() => {
