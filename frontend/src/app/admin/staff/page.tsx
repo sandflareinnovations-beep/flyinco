@@ -231,12 +231,13 @@ export default function StaffManagementPage() {
                                     <div key={task.id} className="flex items-center justify-between p-3 bg-white border rounded-xl">
                                         <div>
                                             <p className="font-semibold text-sm">{task.title}</p>
-                                            <p className="text-xs text-gray-500">{task.description}</p>
-                                            {task.target && (
-                                                <p className="text-xs text-violet-600 mt-1">
-                                                    Progress: {task.current || 0} / {task.target}
-                                                </p>
+                                            {task.description && (
+                                                <p className="text-xs text-gray-500">{task.description}</p>
                                             )}
+                                            <p className="text-[10px] text-gray-400 mt-1">
+                                                {task.priority}: {task.type}
+                                                {task.dueDate && ` · Due: ${new Date(task.dueDate).toLocaleDateString()}`}
+                                            </p>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             {getStatusBadge(task.status)}

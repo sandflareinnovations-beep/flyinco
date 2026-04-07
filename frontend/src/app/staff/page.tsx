@@ -1,5 +1,5 @@
 "use client";
-import { PiAirplaneTilt, PiUsers, PiPulse, PiCalendarBlank, PiCaretLeft, PiCaretRight, PiMegaphone, PiMoney, PiUserCircle } from "react-icons/pi";
+import { PiAirplaneTilt, PiUsers, PiPulse, PiCalendarBlank, PiCaretLeft, PiCaretRight, PiMegaphone, PiMoney, PiUserCircle, PiBookOpen, PiClock } from "react-icons/pi";
 import { useQuery } from "@tanstack/react-query";
 import { flyApi, fetchWithCreds } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -51,6 +51,12 @@ export default function StaffDashboard() {
         staleTime: 30000,
     });
 
+    const { data: bookingsData } = useQuery({
+        queryKey: ["staff-bookings-recent"],
+        queryFn: () => flyApi.bookings.listPaginated({ page: 1, limit: 10 }),
+        staleTime: 30000,
+    });
+
     const totalBookings = metricsData?.totalBookings ?? 0;
     const statusCounts = metricsData?.statusCounts ?? {};
     const sectorList = Array.isArray(sectors) ? sectors : (sectors?.routes || []);
@@ -58,15 +64,15 @@ export default function StaffDashboard() {
     const remainingSeats = sectorList.reduce((sum: number, s: any) => sum + (s.remainingSeats || 0), 0);
 
     const agentList = agentsData?.users?.filter((u: any) => u.role === "AGENT") || [];
-    const totalAgentSales = agentList.reduce((sum: number, a: any) => sum + (a.totalSales || 0), 0);
-    const totalAgentDues = agentList.reduce((sum: number, a: any) => sum + (a.pendingDues || 0), 0);
+    const totalAgents = agentList.length;
+    const totalActiveBookings = bookingsData?.bookings?.filter((b: any) => b.status === "CONFIRMED" || b.status === "PENDING").length ?? 0;
 
     const statCards = [
-        { label: "Total Bookings", value: totalBookings.toString(), icon: PiUsers, color: "text-violet-600", bg: "bg-violet-50", sub: "All bookings" },
+        { label: "Total Bookings", value: totalBookings.toString(), icon: PiBookOpen, color: "text-violet-600", bg: "bg-violet-50", sub: "All bookings" },
         { label: "Confirmed", value: (statusCounts.CONFIRMED ?? 0).toString(), icon: PiPulse, color: "text-emerald-600", bg: "bg-emerald-50", sub: "Confirmed bookings" },
         { label: "Held", value: (statusCounts.HELD ?? 0).toString(), icon: PiCalendarBlank, color: "text-amber-600", bg: "bg-amber-50", sub: "Held bookings" },
-        { label: "Seats Sold", value: seatsSold.toString(), icon: PiPulse, color: "text-indigo-600", bg: "bg-indigo-50", sub: "Across all sectors" },
-        { label: "Remaining", value: remainingSeats.toString(), icon: PiAirplaneTilt, color: "text-amber-600", bg: "bg-amber-50", sub: "Available seats" },
+        { label: "Active Agents", value: totalAgents.toString(), icon: PiUsers, color: "text-blue-600", bg: "bg-blue-50", sub: "Registered agents" },
+        { label: "Seats Sold", value: seatsSold.toString(), icon: PiAirplaneTilt, color: "text-indigo-600", bg: "bg-indigo-50", sub: "Across all sectors" },
     ];
 
     // Build calendar flight data
@@ -83,6 +89,9 @@ export default function StaffDashboard() {
     const pendingTasks = staffTasks.filter((t: any) => t.status === "PENDING");
     const inProgressTasks = staffTasks.filter((t: any) => t.status === "IN_PROGRESS");
     const completedTasks = staffTasks.filter((t: any) => t.status === "COMPLETED");
+
+    // Recent bookings with agent names
+    const recentBookings = bookingsData?.bookings?.slice(0, 5) || [];
 
     if (isLoading) {
         return (
@@ -128,76 +137,134 @@ export default function StaffDashboard() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Left: Tasks & Agents */}
+                {/* Left: Tasks & Recent Bookings */}
                 <div className="lg:col-span-2 space-y-6">
                     {/* Staff Tasks */}
-                    {(pendingTasks.length > 0 || inProgressTasks.length > 0) && (
-                        <Card className="border-gray-100 shadow-sm">
-                            <CardHeader className="pb-3">
-                                <CardTitle className="text-sm font-black text-gray-900 uppercase">My Tasks</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-3">
-                                {pendingTasks.length > 0 && (
-                                    <div>
-                                        <p className="text-xs font-bold text-amber-600 mb-2">PENDING ({pendingTasks.length})</p>
-                                        {pendingTasks.slice(0, 3).map((task: any) => (
-                                            <div key={task.id} className="flex items-center justify-between p-2 bg-amber-50 rounded-lg mb-1">
-                                                <span className="text-sm font-medium">{task.title}</span>
-                                                <Badge variant="outline" className="text-amber-600 border-amber-200">Pending</Badge>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                                {inProgressTasks.length > 0 && (
-                                    <div>
-                                        <p className="text-xs font-bold text-blue-600 mb-2">IN PROGRESS ({inProgressTasks.length})</p>
-                                        {inProgressTasks.slice(0, 3).map((task: any) => (
-                                            <div key={task.id} className="flex items-center justify-between p-2 bg-blue-50 rounded-lg mb-1">
-                                                <span className="text-sm font-medium">{task.title}</span>
-                                                <Badge variant="outline" className="text-blue-600 border-blue-200">In Progress</Badge>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
-                    )}
-
-                    {/* Agents Overview */}
                     <Card className="border-gray-100 shadow-sm">
                         <CardHeader className="pb-3 flex flex-row items-center justify-between">
-                            <CardTitle className="text-sm font-black text-gray-900 uppercase">Agents Overview</CardTitle>
-                            <div className="flex gap-2">
-                                <span className="text-xs text-emerald-600 font-bold">Sales: SAR {totalAgentSales.toLocaleString()}</span>
-                                <span className="text-xs text-red-500 font-bold">Dues: SAR {totalAgentDues.toLocaleString()}</span>
-                            </div>
+                            <CardTitle className="text-sm font-black text-gray-900 uppercase">My Tasks</CardTitle>
+                            {staffTasks.length > 0 && (
+                                <Badge variant="outline" className="text-violet-600 border-violet-200">
+                                    {staffTasks.length} Total
+                                </Badge>
+                            )}
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                            {pendingTasks.length === 0 && inProgressTasks.length === 0 ? (
+                                <p className="text-sm text-gray-400 text-center py-4">No pending tasks</p>
+                            ) : (
+                                <>
+                                    {pendingTasks.length > 0 && (
+                                        <div>
+                                            <p className="text-xs font-bold text-amber-600 mb-2">PENDING ({pendingTasks.length})</p>
+                                            {pendingTasks.slice(0, 3).map((task: any) => (
+                                                <div key={task.id} className="flex items-center justify-between p-2 bg-amber-50 rounded-lg mb-1">
+                                                    <span className="text-sm font-medium">{task.title}</span>
+                                                    <Badge variant="outline" className="text-amber-600 border-amber-200">Pending</Badge>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                    {inProgressTasks.length > 0 && (
+                                        <div>
+                                            <p className="text-xs font-bold text-blue-600 mb-2">IN PROGRESS ({inProgressTasks.length})</p>
+                                            {inProgressTasks.slice(0, 3).map((task: any) => (
+                                                <div key={task.id} className="flex items-center justify-between p-2 bg-blue-50 rounded-lg mb-1">
+                                                    <span className="text-sm font-medium">{task.title}</span>
+                                                    <Badge variant="outline" className="text-blue-600 border-blue-200">In Progress</Badge>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {/* Recent Bookings with Agent Names */}
+                    <Card className="border-gray-100 shadow-sm">
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-sm font-black text-gray-900 uppercase">Recent Bookings</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                {agentList.slice(0, 6).map((agent: any) => (
-                                    <div key={agent.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                            {recentBookings.length === 0 ? (
+                                <p className="text-sm text-gray-400 text-center py-4">No bookings yet</p>
+                            ) : (
+                                <div className="space-y-2">
+                                    {recentBookings.map((booking: any) => (
+                                        <div key={booking.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                            <div>
+                                                <p className="text-sm font-bold text-gray-900">{booking.passengerName}</p>
+                                                <p className="text-xs text-gray-500">
+                                                    {booking.route?.origin} → {booking.route?.destination}
+                                                </p>
+                                            </div>
+                                            <div className="text-right">
+                                                {booking.agentDetails ? (
+                                                    <p className="text-xs font-medium text-blue-600">
+                                                        {booking.agentDetails.startsWith("Staff:") 
+                                                            ? booking.agentDetails 
+                                                            : booking.agentDetails}
+                                                    </p>
+                                                ) : (
+                                                    <p className="text-xs text-gray-400">Direct</p>
+                                                )}
+                                                <Badge variant="outline" className={`mt-1 ${
+                                                    booking.status === "CONFIRMED" ? "text-emerald-600 border-emerald-200" :
+                                                    booking.status === "HELD" ? "text-violet-600 border-violet-200" :
+                                                    "text-amber-600 border-amber-200"
+                                                }`}>
+                                                    {booking.status}
+                                                </Badge>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Right: Agents & Announcements */}
+                <div className="space-y-6">
+                    {/* Agent Management */}
+                    <Card className="border-gray-100 shadow-sm">
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-sm font-black text-gray-900 uppercase">Agent Management</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="grid grid-cols-2 gap-3 mb-4">
+                                <div className="text-center p-3 bg-emerald-50 rounded-xl">
+                                    <p className="text-2xl font-black text-emerald-600">{totalAgents}</p>
+                                    <p className="text-xs text-gray-500">Total Agents</p>
+                                </div>
+                                <div className="text-center p-3 bg-violet-50 rounded-xl">
+                                    <p className="text-2xl font-black text-violet-600">{totalActiveBookings}</p>
+                                    <p className="text-xs text-gray-500">Active Bookings</p>
+                                </div>
+                            </div>
+                            <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                                {agentList.slice(0, 5).map((agent: any) => (
+                                    <div key={agent.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
                                         <div className="flex items-center gap-2">
-                                            <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
-                                                <PiUserCircle className="h-5 w-5 text-emerald-600" />
+                                            <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center">
+                                                <PiUserCircle className="h-4 w-4 text-emerald-600" />
                                             </div>
                                             <div>
-                                                <p className="text-sm font-bold text-gray-900">{agent.name}</p>
-                                                <p className="text-xs text-gray-400">{agent.agencyName || 'N/A'}</p>
+                                                <p className="text-xs font-bold text-gray-900">{agent.name}</p>
+                                                <p className="text-[10px] text-gray-400">{agent.agencyName || 'N/A'}</p>
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-xs font-bold text-violet-600">SAR {(agent.totalSales || 0).toLocaleString()}</p>
-                                            <p className="text-xs text-red-500">SAR {(agent.pendingDues || 0).toLocaleString()}</p>
+                                            <p className="text-[10px] font-bold text-gray-600">Sales: SAR {(agent.totalSales || 0).toLocaleString()}</p>
+                                            <p className="text-[10px] text-red-500">Dues: SAR {(agent.pendingDues || 0).toLocaleString()}</p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </CardContent>
                     </Card>
-                </div>
 
-                {/* Right: Announcements & Quick Stats */}
-                <div className="space-y-6">
                     {/* Travel Calendar */}
                     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                         <div className="flex items-center justify-between mb-4">
