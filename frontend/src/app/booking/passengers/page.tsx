@@ -1,5 +1,5 @@
 "use client";
-import { PiArrowLeft, PiUser, PiSpinner, PiPhone, PiEnvelopeSimple, PiCreditCard, PiArrowRight } from "react-icons/pi";
+import { PiArrowLeft, PiUser, PiSpinner, PiPhone, PiEnvelopeSimple, PiCreditCard, PiArrowRight, PiNote } from "react-icons/pi";
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { mockFlights } from "@/lib/mock";
@@ -32,6 +32,7 @@ function PassengersForm() {
     const [phone, setPhone] = useState('');
     const [email, setEmail] = useState('');
     const [isStaff, setIsStaff] = useState(false);
+    const [remarks, setRemarks] = useState('');
 
     // Passenger details
     const [passenger, setPassenger] = useState<Partial<PassengerDetail>>({
@@ -84,6 +85,7 @@ function PassengersForm() {
                 phone,
                 email,
                 passenger,
+                remarks: isStaff ? remarks : undefined,
                 totalPrice: passengerCounts.adults * (flight?.price || 0),
             };
 
@@ -262,6 +264,31 @@ function PassengersForm() {
                                     </div>
                                 </CardContent>
                             </Card>
+
+                            {/* Staff Remarks - Only show for staff */}
+                            {isStaff && (
+                                <Card className="shadow-sm border-gray-100">
+                                    <CardHeader className="pb-3">
+                                        <CardTitle className="text-sm font-bold flex items-center gap-2 text-gray-700">
+                                            <PiNote className="h-4 w-4" style={{ color: '#2E0A57' }} />
+                                            Staff Notes (Optional)
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="space-y-1.5">
+                                            <Input 
+                                                placeholder="Walk-in Pax / Agent assignment / Special requests..." 
+                                                className="rounded-xl border-gray-200 focus-visible:ring-[#6C2BD9]"
+                                                value={remarks}
+                                                onChange={e => setRemarks(e.target.value)}
+                                            />
+                                            <p className="text-[10px] text-gray-400">
+                                                E.g., "Walk-in Pax", "Assign to Agent XYZ", "Urgent - VIP customer"
+                                            </p>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            )}
 
                             <Button
                                 type="submit"

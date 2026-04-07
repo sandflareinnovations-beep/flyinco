@@ -1564,12 +1564,15 @@ export class BookingsService {
 
     const email = customEmail || booking.email;
     const route = booking.route;
+    
+    // Generate standardized booking ID
+    const stdBookingId = `FLY-${booking.id.slice(0, 8).toUpperCase()}`;
 
     const itineraryHtml = `
       <div style="font-family: 'Inter', sans-serif; color: #1e1a4b; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
         <div style="background-color: #f8fafc; padding: 24px; text-align: center; border-bottom: 1px solid #e2e8f0;">
           <h1 style="margin: 0; font-size: 20px; font-weight: 900; color: #1e1a4b;">FLYINCO TRAVEL MANAGEMENT COMPANY</h1>
-          <p style="margin: 4px 0 0; font-size: 12px; color: #64748b;">Itinerary Confirmation</p>
+          <p style="margin: 4px 0 0; font-size: 12px; color: #64748b;">Booking ID: <strong>${stdBookingId}</strong></p>
         </div>
         
         <div style="padding: 24px;">

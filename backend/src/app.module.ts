@@ -12,6 +12,7 @@ import { MailService } from "./mail/mail.service";
 import { AnnouncementsModule } from "./announcements/announcements.module";
 import { PaymentsModule } from "./payments/payments.module";
 import { InvoicesModule } from "./invoices/invoices.module";
+import { TasksModule } from "./tasks/tasks.module";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
 import { BackupService } from "./common/backup.service";
 import { SecurityLoggerMiddleware } from "./common/middleware/security-logger.middleware";
@@ -28,6 +29,7 @@ import { StaffFilterInterceptor } from "./common/staff-filter.interceptor";
     AnnouncementsModule,
     PaymentsModule,
     InvoicesModule,
+    TasksModule,
     ThrottlerModule.forRoot([
       {
         name: "short",

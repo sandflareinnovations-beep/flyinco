@@ -1,11 +1,14 @@
 "use client";
-import { PiAirplaneTilt, PiUsers, PiPulse, PiCalendarBlank, PiCaretLeft, PiCaretRight, PiMegaphone } from "react-icons/pi";
+import { PiAirplaneTilt, PiUsers, PiPulse, PiCalendarBlank, PiCaretLeft, PiCaretRight, PiMegaphone, PiMoney, PiUserCircle } from "react-icons/pi";
 import { useQuery } from "@tanstack/react-query";
 import { flyApi, fetchWithCreds } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { startOfMonth, endOfMonth, eachDayOfInterval, format, isSameMonth, isToday, startOfWeek, endOfWeek, addMonths, subMonths } from "date-fns";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export default function StaffDashboard() {
     const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -36,11 +39,27 @@ export default function StaffDashboard() {
         staleTime: 60000,
     });
 
+    const { data: agentsData } = useQuery({
+        queryKey: ["agents-list"],
+        queryFn: () => flyApi.users.list({ limit: 1000 }),
+        staleTime: 60000,
+    });
+
+    const { data: staffTasks = [] } = useQuery({
+        queryKey: ["staff-tasks"],
+        queryFn: () => fetchWithCreds("/tasks/my-tasks"),
+        staleTime: 30000,
+    });
+
     const totalBookings = metricsData?.totalBookings ?? 0;
     const statusCounts = metricsData?.statusCounts ?? {};
     const sectorList = Array.isArray(sectors) ? sectors : (sectors?.routes || []);
     const seatsSold = sectorList.reduce((sum: number, s: any) => sum + ((s.totalSeats || 0) - (s.remainingSeats || 0)), 0);
     const remainingSeats = sectorList.reduce((sum: number, s: any) => sum + (s.remainingSeats || 0), 0);
+
+    const agentList = agentsData?.users?.filter((u: any) => u.role === "AGENT") || [];
+    const totalAgentSales = agentList.reduce((sum: number, a: any) => sum + (a.totalSales || 0), 0);
+    const totalAgentDues = agentList.reduce((sum: number, a: any) => sum + (a.pendingDues || 0), 0);
 
     const statCards = [
         { label: "Total Bookings", value: totalBookings.toString(), icon: PiUsers, color: "text-violet-600", bg: "bg-violet-50", sub: "All bookings" },
@@ -60,6 +79,11 @@ export default function StaffDashboard() {
         }
     });
 
+    // Tasks by status
+    const pendingTasks = staffTasks.filter((t: any) => t.status === "PENDING");
+    const inProgressTasks = staffTasks.filter((t: any) => t.status === "IN_PROGRESS");
+    const completedTasks = staffTasks.filter((t: any) => t.status === "COMPLETED");
+
     if (isLoading) {
         return (
             <div className="space-y-6 max-w-7xl">
@@ -77,7 +101,7 @@ export default function StaffDashboard() {
             {/* Header */}
             <div>
                 <h1 className="text-2xl font-black text-gray-900">Staff Dashboard</h1>
-                <p className="text-gray-400 text-sm mt-0.5">Booking overview & flight schedule.</p>
+                <p className="text-gray-400 text-sm mt-0.5">Booking overview, agent management & tasks.</p>
             </div>
 
             {/* Stat Cards */}
@@ -104,77 +128,148 @@ export default function StaffDashboard() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Travel Calendar */}
-                <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-sm font-black text-gray-900 uppercase tracking-wider">Travel Calendar</h2>
-                        <div className="flex items-center gap-2">
-                            <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1.5 rounded-lg hover:bg-gray-100">
-                                <PiCaretLeft className="h-4 w-4 text-gray-500" />
-                            </button>
-                            <span className="text-sm font-bold text-gray-700 min-w-[120px] text-center">
-                                {format(currentMonth, "MMMM yyyy")}
-                            </span>
-                            <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-1.5 rounded-lg hover:bg-gray-100">
-                                <PiCaretRight className="h-4 w-4 text-gray-500" />
-                            </button>
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-7 gap-1">
-                        {weekDays.map((d) => (
-                            <div key={d} className="text-center text-[10px] font-bold text-gray-400 uppercase py-2">
-                                {d}
-                            </div>
-                        ))}
-                        {calendarDays.map((day) => {
-                            const key = format(day, "yyyy-MM-dd");
-                            const flights = flightsByDate[key] || [];
-                            const inMonth = isSameMonth(day, currentMonth);
-                            const today = isToday(day);
-                            return (
-                                <div
-                                    key={key}
-                                    className={`min-h-[72px] rounded-xl p-1.5 text-xs border transition-colors ${
-                                        today ? "border-violet-300 bg-violet-50/50" : inMonth ? "border-gray-100 bg-white" : "border-transparent bg-gray-50/50"
-                                    }`}
-                                >
-                                    <div className={`text-[10px] font-bold mb-1 ${inMonth ? "text-gray-700" : "text-gray-300"}`}>
-                                        {format(day, "d")}
+                {/* Left: Tasks & Agents */}
+                <div className="lg:col-span-2 space-y-6">
+                    {/* Staff Tasks */}
+                    {(pendingTasks.length > 0 || inProgressTasks.length > 0) && (
+                        <Card className="border-gray-100 shadow-sm">
+                            <CardHeader className="pb-3">
+                                <CardTitle className="text-sm font-black text-gray-900 uppercase">My Tasks</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                {pendingTasks.length > 0 && (
+                                    <div>
+                                        <p className="text-xs font-bold text-amber-600 mb-2">PENDING ({pendingTasks.length})</p>
+                                        {pendingTasks.slice(0, 3).map((task: any) => (
+                                            <div key={task.id} className="flex items-center justify-between p-2 bg-amber-50 rounded-lg mb-1">
+                                                <span className="text-sm font-medium">{task.title}</span>
+                                                <Badge variant="outline" className="text-amber-600 border-amber-200">Pending</Badge>
+                                            </div>
+                                        ))}
                                     </div>
-                                    {flights.slice(0, 2).map((f: any, fi: number) => (
-                                        <div key={fi} className="bg-violet-100 text-violet-800 rounded px-1 py-0.5 text-[9px] font-bold mb-0.5 truncate">
-                                            {f.origin} {f.departureTime} ({f.remainingSeats})
+                                )}
+                                {inProgressTasks.length > 0 && (
+                                    <div>
+                                        <p className="text-xs font-bold text-blue-600 mb-2">IN PROGRESS ({inProgressTasks.length})</p>
+                                        {inProgressTasks.slice(0, 3).map((task: any) => (
+                                            <div key={task.id} className="flex items-center justify-between p-2 bg-blue-50 rounded-lg mb-1">
+                                                <span className="text-sm font-medium">{task.title}</span>
+                                                <Badge variant="outline" className="text-blue-600 border-blue-200">In Progress</Badge>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {/* Agents Overview */}
+                    <Card className="border-gray-100 shadow-sm">
+                        <CardHeader className="pb-3 flex flex-row items-center justify-between">
+                            <CardTitle className="text-sm font-black text-gray-900 uppercase">Agents Overview</CardTitle>
+                            <div className="flex gap-2">
+                                <span className="text-xs text-emerald-600 font-bold">Sales: SAR {totalAgentSales.toLocaleString()}</span>
+                                <span className="text-xs text-red-500 font-bold">Dues: SAR {totalAgentDues.toLocaleString()}</span>
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                {agentList.slice(0, 6).map((agent: any) => (
+                                    <div key={agent.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                                                <PiUserCircle className="h-5 w-5 text-emerald-600" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-gray-900">{agent.name}</p>
+                                                <p className="text-xs text-gray-400">{agent.agencyName || 'N/A'}</p>
+                                            </div>
                                         </div>
-                                    ))}
-                                    {flights.length > 2 && (
-                                        <div className="text-[9px] text-gray-400 font-bold">+{flights.length - 2} more</div>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
+                                        <div className="text-right">
+                                            <p className="text-xs font-bold text-violet-600">SAR {(agent.totalSales || 0).toLocaleString()}</p>
+                                            <p className="text-xs text-red-500">SAR {(agent.pendingDues || 0).toLocaleString()}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
 
-                {/* Announcements */}
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                    <h2 className="text-sm font-black text-gray-900 uppercase tracking-wider mb-4 flex items-center gap-2">
-                        <PiMegaphone className="h-4 w-4 text-violet-600" />
-                        Announcements
-                    </h2>
-                    <div className="space-y-3">
-                        {(announcements as any[]).length === 0 ? (
-                            <p className="text-sm text-gray-400">No announcements yet.</p>
-                        ) : (
-                            (announcements as any[]).slice(0, 5).map((a: any) => (
-                                <div key={a.id} className="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                    <p className="text-xs font-bold text-gray-800">{a.title}</p>
-                                    <p className="text-[11px] text-gray-500 mt-1 line-clamp-2">{a.content}</p>
-                                    <p className="text-[10px] text-gray-300 mt-1.5">
-                                        {a.createdAt ? new Date(a.createdAt).toLocaleDateString("en-US", { day: "2-digit", month: "short", year: "numeric" }) : ""}
-                                    </p>
+                {/* Right: Announcements & Quick Stats */}
+                <div className="space-y-6">
+                    {/* Travel Calendar */}
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-sm font-black text-gray-900 uppercase tracking-wider">Travel Calendar</h2>
+                            <div className="flex items-center gap-2">
+                                <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1.5 rounded-lg hover:bg-gray-100">
+                                    <PiCaretLeft className="h-4 w-4 text-gray-500" />
+                                </button>
+                                <span className="text-sm font-bold text-gray-700 min-w-[120px] text-center">
+                                    {format(currentMonth, "MMMM yyyy")}
+                                </span>
+                                <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-1.5 rounded-lg hover:bg-gray-100">
+                                    <PiCaretRight className="h-4 w-4 text-gray-500" />
+                                </button>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-7 gap-1">
+                            {weekDays.map((d) => (
+                                <div key={d} className="text-center text-[10px] font-bold text-gray-400 uppercase py-2">
+                                    {d}
                                 </div>
-                            ))
-                        )}
+                            ))}
+                            {calendarDays.map((day) => {
+                                const key = format(day, "yyyy-MM-dd");
+                                const flights = flightsByDate[key] || [];
+                                const inMonth = isSameMonth(day, currentMonth);
+                                const today = isToday(day);
+                                return (
+                                    <div
+                                        key={key}
+                                        className={`min-h-[72px] rounded-xl p-1.5 text-xs border transition-colors ${
+                                            today ? "border-violet-300 bg-violet-50/50" : inMonth ? "border-gray-100 bg-white" : "border-transparent bg-gray-50/50"
+                                        }`}
+                                    >
+                                        <div className={`text-[10px] font-bold mb-1 ${inMonth ? "text-gray-700" : "text-gray-300"}`}>
+                                            {format(day, "d")}
+                                        </div>
+                                        {flights.slice(0, 2).map((f: any, fi: number) => (
+                                            <div key={fi} className="bg-violet-100 text-violet-800 rounded px-1 py-0.5 text-[9px] font-bold mb-0.5 truncate">
+                                                {f.origin} {f.departureTime} ({f.remainingSeats})
+                                            </div>
+                                        ))}
+                                        {flights.length > 2 && (
+                                            <div className="text-[9px] text-gray-400 font-bold">+{flights.length - 2} more</div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Announcements */}
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                        <h2 className="text-sm font-black text-gray-900 uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <PiMegaphone className="h-4 w-4 text-violet-600" />
+                            Announcements
+                        </h2>
+                        <div className="space-y-3">
+                            {(announcements as any[]).length === 0 ? (
+                                <p className="text-sm text-gray-400">No announcements yet.</p>
+                            ) : (
+                                (announcements as any[]).slice(0, 5).map((a: any) => (
+                                    <div key={a.id} className="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                        <p className="text-xs font-bold text-gray-800">{a.title}</p>
+                                        <p className="text-[11px] text-gray-500 mt-1 line-clamp-2">{a.content}</p>
+                                        <p className="text-[10px] text-gray-300 mt-1.5">
+                                            {a.createdAt ? new Date(a.createdAt).toLocaleDateString("en-US", { day: "2-digit", month: "short", year: "numeric" }) : ""}
+                                        </p>
+                                    </div>
+                                ))
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

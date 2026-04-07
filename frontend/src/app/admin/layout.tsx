@@ -13,7 +13,8 @@ import {
     PiUserList,
     PiGearSix,
     PiChartBar,
-    PiReceipt
+    PiReceipt,
+    PiUserCircle
 } from "react-icons/pi";
 import React from "react";
 import Link from "next/link";
@@ -49,6 +50,7 @@ const navigation = [
         group: "Platform",
         links: [
             { href: "/admin/users", label: "User Management", icon: PiUsers, exact: false },
+            { href: "/admin/staff", label: "Staff Management", icon: PiUserCircle, exact: false },
             { href: "/admin/announcements", label: "Bulletins", icon: PiMegaphone, exact: false },
         ]
     }

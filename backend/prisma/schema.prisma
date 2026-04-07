@@ -174,3 +174,24 @@ model Invoice {
   @@index([createdAt])
   @@index([customerName])
 }
+
+model Task {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  target      Int?      // Target number (e.g., 50 bookings)
+  current     Int       @default(0)
+  status      String    @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED
+  priority    String    @default("MEDIUM") // LOW, MEDIUM, HIGH
+  type        String    @default("BOOKING") // BOOKING, SALES, INVOICE
+  assignedToId String
+  createdById String?
+  dueDate     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([assignedToId])
+  @@index([status])
+  @@index([createdAt])
+}
