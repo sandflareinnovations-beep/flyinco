@@ -124,6 +124,7 @@ export default function SectorManagement() {
             destination: form.destination,
             price: parseFloat(form.price),
             agentPrice: form.agentPrice ? parseFloat(form.agentPrice) : undefined,
+            purchaseCost: form.purchaseCost ? parseFloat(form.purchaseCost) : undefined,
             totalSeats: parseInt(form.totalSeats),
             remainingSeats: parseInt(form.remainingSeats || form.totalSeats),
             departureDate: form.departureDate,
@@ -150,6 +151,7 @@ export default function SectorManagement() {
             data: {
                 price: parseFloat(form.price),
                 agentPrice: form.agentPrice ? parseFloat(form.agentPrice) : undefined,
+                purchaseCost: form.purchaseCost ? parseFloat(form.purchaseCost) : undefined,
                 departureDate: form.departureDate,
                 arrivalDate: form.arrivalDate,
                 baggage: form.baggage,
@@ -486,6 +488,7 @@ export default function SectorManagement() {
                             <InputField label="Destination Code" name="destination" placeholder="e.g. COK" required value={form.destination || ""} onChange={e => setForm({ ...form, destination: e.target.value })} />
                             <InputField label="Price (SAR)" name="price" type="number" placeholder="e.g. 1300" required value={form.price || ""} onChange={e => setForm({ ...form, price: e.target.value })} />
                             <InputField label="Agent Price (SAR)" name="agentPrice" type="number" placeholder="e.g. 1250 (optional)" value={form.agentPrice || ""} onChange={e => setForm({ ...form, agentPrice: e.target.value })} />
+                            <InputField label="Purchase Cost (SAR)" name="purchaseCost" type="number" placeholder="e.g. 800 (optional - for profit)" value={form.purchaseCost || ""} onChange={e => setForm({ ...form, purchaseCost: e.target.value })} />
                             <InputField label="Baggage" name="baggage" placeholder="e.g. 2PC / 30kg" value={form.baggage || ""} onChange={e => setForm({ ...form, baggage: e.target.value })} />
 
                             {/* Departure & Arrival Group */}
@@ -561,6 +564,7 @@ export default function SectorManagement() {
                             {/* Route & Pricing */}
                             <InputField label="Price (SAR)" name="price" type="number" required value={form.price || ""} onChange={e => setForm({ ...form, price: e.target.value })} />
                             <InputField label="Agent Price (SAR)" name="agentPrice" type="number" placeholder="e.g. 1250 (optional)" value={form.agentPrice || ""} onChange={e => setForm({ ...form, agentPrice: e.target.value })} />
+                            <InputField label="Purchase Cost (SAR)" name="purchaseCost" type="number" placeholder="e.g. 800 (for profit calc)" value={form.purchaseCost || ""} onChange={e => setForm({ ...form, purchaseCost: e.target.value })} />
                             <InputField label="Baggage" name="baggage" placeholder="e.g. 2PC" value={form.baggage || ""} onChange={e => setForm({ ...form, baggage: e.target.value })} />
 
                             {/* Departure & Arrival Group */}

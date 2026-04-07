@@ -15,6 +15,7 @@ model Route {
   destinationCity String   @default("Dest City")
   price          Float
   agentPrice     Float?
+  purchaseCost   Float?    // Cost price for profit calculation
   totalSeats     Int
   remainingSeats Int
   departureDate  DateTime

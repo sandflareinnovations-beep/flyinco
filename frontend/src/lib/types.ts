@@ -8,6 +8,7 @@ export type FareSector = {
     destinationCity: string;
     price: number;
     agentPrice?: number;
+    purchaseCost?: number;  // Cost price for profit calculation
     totalSeats: number;
     remainingSeats: number;
     heldSeats: number;

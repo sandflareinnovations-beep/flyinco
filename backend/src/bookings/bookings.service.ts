@@ -544,7 +544,11 @@ export class BookingsService {
     const sellingPrice = isAdmin
       ? dto.sellingPrice || route.price
       : route.price;
-    const purchasePrice = isAdmin ? dto.purchasePrice || 0 : 0;
+    // Use route's purchaseCost if available, else use admin-set or default
+    const routePurchaseCost = route.purchaseCost || 0;
+    const purchasePrice = isAdmin 
+      ? (dto.purchasePrice ?? routePurchaseCost) 
+      : routePurchaseCost;
     const profit = sellingPrice - purchasePrice;
 
     // Robust Agent Identification & Details Mapping:

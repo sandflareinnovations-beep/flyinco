@@ -14,6 +14,10 @@ export class CreateRouteDto {
   @IsNumber()
   agentPrice?: number;
 
+  @IsOptional()
+  @IsNumber()
+  purchaseCost?: number;
+
   @IsNumber()
   totalSeats: number;
 

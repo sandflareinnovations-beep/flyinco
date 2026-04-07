@@ -9,12 +9,14 @@ interface BookingReceiptProps {
     booking: any;
     onClose: () => void;
     autoPrint?: boolean;
+    showFare?: boolean;  // Toggle fare visibility
 }
 
-export function BookingReceipt({ booking, onClose, autoPrint = false }: BookingReceiptProps) {
+export function BookingReceipt({ booking, onClose, autoPrint = false, showFare = true }: BookingReceiptProps) {
     const printRef = useRef<HTMLDivElement>(null);
     const hasAutoPrinted = useRef(false);
     const route = booking.route;
+    const [includeFare, setIncludeFare] = React.useState(showFare);
 
     const handlePrint = () => {
         const printContent = printRef.current;
@@ -77,6 +79,14 @@ export function BookingReceipt({ booking, onClose, autoPrint = false }: BookingR
                         className="rounded-xl gap-2 font-semibold bg-white shadow-sm border-gray-200"
                     >
                         <PiPrinter className="h-4 w-4" /> Print Itinerary
+                    </Button>
+                    <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setIncludeFare(!includeFare)}
+                        className="rounded-xl gap-2 font-semibold bg-white shadow-sm border-gray-200"
+                    >
+                        {includeFare ? "Hide Fare" : "Show Fare"}
                     </Button>
                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2 animate-pulse">
                         ↓ Scroll to see full details
@@ -221,8 +231,8 @@ export function BookingReceipt({ booking, onClose, autoPrint = false }: BookingR
                         </div>
                     </div>
 
-                    {/* Fare Summary - Only show if not imported (isNew) */}
-                    {!booking.isNew && (
+                    {/* Fare Summary - Only show if includeFare is true */}
+                    {includeFare && (
                         <div className="mb-6 border border-gray-100 rounded-xl overflow-hidden">
                             <div className="bg-gray-50 px-6 py-2 border-b border-gray-100 text-[10px] font-black text-[#1e1a4b] uppercase tracking-wider">
                                 <span>Fare Summary</span>
