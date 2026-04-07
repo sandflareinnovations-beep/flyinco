@@ -196,9 +196,9 @@ export class BookingsController {
     return this.bookingsService.remove(id);
   }
 
-  // ── Admin: send ticket PDF to customer ──
+  // ── Admin/Staff: send ticket PDF to customer ──
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("ADMIN")
+  @Roles("ADMIN", "STAFF")
   @Post(":id/send-ticket")
   @UseInterceptors(
     FileInterceptor("ticket", {

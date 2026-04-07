@@ -7,6 +7,8 @@ import {
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 
+// Only hide admin-level financial fields from staff
+// Staff NEEDS: totalSales, pendingDues, totalPaid, outstanding (for agent management)
 const CONFIDENTIAL_KEYS = new Set([
   "purchasePrice",
   "profit",
@@ -15,12 +17,6 @@ const CONFIDENTIAL_KEYS = new Set([
   "totalRevenue",
   "totalUnpaidDues",
   "creditLimit",
-  "totalPaid",
-  "totalSales",
-  "outstanding",
-  "pendingDues",
-  "topAgent",
-  "agentPerformance",
   "supplier",
 ]);
 
