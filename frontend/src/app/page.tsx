@@ -678,7 +678,7 @@ export default function Home() {
                       </div>
 
                       {/* Action Section */}
-                      <div className="col-span-2 sm:col-auto" style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 0, width: "100%", sm:width: "auto" }}>
+                      <div className="col-span-2 sm:col-auto w-full sm:w-auto" style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 0 }}>
                         <button
                           onClick={() => router.push(`/routes/${s.id}/flights`)}
                           style={{
