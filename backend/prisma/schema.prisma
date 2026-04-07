@@ -120,9 +120,11 @@ model User {
   lastLogin          DateTime?
   
   createdAt DateTime  @default(now())
-  
-  bookings  Booking[]
-  payments  Payment[]
+
+  bookings       Booking[]
+  payments       Payment[]
+  tasksAssigned  Task[]    @relation("TaskAssignedTo")
+  tasksCreated   Task[]    @relation("TaskCreatedBy")
 }
 
 model Announcement {
@@ -190,6 +192,9 @@ model Task {
   completedAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+
+  assignedTo  User      @relation("TaskAssignedTo", fields: [assignedToId], references: [id], onDelete: Cascade)
+  createdBy   User?     @relation("TaskCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([assignedToId])
   @@index([status])

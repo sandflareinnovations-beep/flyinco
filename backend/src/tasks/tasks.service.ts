@@ -7,6 +7,14 @@ export class TasksService {
   constructor(private prisma: PrismaService) {}
 
   async create(dto: CreateTaskDto, userId: string) {
+    // Validate that the assigned user exists
+    const assignedUser = await this.prisma.user.findUnique({
+      where: { id: dto.assignedToId },
+    });
+    if (!assignedUser) {
+      throw new NotFoundException(`User with ID ${dto.assignedToId} not found`);
+    }
+
     const task = await this.prisma.task.create({
       data: {
         title: dto.title,
@@ -19,6 +27,10 @@ export class TasksService {
         assignedToId: dto.assignedToId,
         createdById: userId,
         dueDate: dto.dueDate,
+      },
+      include: {
+        assignedTo: { select: { id: true, name: true, email: true } },
+        createdBy: { select: { id: true, name: true, email: true } },
       },
     });
     return task;
