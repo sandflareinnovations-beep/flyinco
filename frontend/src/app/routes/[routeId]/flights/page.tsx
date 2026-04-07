@@ -30,14 +30,14 @@ export default function FlightsPage() {
 
                 if (routeId === "ruh-cok") {
                     // Legacy slug support
-                    foundSector = routes.find(r =>
+                    foundSector = routes.find((r: any) =>
                         (r.originCode === "RUH" && r.destinationCode === "COK") ||
                         (r.originCode === "RUH" && r.destinationCode === "BOM") ||
                         r.id === routeId
                     );
                 } else {
                     // Try exact ID match first
-                    foundSector = routes.find(r => r.id === routeId);
+                    foundSector = routes.find((r: any) => r.id === routeId);
                 }
 
                 if (foundSector) {

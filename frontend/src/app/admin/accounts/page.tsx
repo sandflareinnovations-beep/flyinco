@@ -133,7 +133,7 @@ export default function AdminAccounts() {
             setAgents(agentList);
 
             // Update selectedAgent with fresh data
-            const refreshedAgent = agentList.find(a => a.id === selectedAgent.id);
+            const refreshedAgent = agentList.find((a: any) => a.id === selectedAgent.id);
             if (refreshedAgent) setSelectedAgent(refreshedAgent);
         } catch (error: any) {
             toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -163,7 +163,7 @@ export default function AdminAccounts() {
                 setAgents(agentList);
 
                 // Update selectedAgent with fresh data
-                const refreshedAgent = agentList.find(a => a.id === selectedAgent.id);
+                const refreshedAgent = agentList.find((a: any) => a.id === selectedAgent.id);
                 if (refreshedAgent) setSelectedAgent(refreshedAgent);
             }
         } catch (error: any) {
