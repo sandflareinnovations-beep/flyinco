@@ -192,30 +192,28 @@ export default function StaffManagementPage() {
                         {/* Add Task Form */}
                         <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
                             <h4 className="text-xs font-bold text-gray-500 uppercase mb-3">Assign New Task</h4>
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 gap-3">
                                 <div>
                                     <Label className="text-xs">Task Title *</Label>
-                                    <Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Achieve 50 bookings" className="h-8 text-sm" />
+                                    <Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Follow up with customer" className="h-9 text-sm" />
                                 </div>
                                 <div>
-                                    <Label className="text-xs">Target</Label>
-                                    <Input type="number" value={form.target} onChange={e => setForm({...form, target: e.target.value})} placeholder="e.g. 50" className="h-8 text-sm" />
+                                    <Label className="text-xs">Instructions</Label>
+                                    <Input value={form.description} onChange={e => setForm({...form, description: e.target.value})} placeholder="Detailed instructions for this task..." className="h-9 text-sm" />
                                 </div>
-                                <div>
-                                    <Label className="text-xs">Priority</Label>
-                                    <select value={form.priority} onChange={e => setForm({...form, priority: e.target.value})} className="h-8 text-sm border rounded px-2 w-full">
-                                        <option value="LOW">Low</option>
-                                        <option value="MEDIUM">Medium</option>
-                                        <option value="HIGH">High</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <Label className="text-xs">Due Date</Label>
-                                    <Input type="date" value={form.dueDate} onChange={e => setForm({...form, dueDate: e.target.value})} className="h-8 text-sm" />
-                                </div>
-                                <div className="col-span-2">
-                                    <Label className="text-xs">Description</Label>
-                                    <Input value={form.description} onChange={e => setForm({...form, description: e.target.value})} placeholder="Task details..." className="h-8 text-sm" />
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <Label className="text-xs">Priority</Label>
+                                        <select value={form.priority} onChange={e => setForm({...form, priority: e.target.value})} className="h-9 text-sm border rounded px-2 w-full">
+                                            <option value="LOW">Low</option>
+                                            <option value="MEDIUM">Medium</option>
+                                            <option value="HIGH">High</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <Label className="text-xs">Due Date</Label>
+                                        <Input type="date" value={form.dueDate} onChange={e => setForm({...form, dueDate: e.target.value})} className="h-9 text-sm" />
+                                    </div>
                                 </div>
                             </div>
                             <Button onClick={handleCreateTask} disabled={!form.title} className="mt-3 rounded-xl w-full">

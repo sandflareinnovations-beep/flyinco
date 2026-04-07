@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
-import { API_BASE } from "@/lib/api";
+import { API_BASE, flyApi } from "@/lib/api";
 
 function PassengersForm() {
     const router = useRouter();
@@ -33,6 +33,8 @@ function PassengersForm() {
     const [email, setEmail] = useState('');
     const [isStaff, setIsStaff] = useState(false);
     const [remarks, setRemarks] = useState('');
+    const [selectedAgentId, setSelectedAgentId] = useState('');
+    const [agents, setAgents] = useState<any[]>([]);
 
     // Passenger details
     const [passenger, setPassenger] = useState<Partial<PassengerDetail>>({
@@ -55,6 +57,13 @@ function PassengersForm() {
             try {
                 const user = JSON.parse(userStr);
                 setIsStaff(user?.role === 'STAFF');
+                // Fetch agents for staff booking flow
+                if (user?.role === 'STAFF') {
+                    flyApi.users.list({ limit: 1000 }).then((data: any) => {
+                        const list = Array.isArray(data) ? data : (data.users || []);
+                        setAgents(list.filter((u: any) => u.role === 'AGENT'));
+                    }).catch(() => {});
+                }
             } catch {}
         }
     }, [flightId]);
@@ -274,16 +283,34 @@ function PassengersForm() {
                                             Staff Notes (Optional)
                                         </CardTitle>
                                     </CardHeader>
-                                    <CardContent>
-                                        <div className="space-y-1.5">
+                                    <CardContent className="space-y-4">
+                                        {/* Agent Selection */}
+                                        <div>
+                                            <Label className="text-xs font-semibold text-gray-600">Assign to Agent (Optional)</Label>
+                                            <select 
+                                                value={selectedAgentId} 
+                                                onChange={e => setSelectedAgentId(e.target.value)}
+                                                className="mt-1 w-full h-10 rounded-xl border border-gray-200 px-3 text-sm focus:ring-[#6C2BD9] focus:border-[#6C2BD9]"
+                                            >
+                                                <option value="">-- Select Agent --</option>
+                                                {agents.map((agent) => (
+                                                    <option key={agent.id} value={agent.id}>
+                                                        {agent.name} {agent.agencyName ? `(${agent.agencyName})` : ''}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        
+                                        <div>
+                                            <Label className="text-xs font-semibold text-gray-600">Notes</Label>
                                             <Input 
-                                                placeholder="Walk-in Pax / Agent assignment / Special requests..." 
+                                                placeholder="Walk-in Pax / Special requests..." 
                                                 className="rounded-xl border-gray-200 focus-visible:ring-[#6C2BD9]"
                                                 value={remarks}
                                                 onChange={e => setRemarks(e.target.value)}
                                             />
                                             <p className="text-[10px] text-gray-400">
-                                                E.g., "Walk-in Pax", "Assign to Agent XYZ", "Urgent - VIP customer"
+                                                E.g., "Walk-in Pax", "Urgent - VIP customer"
                                             </p>
                                         </div>
                                     </CardContent>

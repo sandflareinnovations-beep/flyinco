@@ -66,7 +66,7 @@ function PaymentForm() {
         setIsSubmitting(true);
 
         try {
-            const { flight, passenger, phone, email, passengerCounts, remarks } = bookingData;
+            const { flight, passenger, phone, email, passengerCounts, remarks, selectedAgentId } = bookingData;
 
             // 1) PiUploadSimple receipt if provided
             let receiptUrl: string | undefined = undefined;
@@ -110,6 +110,7 @@ function PaymentForm() {
                             paymentReceipt: receiptUrl,
                             paymentMethod: paymentMethod,
                             remarks: remarks || undefined,
+                            agentDetails: selectedAgentId ? `Assigned Agent: ${selectedAgentId}` : undefined,
                         }),
                         credentials: "include",
                     });
