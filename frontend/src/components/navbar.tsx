@@ -123,11 +123,14 @@ export function Navbar() {
             if (data.refresh_token) localStorage.setItem("refresh_token", data.refresh_token);
             const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
             document.cookie = `token=${tokenKey}; path=/; max-age=86400; SameSite=Lax${isSecure ? "; Secure" : ""}`;
-            const target: "admin" | "dashboard" = data.user.role === "ADMIN" ? "admin" : "dashboard";
+            const target: "admin" | "staff" | "dashboard" = data.user.role === "ADMIN" ? "admin" : data.user.role === "STAFF" ? "staff" : "dashboard";
             setLoginTarget(target);
             setLoginLoading(false);
             setLoginAnimating(true);
-            setTimeout(() => { window.location.href = `/${target}`; }, 2200);
+            setTimeout(() => { 
+                const dest = target === "staff" ? "/staff" : `/${target}`;
+                window.location.href = dest; 
+            }, 2200);
         } catch (err: any) {
             setLoginError(err.message);
         } finally {

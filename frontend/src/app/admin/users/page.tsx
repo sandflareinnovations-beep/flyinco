@@ -397,6 +397,10 @@ export default function UsersAdminPage() {
                                         <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 gap-1 font-semibold" variant="outline">
                                             <PiUser className="h-3 w-3" /> Agent
                                         </Badge>
+                                    ) : user.role === "STAFF" ? (
+                                        <Badge className="bg-blue-50 text-blue-700 border-blue-200 gap-1 font-semibold" variant="outline">
+                                            <PiUser className="h-3 w-3" /> Staff
+                                        </Badge>
                                     ) : (
                                         <Badge className="bg-gray-50 text-gray-600 border-gray-200 gap-1 font-semibold" variant="outline">
                                             <PiUser className="h-3 w-3" /> User
