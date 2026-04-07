@@ -21,14 +21,12 @@ services:
     name: flyinco-frontend
     runtime: node
     plan: free
-    buildCommand: cd frontend && npm install --legacy-peer-deps && npm run build && cp -r public .next/standalone/public && cp -r .next/static .next/standalone/.next/static
-    startCommand: cd frontend && node .next/standalone/server.js
+    buildCommand: cd frontend && npm install --legacy-peer-deps && npm run build
+    startCommand: cd frontend && npx next start -p $PORT
     envVars:
       - key: NODE_VERSION
         value: 18.x
       - key: NEXT_PUBLIC_API_URL
         sync: false
       - key: PORT
-        value: 3000
-      - key: NEXT_SHARP_PATH
-        value: /opt/render/project/src/frontend/node_modules/sharp
+        value: 10000
