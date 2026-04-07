@@ -58,7 +58,6 @@ export default function StaffDashboard() {
     });
 
     const totalBookings = metricsData?.totalBookings ?? 0;
-    const statusCounts = metricsData?.statusCounts ?? {};
     const sectorList = Array.isArray(sectors) ? sectors : (sectors?.routes || []);
     const seatsSold = sectorList.reduce((sum: number, s: any) => sum + ((s.totalSeats || 0) - (s.remainingSeats || 0)), 0);
     const remainingSeats = sectorList.reduce((sum: number, s: any) => sum + (s.remainingSeats || 0), 0);
@@ -69,8 +68,8 @@ export default function StaffDashboard() {
 
     const statCards = [
         { label: "Total Bookings", value: totalBookings.toString(), icon: PiBookOpen, color: "text-violet-600", bg: "bg-violet-50", sub: "All bookings" },
-        { label: "Confirmed", value: (statusCounts.CONFIRMED ?? 0).toString(), icon: PiPulse, color: "text-emerald-600", bg: "bg-emerald-50", sub: "Confirmed bookings" },
-        { label: "Held", value: (statusCounts.HELD ?? 0).toString(), icon: PiCalendarBlank, color: "text-amber-600", bg: "bg-amber-50", sub: "Held bookings" },
+        { label: "Confirmed", value: (metricsData?.confirmedCount ?? 0).toString(), icon: PiPulse, color: "text-emerald-600", bg: "bg-emerald-50", sub: "Confirmed bookings" },
+        { label: "Held", value: (metricsData?.heldCount ?? 0).toString(), icon: PiCalendarBlank, color: "text-amber-600", bg: "bg-amber-50", sub: "Held bookings" },
         { label: "Active Agents", value: totalAgents.toString(), icon: PiUsers, color: "text-blue-600", bg: "bg-blue-50", sub: "Registered agents" },
         { label: "Seats Sold", value: seatsSold.toString(), icon: PiAirplaneTilt, color: "text-indigo-600", bg: "bg-indigo-50", sub: "Across all sectors" },
     ];

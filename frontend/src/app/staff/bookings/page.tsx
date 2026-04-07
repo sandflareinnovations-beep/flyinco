@@ -135,7 +135,7 @@ export default function StaffBookings() {
                     <Table>
                         <TableHeader>
                             <TableRow className="bg-gray-50 border-gray-100">
-                                {["#", "Passenger", "Passport", "Route", "Travel Date", "Airline", "Status", "Payment", "PNR", "Actions"].map((h) => (
+                                {["#", "Passenger", "Agent", "Passport", "Route", "Travel Date", "Airline", "Status", "Payment", "PNR", "Actions"].map((h) => (
                                     <TableHead key={h} className="text-[11px] font-bold text-gray-500 uppercase tracking-wide whitespace-nowrap py-3">
                                         {h}
                                     </TableHead>
@@ -145,7 +145,7 @@ export default function StaffBookings() {
                         <TableBody>
                             {bookings.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={10} className="h-32 text-center text-gray-400">
+                                    <TableCell colSpan={11} className="h-32 text-center text-gray-400">
                                         No bookings found.
                                     </TableCell>
                                 </TableRow>
@@ -166,6 +166,11 @@ export default function StaffBookings() {
                                             </TableCell>
                                             <TableCell className="py-3">
                                                 <p className="font-semibold text-sm text-gray-900">{booking.passengerName}</p>
+                                            </TableCell>
+                                            <TableCell className="py-3">
+                                                <span className="text-xs font-medium text-blue-600">
+                                                    {booking.user?.name || booking.agentDetails || 'Direct'}
+                                                </span>
                                             </TableCell>
                                             <TableCell className="font-mono text-xs text-gray-500">
                                                 {booking.passportNumber || "---"}
@@ -316,6 +321,10 @@ export default function StaffBookings() {
                                 <div>
                                     <p className="text-[10px] text-gray-400 font-bold uppercase">Passenger</p>
                                     <p className="font-semibold text-gray-900">{selected.passengerName}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase">Agent</p>
+                                    <p className="font-medium text-blue-600">{selected.user?.name || selected.agentDetails || 'Direct'}</p>
                                 </div>
                                 <div>
                                     <p className="text-[10px] text-gray-400 font-bold uppercase">Passport</p>

@@ -1,5 +1,5 @@
 "use client";
-import { PiUserCircle, PiMagnifyingGlass, PiEye, PiBookOpen, PiMoney, PiClock, PiCheckCircle } from "react-icons/pi";
+import { PiUserCircle, PiMagnifyingGlass, PiEye, PiBookOpen, PiMoney, PiClock, PiCheckCircle, PiReceipt } from "react-icons/pi";
 import { useState, useEffect } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import {
 import { flyApi, fetchWithCreds } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { InvoiceModal } from "@/components/admin/invoice-modal";
 
 export default function StaffAgentsPage() {
     const [agents, setAgents] = useState<any[]>([]);
@@ -20,6 +21,7 @@ export default function StaffAgentsPage() {
     const [selectedAgent, setSelectedAgent] = useState<any>(null);
     const [agentBookings, setAgentBookings] = useState<any[]>([]);
     const [loadingBookings, setLoadingBookings] = useState(false);
+    const [showInvoiceModal, setShowInvoiceModal] = useState(false);
     const { toast } = useToast();
 
     const fetchAgents = async () => {
@@ -58,6 +60,11 @@ export default function StaffAgentsPage() {
     const openAgentDetails = (agent: any) => {
         setSelectedAgent(agent);
         fetchAgentBookings(agent.id);
+    };
+
+    const handleIssueInvoice = () => {
+        if (!selectedAgent) return;
+        setShowInvoiceModal(true);
     };
 
     const filteredAgents = agents.filter(a => 
@@ -213,6 +220,7 @@ export default function StaffAgentsPage() {
                                                     <TableHead className="text-xs">Route</TableHead>
                                                     <TableHead className="text-xs">Price</TableHead>
                                                     <TableHead className="text-xs">Status</TableHead>
+                                                    <TableHead className="text-xs">Payment</TableHead>
                                                     <TableHead className="text-xs">Date</TableHead>
                                                 </TableRow>
                                             </TableHeader>
@@ -223,6 +231,15 @@ export default function StaffAgentsPage() {
                                                         <TableCell className="text-xs">{booking.route?.origin} → {booking.route?.destination}</TableCell>
                                                         <TableCell className="text-xs font-medium">SAR {booking.sellingPrice?.toLocaleString()}</TableCell>
                                                         <TableCell>{getStatusBadge(booking.status)}</TableCell>
+                                                        <TableCell>
+                                                            <Badge variant="outline" className={`text-[10px] font-bold ${
+                                                                booking.paymentStatus === "PAID"
+                                                                    ? "text-emerald-600 border-emerald-200"
+                                                                    : "text-red-600 border-red-200"
+                                                            }`}>
+                                                                {booking.paymentStatus || 'UNPAID'}
+                                                            </Badge>
+                                                        </TableCell>
                                                         <TableCell className="text-xs">
                                                             {booking.createdAt ? format(new Date(booking.createdAt), 'dd MMM') : '-'}
                                                         </TableCell>
@@ -233,10 +250,53 @@ export default function StaffAgentsPage() {
                                     </div>
                                 )}
                             </div>
+
+                            {/* Unpaid Bookings Summary & Issue Invoice */}
+                            {agentBookings.some((b: any) => b.paymentStatus !== "PAID") && (
+                                <div className="border-t border-gray-100 pt-4 flex items-center justify-between">
+                                    <div>
+                                        <p className="text-xs text-gray-500">
+                                            {agentBookings.filter((b: any) => b.paymentStatus !== "PAID").length} unpaid booking(s) totaling{' '}
+                                            <span className="font-bold text-red-600">
+                                                SAR {agentBookings
+                                                    .filter((b: any) => b.paymentStatus !== "PAID")
+                                                    .reduce((sum: number, b: any) => sum + (b.sellingPrice || 0), 0)
+                                                    .toLocaleString()}
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <Button
+                                        onClick={handleIssueInvoice}
+                                        className="rounded-xl gap-2 font-semibold text-white bg-violet-600 hover:bg-violet-700"
+                                    >
+                                        <PiReceipt className="h-4 w-4" /> Issue Invoice
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     )}
                 </DialogContent>
             </Dialog>
+
+            {/* Invoice Modal */}
+            {showInvoiceModal && selectedAgent && (
+                <InvoiceModal
+                    onClose={() => setShowInvoiceModal(false)}
+                    customerData={{
+                        name: selectedAgent.name,
+                        email: selectedAgent.email,
+                        phone: selectedAgent.phone,
+                    }}
+                    initialItems={agentBookings
+                        .filter((b: any) => b.paymentStatus !== "PAID")
+                        .map((b: any) => ({
+                            description: `${b.passengerName} - ${b.route?.origin || '?'} → ${b.route?.destination || '?'} (${b.pnr || 'No PNR'})`,
+                            quantity: 1,
+                            unitPrice: b.sellingPrice || 0,
+                            total: b.sellingPrice || 0,
+                        }))}
+                />
+            )}
         </div>
     );
 }

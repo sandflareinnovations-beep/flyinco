@@ -26,9 +26,10 @@ interface InvoiceProps {
         phone?: string;
     };
     bookingData?: any;
+    initialItems?: InvoiceItem[];
 }
 
-export function InvoiceModal({ onClose, customerData, bookingData }: InvoiceProps) {
+export function InvoiceModal({ onClose, customerData, bookingData, initialItems }: InvoiceProps) {
     const printRef = useRef<HTMLDivElement>(null);
     const [invoiceData, setInvoiceData] = useState({
         invoiceNumber: `INV-${Date.now().toString().slice(-8)}`,
@@ -39,9 +40,11 @@ export function InvoiceModal({ onClose, customerData, bookingData }: InvoiceProp
         customerPhone: customerData?.phone || '',
     });
     
-    const [items, setItems] = useState<InvoiceItem[]>([
-        { description: '', quantity: 1, unitPrice: 0, total: 0 }
-    ]);
+    const [items, setItems] = useState<InvoiceItem[]>(
+        initialItems && initialItems.length > 0
+            ? initialItems
+            : [{ description: '', quantity: 1, unitPrice: 0, total: 0 }]
+    );
     
     const [notes, setNotes] = useState('');
     const [vatRate, setVatRate] = useState(15);
