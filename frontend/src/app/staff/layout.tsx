@@ -6,6 +6,7 @@ import {
     PiChartBar,
     PiSignOut,
     PiTicket,
+    PiReceipt,
 } from "react-icons/pi";
 import React from "react";
 import Link from "next/link";
@@ -26,6 +27,7 @@ const navigation = [
         links: [
             { href: "/staff/book", label: "Book Tickets", icon: PiTicket, exact: false },
             { href: "/staff/bookings", label: "View Bookings", icon: PiBookOpen, exact: false },
+            { href: "/staff/invoices", label: "Invoices", icon: PiReceipt, exact: false },
         ],
     },
     {

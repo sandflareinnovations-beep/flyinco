@@ -12,7 +12,8 @@ import {
     PiIdentificationCard,
     PiUserList,
     PiGearSix,
-    PiChartBar
+    PiChartBar,
+    PiReceipt
 } from "react-icons/pi";
 import React from "react";
 import Link from "next/link";
@@ -41,6 +42,7 @@ const navigation = [
         links: [
             { href: "/admin/accounts", label: "Agent Accounting", icon: PiCurrencyDollar, exact: false },
             { href: "/admin/suppliers", label: "Supplier Records", icon: PiTruck, exact: false },
+            { href: "/admin/invoices", label: "Invoices", icon: PiReceipt, exact: false },
         ]
     },
     {
