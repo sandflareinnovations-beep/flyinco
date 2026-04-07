@@ -18,11 +18,11 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { ChangePasswordDto } from "./dto/change-password.dto";
 
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles("ADMIN")
 @Controller("users")
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Roles("ADMIN", "STAFF")
   @Get()
   findAll(
     @Query("page") page?: number,
@@ -39,21 +39,25 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+  @Roles("ADMIN")
   @Post()
   createUser(@Body() dto: CreateUserDto) {
     return this.usersService.createUser(dto);
   }
 
+  @Roles("ADMIN")
   @Patch("change-password")
   changePassword(@Body() dto: ChangePasswordDto) {
     return this.usersService.changePassword(dto);
   }
 
+  @Roles("ADMIN")
   @Patch(":id")
   updateUser(@Param("id") id: string, @Body() data: UpdateUserDto) {
     return this.usersService.updateUser(id, data);
   }
 
+  @Roles("ADMIN")
   @Delete(":id")
   deleteUser(@Param("id") id: string) {
     return this.usersService.deleteUser(id);

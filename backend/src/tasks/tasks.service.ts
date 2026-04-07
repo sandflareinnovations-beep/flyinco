@@ -7,6 +7,31 @@ export class TasksService {
   constructor(private prisma: PrismaService) {}
 
   async create(dto: CreateTaskDto, userId: string) {
+    // Validate that the assigned user exists
+    const assignedUser = await this.prisma.user.findUnique({
+      where: { id: dto.assignedToId },
+    });
+    if (!assignedUser) {
+      throw new NotFoundException(`User with ID ${dto.assignedToId} not found`);
+    }
+
+    // Convert dueDate string to ISO-8601 DateTime if provided
+    let dueDate = null;
+    if (dto.dueDate) {
+      // Handle both "YYYY-MM-DD" and ISO-8601 formats
+      const dateStr = typeof dto.dueDate === 'string' ? dto.dueDate : dto.dueDate.toString();
+      // If it's just a date string (YYYY-MM-DD), append time at midnight UTC
+      if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        dueDate = new Date(`${dateStr}T00:00:00Z`);
+      } else {
+        dueDate = new Date(dateStr);
+      }
+      // Validate the date is valid
+      if (isNaN(dueDate.getTime())) {
+        throw new Error(`Invalid date format for dueDate: ${dateStr}`);
+      }
+    }
+
     const task = await this.prisma.task.create({
       data: {
         title: dto.title,
@@ -18,7 +43,11 @@ export class TasksService {
         type: dto.type || 'BOOKING',
         assignedToId: dto.assignedToId,
         createdById: userId,
-        dueDate: dto.dueDate,
+        dueDate: dueDate,
+      },
+      include: {
+        assignedTo: { select: { id: true, name: true, email: true } },
+        createdBy: { select: { id: true, name: true, email: true } },
       },
     });
     return task;
