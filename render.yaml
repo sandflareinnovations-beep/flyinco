@@ -21,8 +21,8 @@ services:
     name: flyinco-frontend
     runtime: node
     plan: free
-    buildCommand: cd frontend && npm install --legacy-peer-deps && npm run build && cp -r public .next/standalone/public && cp -r .next/static .next/standalone/.next/static && cp -r node_modules/sharp .next/standalone/node_modules/sharp
-    startCommand: cd frontend && node .next/standalone/server.js
+    buildCommand: cd frontend && npm install --legacy-peer-deps && npm run build && cp -r public .next/standalone/public && cp -r .next/static .next/standalone/.next/static
+    startCommand: cd frontend && NEXT_SHARP_PATH=/opt/render/project/src/frontend/node_modules/sharp node .next/standalone/server.js
     envVars:
       - key: NODE_VERSION
         value: 18.x
