@@ -1,5 +1,5 @@
 "use client";
-import { PiPrinter, PiDownloadSimple, PiX, PiReceipt } from "react-icons/pi";
+import { PiPrinter, PiDownloadSimple, PiX, PiReceipt, PiFloppyDisk } from "react-icons/pi";
 import React, { useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { flyApi } from "@/lib/api";
 
 interface InvoiceItem {
     description: string;
@@ -43,7 +44,9 @@ export function InvoiceModal({ onClose, customerData, bookingData }: InvoiceProp
     ]);
     
     const [notes, setNotes] = useState('');
+    const [vatRate, setVatRate] = useState(15);
     const [saving, setSaving] = useState(false);
+    const [saved, setSaved] = useState(false);
     const { toast } = useToast();
 
     const updateItem = (index: number, field: keyof InvoiceItem, value: string | number) => {
@@ -66,8 +69,32 @@ export function InvoiceModal({ onClose, customerData, bookingData }: InvoiceProp
     };
 
     const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-    const tax = subtotal * 0.15; // 15% VAT
-    const total = subtotal + tax;
+    const vatAmount = subtotal * (vatRate / 100);
+    const total = subtotal + vatAmount;
+
+    const handleSave = async () => {
+        setSaving(true);
+        try {
+            await flyApi.invoices.create({
+                invoiceNumber: invoiceData.invoiceNumber,
+                customerName: invoiceData.customerName,
+                customerEmail: invoiceData.customerEmail,
+                customerPhone: invoiceData.customerPhone,
+                items: items.filter(i => i.description),
+                subtotal,
+                vatRate,
+                vatAmount,
+                total,
+                notes,
+            });
+            setSaved(true);
+            toast({ title: "Invoice Saved", description: `Invoice ${invoiceData.invoiceNumber} saved successfully.` });
+        } catch (err: any) {
+            toast({ title: "Error", description: err.message || "Failed to save invoice", variant: "destructive" });
+        } finally {
+            setSaving(false);
+        }
+    };
 
     const handlePrint = () => {
         const printContent = printRef.current;
@@ -171,6 +198,20 @@ export function InvoiceModal({ onClose, customerData, bookingData }: InvoiceProp
                         </div>
 
                         <div className="border-t pt-4">
+                            <div className="flex items-center gap-4">
+                                <div>
+                                    <Label className="text-xs font-semibold">VAT Rate (%)</Label>
+                                    <Input 
+                                        type="number" 
+                                        value={vatRate} 
+                                        onChange={e => setVatRate(parseFloat(e.target.value) || 0)}
+                                        className="h-9 w-24 mt-1"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="border-t pt-4">
                             <Label className="text-xs font-semibold">Notes</Label>
                             <Input placeholder="Additional notes..." value={notes} onChange={e => setNotes(e.target.value)} className="h-9 mt-1" />
                         </div>
@@ -212,9 +253,9 @@ export function InvoiceModal({ onClose, customerData, bookingData }: InvoiceProp
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {items.map((item, i) => (
+                                        {items.filter(i => i.description).map((item, i) => (
                                             <tr key={i} className="border-b border-gray-100">
-                                                <td className="py-2">{item.description || '-'}</td>
+                                                <td className="py-2">{item.description}</td>
                                                 <td className="text-center py-2">{item.quantity}</td>
                                                 <td className="text-right py-2">SAR {item.unitPrice.toLocaleString()}</td>
                                                 <td className="text-right py-2 font-medium">SAR {item.total.toLocaleString()}</td>
@@ -230,8 +271,8 @@ export function InvoiceModal({ onClose, customerData, bookingData }: InvoiceProp
                                         <span className="font-medium">SAR {subtotal.toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-gray-500">VAT (15%)</span>
-                                        <span className="font-medium">SAR {tax.toLocaleString()}</span>
+                                        <span className="text-gray-500">VAT ({vatRate}%)</span>
+                                        <span className="font-medium">SAR {vatAmount.toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between text-lg font-black text-violet-700 pt-2 border-t">
                                         <span>Total</span>
@@ -257,8 +298,11 @@ export function InvoiceModal({ onClose, customerData, bookingData }: InvoiceProp
 
                 <DialogFooter className="gap-2">
                     <Button variant="outline" onClick={onClose} className="rounded-xl">Cancel</Button>
+                    <Button variant="outline" onClick={handleSave} disabled={saving || saved} className="rounded-xl gap-2">
+                        <PiFloppyDisk className="h-4 w-4" /> {saving ? 'Saving...' : saved ? 'Saved' : 'Save Invoice'}
+                    </Button>
                     <Button variant="outline" onClick={handlePrint} className="rounded-xl gap-2">
-                        <PiPrinter className="h-4 w-4" /> Print / Save PDF
+                        <PiPrinter className="h-4 w-4" /> Print / PDF
                     </Button>
                 </DialogFooter>
             </DialogContent>

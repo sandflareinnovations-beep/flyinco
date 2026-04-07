@@ -513,5 +513,26 @@ export const flyApi = {
         deleteSupplier: async (id: string) => {
             return await fetchWithCreds(`/payments/supplier/${id}`, { method: 'DELETE' });
         }
+    },
+    invoices: {
+        create: async (data: any) => {
+            return await fetchWithCreds('/invoices', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+        },
+        list: async (params?: { page?: number; limit?: number; search?: string }) => {
+            const q = new URLSearchParams();
+            if (params?.page) q.set('page', String(params.page));
+            if (params?.limit) q.set('limit', String(params.limit));
+            if (params?.search) q.set('search', params.search);
+            return await fetchWithCreds(`/invoices?${q.toString()}`);
+        },
+        get: async (id: string) => {
+            return await fetchWithCreds(`/invoices/${id}`);
+        },
+        delete: async (id: string) => {
+            return await fetchWithCreds(`/invoices/${id}`, { method: 'DELETE' });
+        }
     }
 };

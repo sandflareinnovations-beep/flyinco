@@ -155,3 +155,22 @@ model SupplierPayment {
   notes        String?
   createdAt    DateTime @default(now())
 }
+
+model Invoice {
+  id            String    @id @default(uuid())
+  invoiceNumber String    @unique
+  customerName  String
+  customerEmail String?
+  customerPhone String?
+  items         Json      // Array of {description, quantity, unitPrice, total}
+  subtotal      Float
+  vatRate       Float     @default(15)
+  vatAmount     Float
+  total         Float
+  notes         String?
+  createdById   String?
+  createdAt     DateTime  @default(now())
+
+  @@index([createdAt])
+  @@index([customerName])
+}

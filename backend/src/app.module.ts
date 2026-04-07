@@ -11,6 +11,7 @@ import { MailModule } from "./mail/mail.module";
 import { MailService } from "./mail/mail.service";
 import { AnnouncementsModule } from "./announcements/announcements.module";
 import { PaymentsModule } from "./payments/payments.module";
+import { InvoicesModule } from "./invoices/invoices.module";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
 import { BackupService } from "./common/backup.service";
 import { SecurityLoggerMiddleware } from "./common/middleware/security-logger.middleware";
@@ -26,6 +27,7 @@ import { StaffFilterInterceptor } from "./common/staff-filter.interceptor";
     MailModule,
     AnnouncementsModule,
     PaymentsModule,
+    InvoicesModule,
     ThrottlerModule.forRoot([
       {
         name: "short",
