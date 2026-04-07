@@ -85,7 +85,7 @@ export function Navbar() {
     const [loginLoading, setLoginLoading]   = useState(false);
     const [loginError, setLoginError]       = useState("");
     const [loginAnimating, setLoginAnimating] = useState(false);
-    const [loginTarget, setLoginTarget]     = useState<"admin" | "dashboard">("dashboard");
+    const [loginTarget, setLoginTarget]     = useState<"admin" | "dashboard" | "staff">("dashboard");
 
     // Signup
     const [signupName,     setSignupName]     = useState("");
