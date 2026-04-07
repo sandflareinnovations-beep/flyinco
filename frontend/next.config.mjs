@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    output: "standalone",
     eslint: {
         ignoreDuringBuilds: true,
     },
@@ -7,7 +8,6 @@ const nextConfig = {
         ignoreBuildErrors: true,
     },
     images: {
-        unoptimized: true,
         remotePatterns: [
             {
                 protocol: "https",
@@ -18,7 +18,11 @@ const nextConfig = {
                 hostname: "**",
             },
         ],
-        // Allow all domains
+    },
+    experimental: {
+        outputFileTracingIncludes: {
+            "/*": ["./node_modules/sharp/**/*", "./node_modules/@img/**/*"],
+        },
     },
     async headers() {
         return [
