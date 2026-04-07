@@ -8,6 +8,7 @@ const nextConfig = {
         ignoreBuildErrors: true,
     },
     images: {
+        unoptimized: true,
         remotePatterns: [
             {
                 protocol: "https",
@@ -18,11 +19,6 @@ const nextConfig = {
                 hostname: "**",
             },
         ],
-    },
-    experimental: {
-        outputFileTracingIncludes: {
-            "/*": ["./node_modules/sharp/**/*", "./node_modules/@img/**/*"],
-        },
     },
     async headers() {
         return [
