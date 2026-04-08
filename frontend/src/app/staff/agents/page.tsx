@@ -43,13 +43,8 @@ export default function StaffAgentsPage() {
     const fetchAgentBookings = async (agentId: string) => {
         setLoadingBookings(true);
         try {
-            const data = await flyApi.bookings.listPaginated({ page: 1, limit: 100, search: "" });
-            const allBookings = data.bookings || [];
-            // Filter bookings for this agent
-            const filtered = allBookings.filter((b: any) => 
-                b.agentDetails?.includes(agentId) || b.user?.id === agentId
-            );
-            setAgentBookings(filtered);
+            const data = await flyApi.bookings.listPaginated({ page: 1, limit: 100, agentId });
+            setAgentBookings(data.bookings || []);
         } catch (err: any) {
             console.error(err);
         } finally {
