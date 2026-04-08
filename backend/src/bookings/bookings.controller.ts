@@ -123,6 +123,7 @@ export class BookingsController {
     @Query("phone") phone?: string,
     @Query("supplier") supplier?: string,
     @Query("agentId") agentId?: string,
+    @Query("paymentStatus") paymentStatus?: string,
   ) {
     return this.bookingsService.findAll(req.user, {
       page,
@@ -132,6 +133,7 @@ export class BookingsController {
       phone,
       supplier,
       agentId,
+      paymentStatus,
     });
   }
 

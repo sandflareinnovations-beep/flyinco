@@ -724,6 +724,7 @@ export class BookingsService {
       phone?: string;
       supplier?: string;
       agentId?: string;
+      paymentStatus?: string;
     } = {},
   ) {
     const {
@@ -735,6 +736,7 @@ export class BookingsService {
       supplier = "",
       agentId = "",
       userId = "",
+      paymentStatus = "",
     } = query as any;
     const skip = (page - 1) * limit;
     const take = Number(limit);
@@ -849,6 +851,10 @@ export class BookingsService {
         andConditions.push({
           supplier: { contains: supplier, mode: "insensitive" },
         });
+      }
+
+      if (paymentStatus) {
+        andConditions.push({ paymentStatus: paymentStatus });
       }
 
       // Note: agentId filtering is already handled above with comprehensive OR matching

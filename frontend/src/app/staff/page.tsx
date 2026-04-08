@@ -1,5 +1,5 @@
 "use client";
-import { PiAirplaneTilt, PiUsers, PiPulse, PiCalendarBlank, PiCaretLeft, PiCaretRight, PiMegaphone, PiMoney, PiUserCircle, PiBookOpen, PiClock } from "react-icons/pi";
+import { PiAirplaneTilt, PiUsers, PiPulse, PiCalendarBlank, PiCaretLeft, PiCaretRight, PiMegaphone, PiMoney, PiUserCircle, PiBookOpen, PiClock, PiReceipt } from "react-icons/pi";
 import { useQuery } from "@tanstack/react-query";
 import { flyApi, fetchWithCreds } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,9 +9,14 @@ import { startOfMonth, endOfMonth, eachDayOfInterval, format, isSameMonth, isTod
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { InvoiceModal } from "@/components/admin/invoice-modal";
 
 export default function StaffDashboard() {
     const [currentMonth, setCurrentMonth] = useState(new Date());
+    const [bookingTab, setBookingTab] = useState<"recent" | "all" | "unpaid">("recent");
+    const [bookingPage, setBookingPage] = useState(1);
+    const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+    const [invoiceBooking, setInvoiceBooking] = useState<any>(null);
 
     const monthStart = startOfMonth(currentMonth);
     const monthEnd = endOfMonth(currentMonth);
@@ -57,6 +62,20 @@ export default function StaffDashboard() {
         staleTime: 30000,
     });
 
+    const { data: allBookingsData } = useQuery({
+        queryKey: ["staff-bookings-all", bookingPage],
+        queryFn: () => flyApi.bookings.listPaginated({ page: bookingPage, limit: 20 }),
+        staleTime: 30000,
+        enabled: bookingTab === "all",
+    });
+
+    const { data: unpaidBookingsData } = useQuery({
+        queryKey: ["staff-bookings-unpaid", bookingPage],
+        queryFn: () => flyApi.bookings.listPaginated({ page: bookingPage, limit: 20, paymentStatus: "UNPAID" }),
+        staleTime: 30000,
+        enabled: bookingTab === "unpaid",
+    });
+
     const totalBookings = metricsData?.totalBookings ?? 0;
     const statusCounts = metricsData?.statusCounts ?? {};
     const sectorList = Array.isArray(sectors) ? sectors : (sectors?.routes || []);
@@ -90,8 +109,19 @@ export default function StaffDashboard() {
     const inProgressTasks = staffTasks.filter((t: any) => t.status === "IN_PROGRESS");
     const completedTasks = staffTasks.filter((t: any) => t.status === "COMPLETED");
 
-    // Recent bookings with agent names
+    // Bookings for each tab
     const recentBookings = bookingsData?.bookings?.slice(0, 5) || [];
+    const activeBookings = bookingTab === "all"
+        ? (allBookingsData?.bookings || [])
+        : bookingTab === "unpaid"
+        ? (unpaidBookingsData?.bookings || [])
+        : recentBookings;
+    const activeTotal = bookingTab === "all"
+        ? (allBookingsData?.total || 0)
+        : bookingTab === "unpaid"
+        ? (unpaidBookingsData?.total || 0)
+        : recentBookings.length;
+    const activeTotalPages = bookingTab === "recent" ? 1 : Math.ceil(activeTotal / 20);
 
     if (isLoading) {
         return (
@@ -181,44 +211,109 @@ export default function StaffDashboard() {
                         </CardContent>
                     </Card>
 
-                    {/* Recent Bookings with Agent Names */}
+                    {/* Bookings with Tabs: Recent / All / Unpaid */}
                     <Card className="border-gray-100 shadow-sm">
-                        <CardHeader className="pb-3">
-                            <CardTitle className="text-sm font-black text-gray-900 uppercase">Recent Bookings</CardTitle>
+                        <CardHeader className="pb-3 flex flex-row items-center justify-between">
+                            <CardTitle className="text-sm font-black text-gray-900 uppercase">Bookings</CardTitle>
+                            <div className="flex gap-1">
+                                {(["recent", "all", "unpaid"] as const).map((tab) => (
+                                    <button
+                                        key={tab}
+                                        onClick={() => { setBookingTab(tab); setBookingPage(1); }}
+                                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
+                                            bookingTab === tab
+                                                ? "bg-violet-600 text-white"
+                                                : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                                        }`}
+                                    >
+                                        {tab === "recent" ? "Recent" : tab === "all" ? "All" : "Unpaid"}
+                                        {tab === "unpaid" && unpaidBookingsData?.total ? (
+                                            <span className="ml-1 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                                                {unpaidBookingsData.total}
+                                            </span>
+                                        ) : null}
+                                    </button>
+                                ))}
+                            </div>
                         </CardHeader>
                         <CardContent>
-                            {recentBookings.length === 0 ? (
-                                <p className="text-sm text-gray-400 text-center py-4">No bookings yet</p>
+                            {activeBookings.length === 0 ? (
+                                <p className="text-sm text-gray-400 text-center py-4">No bookings found</p>
                             ) : (
                                 <div className="space-y-2">
-                                    {recentBookings.map((booking: any) => (
-                                        <div key={booking.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                                            <div>
+                                    {activeBookings.map((booking: any) => (
+                                        <div
+                                            key={booking.id}
+                                            className={`flex items-center justify-between p-3 rounded-xl ${
+                                                booking.paymentStatus !== "PAID" ? "bg-red-50/50 border border-red-100" : "bg-gray-50"
+                                            }`}
+                                        >
+                                            <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-bold text-gray-900">{booking.passengerName}</p>
                                                 <p className="text-xs text-gray-500">
                                                     {booking.route?.origin} → {booking.route?.destination}
                                                 </p>
-                                            </div>
-                                            <div className="text-right">
                                                 {booking.agentDetails ? (
-                                                    <p className="text-xs font-medium text-blue-600">
-                                                        {booking.agentDetails.startsWith("Staff:") 
-                                                            ? booking.agentDetails 
-                                                            : booking.agentDetails}
-                                                    </p>
+                                                    <p className="text-[10px] font-medium text-blue-600 mt-0.5">{booking.agentDetails}</p>
                                                 ) : (
-                                                    <p className="text-xs text-gray-400">Direct</p>
+                                                    <p className="text-[10px] text-gray-400 mt-0.5">Direct</p>
                                                 )}
-                                                <Badge variant="outline" className={`mt-1 ${
-                                                    booking.status === "CONFIRMED" ? "text-emerald-600 border-emerald-200" :
-                                                    booking.status === "HELD" ? "text-violet-600 border-violet-200" :
-                                                    "text-amber-600 border-amber-200"
-                                                }`}>
-                                                    {booking.status}
-                                                </Badge>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="text-right">
+                                                    <Badge variant="outline" className={`text-[10px] font-bold ${
+                                                        booking.paymentStatus === "PAID"
+                                                            ? "text-emerald-600 border-emerald-200"
+                                                            : "text-red-600 border-red-200"
+                                                    }`}>
+                                                        {booking.paymentStatus || "UNPAID"}
+                                                    </Badge>
+                                                    <Badge variant="outline" className={`ml-1 text-[10px] font-bold ${
+                                                        booking.status === "CONFIRMED" ? "text-emerald-600 border-emerald-200" :
+                                                        booking.status === "HELD" ? "text-violet-600 border-violet-200" :
+                                                        "text-amber-600 border-amber-200"
+                                                    }`}>
+                                                        {booking.status}
+                                                    </Badge>
+                                                </div>
+                                                {booking.paymentStatus !== "PAID" && (
+                                                    <button
+                                                        onClick={() => { setInvoiceBooking(booking); setShowInvoiceModal(true); }}
+                                                        className="p-1.5 rounded-lg hover:bg-violet-100 text-violet-600 transition-colors"
+                                                        title="Generate Invoice"
+                                                    >
+                                                        <PiReceipt className="h-4 w-4" />
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
                                     ))}
+                                </div>
+                            )}
+                            {/* Pagination for All/Unpaid tabs */}
+                            {bookingTab !== "recent" && activeTotalPages > 1 && (
+                                <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="rounded-xl text-xs"
+                                        disabled={bookingPage <= 1}
+                                        onClick={() => setBookingPage(bookingPage - 1)}
+                                    >
+                                        Previous
+                                    </Button>
+                                    <span className="text-xs text-gray-400">
+                                        Page {bookingPage} of {activeTotalPages} ({activeTotal} total)
+                                    </span>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="rounded-xl text-xs"
+                                        disabled={bookingPage >= activeTotalPages}
+                                        onClick={() => setBookingPage(bookingPage + 1)}
+                                    >
+                                        Next
+                                    </Button>
                                 </div>
                             )}
                         </CardContent>
@@ -340,6 +435,24 @@ export default function StaffDashboard() {
                     </div>
                 </div>
             </div>
+
+            {/* Invoice Modal */}
+            {showInvoiceModal && invoiceBooking && (
+                <InvoiceModal
+                    onClose={() => { setShowInvoiceModal(false); setInvoiceBooking(null); }}
+                    customerData={{
+                        name: invoiceBooking.user?.name || invoiceBooking.agentDetails || invoiceBooking.passengerName,
+                        email: invoiceBooking.email || invoiceBooking.user?.email || '',
+                        phone: invoiceBooking.phone || invoiceBooking.user?.phone || '',
+                    }}
+                    initialItems={[{
+                        description: `${invoiceBooking.passengerName} - ${invoiceBooking.route?.origin || '?'} → ${invoiceBooking.route?.destination || '?'} (${invoiceBooking.pnr || 'No PNR'})`,
+                        quantity: 1,
+                        unitPrice: invoiceBooking.sellingPrice || 0,
+                        total: invoiceBooking.sellingPrice || 0,
+                    }]}
+                />
+            )}
         </div>
     );
 }

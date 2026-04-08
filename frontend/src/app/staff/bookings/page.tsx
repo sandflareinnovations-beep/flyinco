@@ -1,5 +1,5 @@
 "use client";
-import { PiEye, PiMagnifyingGlass, PiPrinter, PiEnvelopeSimple, PiTicket, PiCheckCircle } from "react-icons/pi";
+import { PiEye, PiMagnifyingGlass, PiPrinter, PiEnvelopeSimple, PiTicket, PiCheckCircle, PiReceipt } from "react-icons/pi";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,7 @@ import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 
 import { API_BASE, fetchWithCreds, flyApi } from "@/lib/api";
+import { InvoiceModal } from "@/components/admin/invoice-modal";
 
 const STATUS_STYLES: Record<string, string> = {
     CONFIRMED: "bg-emerald-50 text-emerald-700 border-emerald-200",
@@ -38,10 +39,13 @@ export default function StaffBookings() {
     const [showPaymentConfirm, setShowPaymentConfirm] = useState(false);
     const [paymentConfirmed, setPaymentConfirmed] = useState(false);
     const [confirming, setConfirming] = useState(false);
+    const [paymentFilter, setPaymentFilter] = useState<string>("");
+    const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+    const [invoiceBooking, setInvoiceBooking] = useState<any>(null);
 
     const { data: bookingData, isLoading, refetch, isError } = useQuery({
-        queryKey: ["staff-bookings", page, search],
-        queryFn: () => flyApi.bookings.listPaginated({ page, limit, search }),
+        queryKey: ["staff-bookings", page, search, paymentFilter],
+        queryFn: () => flyApi.bookings.listPaginated({ page, limit, search, paymentStatus: paymentFilter || undefined }),
         refetchInterval: 15000,
     });
 
@@ -93,6 +97,15 @@ export default function StaffBookings() {
                             }}
                         />
                     </div>
+                    <select
+                        value={paymentFilter}
+                        onChange={(e) => { setPaymentFilter(e.target.value); setPage(1); }}
+                        className="rounded-xl border border-gray-200 px-3 h-10 text-sm bg-white focus:ring-violet-400"
+                    >
+                        <option value="">All Payments</option>
+                        <option value="PAID">Paid</option>
+                        <option value="UNPAID">Unpaid</option>
+                    </select>
                     <Button variant="outline" size="sm" className="rounded-xl gap-1.5" onClick={() => refetch()}>
                         <PiTicket className="h-3.5 w-3.5" /> Refresh
                     </Button>
@@ -112,6 +125,12 @@ export default function StaffBookings() {
                 <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-2">
                     <span className="text-emerald-500 font-medium">Confirmed: </span>
                     <span className="font-black text-emerald-700">{confirmedCount}</span>
+                </div>
+                <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-2">
+                    <span className="text-red-500 font-medium">Unpaid: </span>
+                    <span className="font-black text-red-700">
+                        {bookings.filter((b: any) => b.paymentStatus !== "PAID").length}
+                    </span>
                 </div>
             </div>
 
@@ -159,7 +178,7 @@ export default function StaffBookings() {
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             transition={{ delay: i * 0.03 }}
-                                            className="hover:bg-gray-50 border-gray-100 transition-colors"
+                                            className={`hover:bg-gray-50 border-gray-100 transition-colors ${booking.paymentStatus !== "PAID" ? "border-l-4 border-l-red-400" : ""}`}
                                         >
                                             <TableCell className="font-mono text-[11px] text-gray-400 py-3">
                                                 {(page - 1) * limit + i + 1}
@@ -264,6 +283,20 @@ export default function StaffBookings() {
                                                             title="Confirm Payment"
                                                         >
                                                             <PiCheckCircle className="h-4 w-4" />
+                                                        </Button>
+                                                    )}
+                                                    {booking.paymentStatus !== "PAID" && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="h-8 w-8 p-0 text-gray-500 hover:text-violet-600 hover:bg-violet-50 rounded-lg"
+                                                            onClick={() => {
+                                                                setInvoiceBooking(booking);
+                                                                setShowInvoiceModal(true);
+                                                            }}
+                                                            title="Generate Invoice"
+                                                        >
+                                                            <PiReceipt className="h-4 w-4" />
                                                         </Button>
                                                     )}
                                                 </div>
@@ -414,6 +447,20 @@ export default function StaffBookings() {
                                         <PiEnvelopeSimple className="h-4 w-4" /> Send Itinerary
                                     </Button>
                                 )}
+                                {selected.paymentStatus !== "PAID" && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="rounded-xl gap-1.5 text-violet-600 border-violet-200 hover:bg-violet-50"
+                                        onClick={() => {
+                                            setShowDetail(false);
+                                            setInvoiceBooking(selected);
+                                            setShowInvoiceModal(true);
+                                        }}
+                                    >
+                                        <PiReceipt className="h-4 w-4" /> Generate Invoice
+                                    </Button>
+                                )}
                             </div>
                         </div>
                     )}
@@ -502,6 +549,24 @@ export default function StaffBookings() {
                     )}
                 </DialogContent>
             </Dialog>
+
+            {/* ─── INVOICE MODAL ─── */}
+            {showInvoiceModal && invoiceBooking && (
+                <InvoiceModal
+                    onClose={() => { setShowInvoiceModal(false); setInvoiceBooking(null); }}
+                    customerData={{
+                        name: invoiceBooking.user?.name || invoiceBooking.agentDetails || invoiceBooking.passengerName,
+                        email: invoiceBooking.email || invoiceBooking.user?.email || '',
+                        phone: invoiceBooking.phone || invoiceBooking.user?.phone || '',
+                    }}
+                    initialItems={[{
+                        description: `${invoiceBooking.passengerName} - ${invoiceBooking.route?.origin || '?'} → ${invoiceBooking.route?.destination || '?'} (${invoiceBooking.pnr || 'No PNR'})`,
+                        quantity: 1,
+                        unitPrice: invoiceBooking.sellingPrice || 0,
+                        total: invoiceBooking.sellingPrice || 0,
+                    }]}
+                />
+            )}
         </div>
     );
 }
