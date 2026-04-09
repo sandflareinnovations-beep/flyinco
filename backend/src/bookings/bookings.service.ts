@@ -709,7 +709,7 @@ export class BookingsService {
       );
     }
 
-    await this.mailService.sendBookingConfirmation(booking.email, booking.id);
+    await this.mailService.sendBookingConfirmation(booking.email, booking);
 
     return booking;
   }

@@ -294,7 +294,7 @@ export default function StaffBookings() {
                                                                 setInvoiceBooking(booking);
                                                                 setShowInvoiceModal(true);
                                                             }}
-                                                            title="Generate Invoice"
+                                                            title="Generate Receipt"
                                                         >
                                                             <PiReceipt className="h-4 w-4" />
                                                         </Button>
@@ -458,7 +458,7 @@ export default function StaffBookings() {
                                             setShowInvoiceModal(true);
                                         }}
                                     >
-                                        <PiReceipt className="h-4 w-4" /> Generate Invoice
+                                        <PiReceipt className="h-4 w-4" /> Generate Receipt
                                     </Button>
                                 )}
                             </div>

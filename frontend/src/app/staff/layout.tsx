@@ -35,7 +35,7 @@ const navigation = [
         group: "Management",
         links: [
             { href: "/staff/agents", label: "Agents", icon: PiUserCircle, exact: false },
-            { href: "/staff/invoices", label: "Invoices", icon: PiReceipt, exact: false },
+            { href: "/staff/invoices", label: "Receipts", icon: PiReceipt, exact: false },
         ],
     },
     {

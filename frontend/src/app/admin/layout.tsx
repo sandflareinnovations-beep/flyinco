@@ -43,7 +43,7 @@ const navigation = [
         links: [
             { href: "/admin/accounts", label: "Agent Accounting", icon: PiCurrencyDollar, exact: false },
             { href: "/admin/suppliers", label: "Supplier Records", icon: PiTruck, exact: false },
-            { href: "/admin/invoices", label: "Invoices", icon: PiReceipt, exact: false },
+            { href: "/admin/invoices", label: "Receipts", icon: PiReceipt, exact: false },
         ]
     },
     {
