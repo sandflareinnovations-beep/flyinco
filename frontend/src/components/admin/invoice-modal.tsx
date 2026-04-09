@@ -91,7 +91,7 @@ export function InvoiceModal({ onClose, customerData, bookingData, initialItems 
                 notes,
             });
             setSaved(true);
-            toast({ title: "Invoice Saved", description: `Invoice ${invoiceData.invoiceNumber} saved successfully.` });
+            toast({ title: "Receipt Saved", description: `Receipt ${invoiceData.invoiceNumber} saved successfully.` });
         } catch (err: any) {
             toast({ title: "Error", description: err.message || "Failed to save invoice", variant: "destructive" });
         } finally {
@@ -106,7 +106,7 @@ export function InvoiceModal({ onClose, customerData, bookingData, initialItems 
         const printWindow = window.open('', '', 'width=800,height=900');
         if (!printWindow) return;
 
-        printWindow.document.write('<html><head><title>Invoice - ' + invoiceData.invoiceNumber + '</title>');
+        printWindow.document.write('<html><head><title>Receipt - ' + invoiceData.invoiceNumber + '</title>');
         printWindow.document.write('<script src="https://cdn.tailwindcss.com"></script>');
         printWindow.document.write('<style>');
         printWindow.document.write(`
@@ -131,10 +131,10 @@ export function InvoiceModal({ onClose, customerData, bookingData, initialItems 
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <PiReceipt className="h-5 w-5 text-violet-600" />
-                        Create Invoice
+                        Create Receipt
                     </DialogTitle>
                     <DialogDescription className="text-xs">
-                        Create a professional invoice for the customer.
+                        Create a professional receipt for the customer.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -231,7 +231,7 @@ export function InvoiceModal({ onClose, customerData, bookingData, initialItems 
                                         <p className="text-xs text-gray-500">Al Moosa Center Tower 3, Olaya St<br/>Riyadh 12212, Saudi Arabia</p>
                                     </div>
                                     <div className="text-right">
-                                        <h2 className="text-xl font-black text-gray-900">INVOICE</h2>
+                                        <h2 className="text-xl font-black text-gray-900">RECEIPT</h2>
                                         <p className="text-sm text-gray-500">#{invoiceData.invoiceNumber}</p>
                                         <p className="text-xs text-gray-400 mt-1">Date: {invoiceData.date}</p>
                                     </div>
@@ -302,7 +302,7 @@ export function InvoiceModal({ onClose, customerData, bookingData, initialItems 
                 <DialogFooter className="gap-2">
                     <Button variant="outline" onClick={onClose} className="rounded-xl">Cancel</Button>
                     <Button variant="outline" onClick={handleSave} disabled={saving || saved} className="rounded-xl gap-2">
-                        <PiFloppyDisk className="h-4 w-4" /> {saving ? 'Saving...' : saved ? 'Saved' : 'Save Invoice'}
+                        <PiFloppyDisk className="h-4 w-4" /> {saving ? 'Saving...' : saved ? 'Saved' : 'Save Receipt'}
                     </Button>
                     <Button variant="outline" onClick={handlePrint} className="rounded-xl gap-2">
                         <PiPrinter className="h-4 w-4" /> Print / PDF

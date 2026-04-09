@@ -40,15 +40,15 @@ export default function StaffInvoicesPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-black text-gray-900">Invoices</h1>
-                    <p className="text-gray-400 text-sm mt-0.5">Create invoices for customers.</p>
+                    <h1 className="text-2xl font-black text-gray-900">Receipts</h1>
+                    <p className="text-gray-400 text-sm mt-0.5">Create receipts for customers.</p>
                 </div>
                 <Button
                     className="rounded-xl gap-2 font-semibold text-white"
                     style={{ background: "linear-gradient(135deg, #2E0A57, #6C2BD9)" }}
                     onClick={() => setShowInvoiceModal(true)}
                 >
-                    <PiPlus className="h-4 w-4" /> Create Invoice
+                    <PiPlus className="h-4 w-4" /> Create Receipt
                 </Button>
             </div>
 
@@ -57,7 +57,7 @@ export default function StaffInvoicesPage() {
                 <div className="relative flex-1 max-w-md">
                     <PiMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
-                        placeholder="Search invoices..."
+                        placeholder="Search receipts..."
                         className="pl-9 rounded-xl border-gray-200"
                         value={search}
                         onChange={e => setSearch(e.target.value)}
@@ -73,14 +73,14 @@ export default function StaffInvoicesPage() {
                     <div className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg, #2E0A57, #6C2BD9)" }}>
                         <PiReceipt className="h-8 w-8 text-white" />
                     </div>
-                    <h2 className="text-lg font-bold text-gray-900">No Invoices Yet</h2>
-                    <p className="text-gray-400 text-sm mt-1 mb-4">Create your first invoice.</p>
+                    <h2 className="text-lg font-bold text-gray-900">No Receipts Yet</h2>
+                    <p className="text-gray-400 text-sm mt-1 mb-4">Create your first receipt.</p>
                     <Button
                         className="rounded-xl gap-2 font-semibold text-white"
                         style={{ background: "linear-gradient(135deg, #2E0A57, #6C2BD9)" }}
                         onClick={() => setShowInvoiceModal(true)}
                     >
-                        <PiPlus className="h-4 w-4" /> Create Invoice
+                        <PiPlus className="h-4 w-4" /> Create Receipt
                     </Button>
                 </div>
             ) : (
@@ -88,7 +88,7 @@ export default function StaffInvoicesPage() {
                     <table className="w-full">
                         <thead className="bg-gray-50 border-b border-gray-100">
                             <tr>
-                                <th className="text-left px-4 py-3 text-xs font-black text-gray-500 uppercase">Invoice #</th>
+                                <th className="text-left px-4 py-3 text-xs font-black text-gray-500 uppercase">Receipt #</th>
                                 <th className="text-left px-4 py-3 text-xs font-black text-gray-500 uppercase">Customer</th>
                                 <th className="text-right px-4 py-3 text-xs font-black text-gray-500 uppercase">Amount</th>
                                 <th className="text-left px-4 py-3 text-xs font-black text-gray-500 uppercase">Date</th>
@@ -134,7 +134,7 @@ export default function StaffInvoicesPage() {
             <Dialog open={!!selectedInvoice} onOpenChange={() => setSelectedInvoice(null)}>
                 <DialogContent className="max-w-2xl rounded-2xl">
                     <DialogHeader>
-                        <DialogTitle>Invoice {selectedInvoice?.invoiceNumber}</DialogTitle>
+                        <DialogTitle>Receipt {selectedInvoice?.invoiceNumber}</DialogTitle>
                     </DialogHeader>
                     {selectedInvoice && (
                         <div className="space-y-4">

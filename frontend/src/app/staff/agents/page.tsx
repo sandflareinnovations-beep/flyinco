@@ -264,7 +264,7 @@ export default function StaffAgentsPage() {
                                         onClick={handleIssueInvoice}
                                         className="rounded-xl gap-2 font-semibold text-white bg-violet-600 hover:bg-violet-700"
                                     >
-                                        <PiReceipt className="h-4 w-4" /> Issue Invoice
+                                        <PiReceipt className="h-4 w-4" /> Issue Receipt
                                     </Button>
                                 </div>
                             )}

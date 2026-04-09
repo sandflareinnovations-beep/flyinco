@@ -4,6 +4,7 @@ import {
   IsBoolean,
   IsOptional,
   IsIn,
+  IsArray,
 } from "class-validator";
 
 export class CreateAnnouncementDto {
@@ -23,4 +24,12 @@ export class CreateAnnouncementDto {
   @IsBoolean()
   @IsOptional()
   active?: boolean;
+
+  @IsArray()
+  @IsOptional()
+  targetRoles?: string[];
+
+  @IsBoolean()
+  @IsOptional()
+  sendEmail?: boolean;
 }

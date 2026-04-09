@@ -1,6 +1,6 @@
 "use client";
 import { PiAirplaneTilt, PiUsers, PiPulse, PiCalendarBlank, PiCaretLeft, PiCaretRight, PiMegaphone, PiMoney, PiUserCircle, PiBookOpen, PiClock, PiReceipt } from "react-icons/pi";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { flyApi, fetchWithCreds } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
@@ -17,6 +17,20 @@ export default function StaffDashboard() {
     const [bookingPage, setBookingPage] = useState(1);
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
     const [invoiceBooking, setInvoiceBooking] = useState<any>(null);
+    const queryClient = useQueryClient();
+
+    const updateTaskStatus = async (taskId: string, status: string) => {
+        try {
+            await fetchWithCreds(`/tasks/${taskId}/status`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status }),
+            });
+            queryClient.invalidateQueries({ queryKey: ["staff-tasks"] });
+        } catch (err) {
+            console.error("Failed to update task status:", err);
+        }
+    };
 
     const monthStart = startOfMonth(currentMonth);
     const monthEnd = endOfMonth(currentMonth);
@@ -77,7 +91,8 @@ export default function StaffDashboard() {
     });
 
     const totalBookings = metricsData?.totalBookings ?? 0;
-    const statusCounts = metricsData?.statusCounts ?? {};
+    const confirmedCount = metricsData?.confirmedCount ?? 0;
+    const heldCount = metricsData?.heldCount ?? 0;
     const sectorList = Array.isArray(sectors) ? sectors : (sectors?.routes || []);
     const seatsSold = sectorList.reduce((sum: number, s: any) => sum + ((s.totalSeats || 0) - (s.remainingSeats || 0)), 0);
     const remainingSeats = sectorList.reduce((sum: number, s: any) => sum + (s.remainingSeats || 0), 0);
@@ -88,8 +103,8 @@ export default function StaffDashboard() {
 
     const statCards = [
         { label: "Total Bookings", value: totalBookings.toString(), icon: PiBookOpen, color: "text-violet-600", bg: "bg-violet-50", sub: "All bookings" },
-        { label: "Confirmed", value: (statusCounts.CONFIRMED ?? 0).toString(), icon: PiPulse, color: "text-emerald-600", bg: "bg-emerald-50", sub: "Confirmed bookings" },
-        { label: "Held", value: (statusCounts.HELD ?? 0).toString(), icon: PiCalendarBlank, color: "text-amber-600", bg: "bg-amber-50", sub: "Held bookings" },
+        { label: "Confirmed", value: confirmedCount.toString(), icon: PiPulse, color: "text-emerald-600", bg: "bg-emerald-50", sub: "Confirmed bookings" },
+        { label: "Held", value: heldCount.toString(), icon: PiCalendarBlank, color: "text-amber-600", bg: "bg-amber-50", sub: "Held bookings" },
         { label: "Active Agents", value: totalAgents.toString(), icon: PiUsers, color: "text-blue-600", bg: "bg-blue-50", sub: "Registered agents" },
         { label: "Seats Sold", value: seatsSold.toString(), icon: PiAirplaneTilt, color: "text-indigo-600", bg: "bg-indigo-50", sub: "Across all sectors" },
     ];
@@ -180,17 +195,28 @@ export default function StaffDashboard() {
                             )}
                         </CardHeader>
                         <CardContent className="space-y-3">
-                            {pendingTasks.length === 0 && inProgressTasks.length === 0 ? (
-                                <p className="text-sm text-gray-400 text-center py-4">No pending tasks</p>
+                            {pendingTasks.length === 0 && inProgressTasks.length === 0 && completedTasks.length === 0 ? (
+                                <p className="text-sm text-gray-400 text-center py-4">No tasks assigned</p>
                             ) : (
                                 <>
                                     {pendingTasks.length > 0 && (
                                         <div>
                                             <p className="text-xs font-bold text-amber-600 mb-2">PENDING ({pendingTasks.length})</p>
-                                            {pendingTasks.slice(0, 3).map((task: any) => (
+                                            {pendingTasks.slice(0, 5).map((task: any) => (
                                                 <div key={task.id} className="flex items-center justify-between p-2 bg-amber-50 rounded-lg mb-1">
-                                                    <span className="text-sm font-medium">{task.title}</span>
-                                                    <Badge variant="outline" className="text-amber-600 border-amber-200">Pending</Badge>
+                                                    <div className="flex-1 min-w-0 mr-2">
+                                                        <span className="text-sm font-medium">{task.title}</span>
+                                                        {task.dueDate && <p className="text-[10px] text-gray-400">Due: {new Date(task.dueDate).toLocaleDateString()}</p>}
+                                                    </div>
+                                                    <select
+                                                        value={task.status}
+                                                        onChange={(e) => updateTaskStatus(task.id, e.target.value)}
+                                                        className="text-xs font-bold rounded-lg border border-amber-200 bg-white text-amber-600 px-2 py-1 cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-300"
+                                                    >
+                                                        <option value="PENDING">Pending</option>
+                                                        <option value="IN_PROGRESS">In Progress</option>
+                                                        <option value="COMPLETED">Completed</option>
+                                                    </select>
                                                 </div>
                                             ))}
                                         </div>
@@ -198,10 +224,42 @@ export default function StaffDashboard() {
                                     {inProgressTasks.length > 0 && (
                                         <div>
                                             <p className="text-xs font-bold text-blue-600 mb-2">IN PROGRESS ({inProgressTasks.length})</p>
-                                            {inProgressTasks.slice(0, 3).map((task: any) => (
+                                            {inProgressTasks.slice(0, 5).map((task: any) => (
                                                 <div key={task.id} className="flex items-center justify-between p-2 bg-blue-50 rounded-lg mb-1">
-                                                    <span className="text-sm font-medium">{task.title}</span>
-                                                    <Badge variant="outline" className="text-blue-600 border-blue-200">In Progress</Badge>
+                                                    <div className="flex-1 min-w-0 mr-2">
+                                                        <span className="text-sm font-medium">{task.title}</span>
+                                                        {task.dueDate && <p className="text-[10px] text-gray-400">Due: {new Date(task.dueDate).toLocaleDateString()}</p>}
+                                                    </div>
+                                                    <select
+                                                        value={task.status}
+                                                        onChange={(e) => updateTaskStatus(task.id, e.target.value)}
+                                                        className="text-xs font-bold rounded-lg border border-blue-200 bg-white text-blue-600 px-2 py-1 cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-300"
+                                                    >
+                                                        <option value="PENDING">Pending</option>
+                                                        <option value="IN_PROGRESS">In Progress</option>
+                                                        <option value="COMPLETED">Completed</option>
+                                                    </select>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                    {completedTasks.length > 0 && (
+                                        <div>
+                                            <p className="text-xs font-bold text-emerald-600 mb-2">COMPLETED ({completedTasks.length})</p>
+                                            {completedTasks.slice(0, 3).map((task: any) => (
+                                                <div key={task.id} className="flex items-center justify-between p-2 bg-emerald-50 rounded-lg mb-1 opacity-75">
+                                                    <div className="flex-1 min-w-0 mr-2">
+                                                        <span className="text-sm font-medium line-through text-gray-500">{task.title}</span>
+                                                    </div>
+                                                    <select
+                                                        value={task.status}
+                                                        onChange={(e) => updateTaskStatus(task.id, e.target.value)}
+                                                        className="text-xs font-bold rounded-lg border border-emerald-200 bg-white text-emerald-600 px-2 py-1 cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-300"
+                                                    >
+                                                        <option value="PENDING">Pending</option>
+                                                        <option value="IN_PROGRESS">In Progress</option>
+                                                        <option value="COMPLETED">Completed</option>
+                                                    </select>
                                                 </div>
                                             ))}
                                         </div>
@@ -280,7 +338,7 @@ export default function StaffDashboard() {
                                                     <button
                                                         onClick={() => { setInvoiceBooking(booking); setShowInvoiceModal(true); }}
                                                         className="p-1.5 rounded-lg hover:bg-violet-100 text-violet-600 transition-colors"
-                                                        title="Generate Invoice"
+                                                        title="Generate Receipt"
                                                     >
                                                         <PiReceipt className="h-4 w-4" />
                                                     </button>
