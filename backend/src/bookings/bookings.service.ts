@@ -304,8 +304,15 @@ export class BookingsService {
             orderBy: { createdAt: "desc" },
           });
 
-          // Secondary Fallback: Just Sector (Origin + Destination) without Date/Airline constraint
-          if (!matchedRoute && (originPart || destPart)) {
+          // Secondary Fallback: Sector + Travel Date, drop airline constraint only.
+          // CRITICAL: must keep the date filter — otherwise bookings get silently
+          // attached to a future/past flight in the same sector, causing the
+          // route reports page to show the wrong departure date.
+          if (!matchedRoute && travelDate && (originPart || destPart)) {
+            const fbStart = new Date(travelDate);
+            fbStart.setHours(0, 0, 0, 0);
+            const fbEnd = new Date(travelDate);
+            fbEnd.setHours(23, 59, 59, 999);
             matchedRoute = await this.prisma.route.findFirst({
               where: {
                 AND: [
@@ -320,9 +327,10 @@ export class BookingsService {
                         },
                       }
                     : {},
+                  { departureDate: { gte: fbStart, lte: fbEnd } },
                 ],
               },
-              orderBy: { departureDate: "desc" },
+              orderBy: { createdAt: "desc" },
             });
           }
 
@@ -988,11 +996,17 @@ export class BookingsService {
     });
 
     const totalRevenue = bookings.reduce(
-      (s, b) => s + (b.sellingPrice || 0),
+      (s, b) => s + (b.sellingPrice ?? route.price ?? 0),
       0,
     );
     const totalCost = bookings.reduce((s, b) => s + (b.purchasePrice || 0), 0);
-    const totalProfit = bookings.reduce((s, b) => s + (b.profit || 0), 0);
+    const totalProfit = bookings.reduce((s, b) => {
+      const p =
+        b.profit !== null && b.profit !== undefined
+          ? b.profit
+          : (b.sellingPrice ?? route.price ?? 0) - (b.purchasePrice ?? 0);
+      return s + p;
+    }, 0);
 
     return {
       route: {
@@ -1009,7 +1023,14 @@ export class BookingsService {
         remainingSeats: route.remainingSeats,
         supplier: route.supplier,
       },
-      passengers: bookings.map((b, i) => ({
+      passengers: bookings.map((b, i) => {
+        const sellingPrice = b.sellingPrice ?? route.price ?? 0;
+        const purchasePrice = b.purchasePrice ?? 0;
+        const profit =
+          b.profit !== null && b.profit !== undefined
+            ? b.profit
+            : sellingPrice - purchasePrice;
+        return ({
         slNo: i + 1,
         id: b.id,
         passengerName: b.passengerName,
@@ -1018,16 +1039,17 @@ export class BookingsService {
         ticketNumber: b.ticketNumber || "",
         status: b.status,
         paymentStatus: b.paymentStatus,
-        sellingPrice: b.sellingPrice || 0,
-        purchasePrice: b.purchasePrice || 0,
-        profit: b.profit || 0,
+        sellingPrice,
+        purchasePrice,
+        profit,
         agentDetails: b.agentDetails || "",
         phone: b.phone,
         email: b.email,
         gender: b.gender || "",
         nationality: b.nationality || "",
         createdAt: b.createdAt,
-      })),
+        });
+      }),
       summary: {
         totalPassengers: bookings.length,
         confirmedCount: bookings.filter((b) => b.status === "CONFIRMED").length,
@@ -1060,14 +1082,20 @@ export class BookingsService {
 
     return routes.map((r) => {
       const totalRevenue = r.bookings.reduce(
-        (s, b) => s + (b.sellingPrice || 0),
+        (s, b) => s + (b.sellingPrice ?? r.price ?? 0),
         0,
       );
       const totalCost = r.bookings.reduce(
         (s, b) => s + (b.purchasePrice || 0),
         0,
       );
-      const totalProfit = r.bookings.reduce((s, b) => s + (b.profit || 0), 0);
+      const totalProfit = r.bookings.reduce((s, b) => {
+        const p =
+          b.profit !== null && b.profit !== undefined
+            ? b.profit
+            : (b.sellingPrice ?? r.price ?? 0) - (b.purchasePrice ?? 0);
+        return s + p;
+      }, 0);
       const confirmedCount = r.bookings.filter(
         (b) => b.status === "CONFIRMED",
       ).length;
@@ -1088,7 +1116,7 @@ export class BookingsService {
         supplier: r.supplier || "",
         totalSeats: r.totalSeats,
         remainingSeats: r.remainingSeats,
-        soldSeats: r.totalSeats - r.remainingSeats,
+        soldSeats: r.bookings.length,
         totalBookings: r.bookings.length,
         confirmedBookings: confirmedCount,
         heldBookings: heldCount,
